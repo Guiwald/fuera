@@ -1,0 +1,48 @@
+[package]
+name = "fuera"
+description = "¡Fuera! — le jeu : fenêtre (Mac, Windows, Linux), activité Android, page web"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "fuera"
+crate-type = ["cdylib", "rlib"]
+path = "src/lib.rs"
+
+[[bin]]
+name = "fuera"
+path = "src/main.rs"
+
+[dependencies]
+fuera-core.workspace = true
+fuera-ui.workspace = true
+log.workspace = true
+winit = { version = "0.30", default-features = false, features = ["rwh_06"] }
+softbuffer = { version = "0.4", default-features = false }
+tiny-skia = { version = "0.11", default-features = false, features = ["std", "simd"] }
+web-time = "1"
+
+[target.'cfg(not(any(target_os = "android", target_arch = "wasm32")))'.dependencies]
+winit = { version = "0.30", default-features = true, features = ["rwh_06"] }
+softbuffer = { version = "0.4", default-features = true }
+cpal = "0.18"
+env_logger = "0.11"
+directories = "6"
+sys-locale = "0.3"
+
+[target.'cfg(target_os = "android")'.dependencies]
+winit = { version = "0.30", default-features = false, features = ["rwh_06", "android-native-activity"] }
+cpal = "0.18"
+android_logger = "0.15"
+jni = "0.21"
+sys-locale = "0.3"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+cpal = { version = "0.18", features = ["wasm-bindgen"] }
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "Storage", "Navigator", "SpeechSynthesis", "SpeechSynthesisUtterance", "CssStyleDeclaration", "Location"] }
+console_log = "1"
+console_error_panic_hook = "0.1"

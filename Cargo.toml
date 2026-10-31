@@ -1,0 +1,37 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/core",
+    "crates/learn",
+    "crates/ui",
+    "app",
+    "tools/cli",
+    "xtask",
+]
+default-members = ["app"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/Guiwald/fuera"
+authors = ["Guiwald"]
+rust-version = "1.89"
+
+[workspace.dependencies]
+fuera-core = { path = "crates/core" }
+fuera-learn = { path = "crates/learn" }
+fuera-ui = { path = "crates/ui" }
+log = "0.4"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+lto = "thin"
+codegen-units = 4
+strip = "symbols"
+panic = "abort"

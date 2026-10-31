@@ -1,0 +1,65 @@
+fuera 1
+name uno
+intro t1
+optimal 2
+map
+  A...
+  ....
+  ..B.
+blocks
+  A red
+  B blue
+doors
+  E 3 0 1 red
+  W 0 2 1 blue
+end
+fuera 1
+name U de prueba
+map
+  ABCD~~~E
+  FGHI~~~J
+  K~~~~~~L
+  M~~~~~~N
+  OPQRSTUV
+  WXYZabcd
+blocks
+  A pink
+  B blue
+  C pink
+  D yellow
+  F blue
+  G pink
+  H blue
+  I yellow
+  K pink
+  M blue
+  O pink
+  P blue
+  Q pink
+  R blue
+  S pink
+  T blue
+  U pink
+  V blue
+  W blue
+  X pink
+  Y blue
+  Z pink
+  a blue
+  b pink
+  c blue
+  d pink
+  E green ice=2
+  J red lane=v
+  L purple shell=orange
+  N cyan key=1
+doors
+  W 0 4 1 pink
+  E 7 4 1 blue
+  E 3 0 2 yellow
+  N 7 0 1 green
+  S 0 5 2 orange
+  N 1 0 1 red
+  N 2 0 1 purple
+  S 6 5 2 cyan shutter=closed
+end
