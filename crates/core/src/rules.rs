@@ -129,7 +129,7 @@ pub fn stuck(level: &Level, st: &State, b: usize, dir: Option<Dir>) -> Option<St
     None
 }
 
-fn fits(level: &Level, occ: &[u8], b: usize, at: Pos) -> bool {
+pub(crate) fn fits(level: &Level, occ: &[u8], b: usize, at: Pos) -> bool {
     level.blocks[b].shape.cells.iter().all(|c| {
         let q = at.add(*c);
         level.is_floor(q) && {
@@ -141,7 +141,7 @@ fn fits(level: &Level, occ: &[u8], b: usize, at: Pos) -> bool {
 
 /// Doors reached by each line of the block when pushed further in `d` from `at`, or `None` if some line ends at a
 /// plain wall or another block.
-fn doors_ahead(level: &Level, occ: &[u8], b: usize, at: Pos, d: Dir) -> Option<Vec<usize>> {
+pub(crate) fn doors_ahead(level: &Level, occ: &[u8], b: usize, at: Pos, d: Dir) -> Option<Vec<usize>> {
     let shape = &level.blocks[b].shape;
     let mut out = Vec::new();
     // Lines: rows for horizontal moves, columns for vertical moves.

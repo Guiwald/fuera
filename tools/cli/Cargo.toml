@@ -1,6 +1,10 @@
 [package]
 name = "fuera-cli"
+description = "¡Fuera! — outils de niveaux : solveur, générateur, construction de la campagne"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
+
+[dependencies]
+fuera-core.workspace = true

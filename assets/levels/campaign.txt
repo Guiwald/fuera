@@ -1,65 +1,2965 @@
 fuera 1
-name uno
-intro t1
+name 1
 optimal 2
+intro t1
 map
-  A...
-  ....
-  ..B.
+  .....
+  A....
+  .....
+  ...B.
+  .....
 blocks
   A red
   B blue
 doors
-  E 3 0 1 red
-  W 0 2 1 blue
+  E 4 1 1 red
+  S 3 4 1 blue
 end
 fuera 1
-name U de prueba
+name 2
+optimal 4
+intro t2
 map
-  ABCD~~~E
-  FGHI~~~J
-  K~~~~~~L
-  M~~~~~~N
-  OPQRSTUV
-  WXYZabcd
+  A....
+  .....
+  ..B..
+  .....
+  ....C
 blocks
-  A pink
+  A red
   B blue
-  C pink
-  D yellow
+  C yellow
+doors
+  E 4 0 1 blue
+  S 0 4 1 red
+  W 0 4 1 yellow
+end
+fuera 1
+name 3
+optimal 3
+intro t3
+map
+  A..B
+  ....
+  C...
+  ....
+blocks
+  A blue
+  B red
+  C yellow
+doors
+  E 3 0 1 blue
+  N 3 0 1 red
+  E 3 2 1 yellow
+end
+fuera 1
+name 4
+optimal 11
+score 1.9
+map
+  .C..
+  ...A
+  FD..
+  E..B
+  ....
+blocks
+  A red
+  B red
+  C blue
+  D blue
+  E red
   F blue
-  G pink
+doors
+  E 3 1 1 red
+  N 0 0 1 blue
+end
+fuera 1
+name 5
+optimal 7
+score 1.6
+map
+  ..D.
+  ....
+  C...
+  ..AB
+  ....
+blocks
+  A red
+  B red
+  C red
+  D blue
+doors
+  W 0 3 2 red
+  E 3 3 1 blue
+end
+fuera 1
+name 6
+optimal 11
+score 2.1
+map
+  ...
+  .D.
+  .BBE
+  ~F.C
+  ~A..
+blocks
+  A blue
+  B blue
+  C blue
+  D red
+  E red
+  F blue
+doors
+  S 0 2 1 red
+  W 1 3 1 blue
+end
+fuera 1
+name 7
+optimal 14
+score 2.3
+map
+  C..
+  CE..
+  ~E.B
+  AFFD
+  A...
+blocks
+  A blue
+  B red
+  C blue
+  D blue
+  E blue
+  F red
+doors
+  E 3 2 1 red
+  N 0 3 1 blue
+end
+fuera 1
+name 8
+optimal 16
+intro wall
+score 1.9
+map
+  .....
+  E.FA.
+  ...A.
+  ..#..
+  D.#B.
+  .C...
+blocks
+  A yellow
+  B blue
+  C yellow
+  D yellow
+  E yellow
+  F blue
+doors
+  E 1 4 1 blue
+  S 4 5 1 yellow
+end
+fuera 1
+name 9
+optimal 12
+score 2.2
+map
+  E~~C
+  ..DC
+  ...F
+  B.#.
+  .~~A
+blocks
+  A red
+  B blue
+  C red
+  D red
+  E red
+  F blue
+doors
+  N 3 0 1 red
+  W 0 0 2 blue
+end
+fuera 1
+name 10
+optimal 16
+score 4.9
+map
+  ..GA
+  ....
+  .D..
+  FFEC
+  BB.C
+blocks
+  A red
+  B red
+  C yellow
+  D red
+  E red
+  F blue
+  G yellow
+doors
+  E 3 4 1 red
+  E 3 2 1 blue
+  S 0 4 1 yellow
+end
+fuera 1
+name 11
+optimal 9
+intro big
+score 1.7
+map
+  ...A.
+  D....
+  D.BB.
+  .....
+  .EEF.
+  .EE.C
+blocks
+  A yellow
+  B blue
+  C red
+  D yellow
+  E blue
+  F red
+doors
+  W 0 4 2 red
+  E 4 1 2 blue
+  N 0 0 3 yellow
+end
+fuera 1
+name 12
+optimal 13
+score 2.2
+map
+  G.DD
+  BBAA
+  BBEE
+  ....
+  CCC.
+  F...
+blocks
+  A red
+  B blue
+  C red
+  D red
+  E red
+  F blue
+  G blue
+doors
+  E 3 4 1 red
+  W 0 3 3 blue
+end
+fuera 1
+name 13
+optimal 15
+score 2.6
+map
+  ~~~F
+  .B#F
+  DE..
+  ~AC.
+  ..C.
+blocks
+  A red
+  B red
+  C red
+  D red
+  E blue
+  F red
+doors
+  S 2 4 1 red
+  E 3 0 1 blue
+end
+fuera 1
+name 14
+optimal 15
+score 2.6
+map
+  ..E.
+  ..EG
+  F#C.
+  ..C.
+  D.AB
+blocks
+  A blue
+  B blue
+  C red
+  D blue
+  E blue
+  F red
+  G blue
+doors
+  S 1 1 1 red
+  N 3 0 1 blue
+end
+fuera 1
+name 15
+optimal 31
+score 5.3
+map
+  ~J.
+  E#.I
+  ADGH
+  BB.F
+  ~C.
+blocks
+  A red
+  B red
+  C red
+  D blue
+  E yellow
+  F blue
+  G yellow
+  H red
+  I yellow
+  J yellow
+doors
+  E 2 4 1 red
+  E 2 0 1 blue
+  E 0 1 1 yellow
+end
+fuera 1
+name 16
+optimal 11
+intro ice
+score 1.6
+map
+  .....
+  .....
+  BFAAA
+  EF..D
+  CF..D
+  ....D
+blocks
+  A yellow
+  B red ice=3
+  C yellow
+  D red
+  E red
+  F red
+doors
+  N 4 0 1 red
+  W 0 0 1 yellow
+end
+fuera 1
+name 17
+optimal 14
+score 2.8
+map
+  ~..
+  ~.F
+  ABBB.
+  AGE.
+  .DDC.
+  .DDCH
+blocks
+  A blue
+  B red
+  C red ice=2
+  D red
+  E red
+  F red
+  G red
+  H blue
+doors
+  S 2 5 3 red
+  N 0 2 1 blue
+end
+fuera 1
+name 18
+optimal 12
+score 3.0
+map
+  .....
+  .AE..
+  B...C
+  ...#C
+  ..DDC
+  ..FF.
+blocks
+  A blue
+  B red
+  C blue
+  D red
+  E blue
+  F red
+doors
+  W 0 4 1 red
+  S 3 5 2 blue
+end
+fuera 1
+name 19
+optimal 18
+score 3.0
+map
+  ~...
+  CAAAG
+  ..#F.
+  E.DDD
+  ~..B
+blocks
+  A red
+  B blue
+  C blue
+  D blue
+  E red
+  F red
+  G blue
+doors
+  E 3 0 1 red
+  E 3 4 1 blue
+end
+fuera 1
+name 20
+optimal 18
+score 5.5
+map
+  .DDD.
+  ..F.B
+  E.III
+  EA..H
+  GCC.H
+blocks
+  A yellow
+  B yellow
+  C yellow
+  D yellow
+  E blue
+  F yellow
+  G blue ice=2
+  H yellow
+  I yellow
+doors
+  S 4 4 1 blue
+  W 0 3 2 yellow
+end
+fuera 1
+name 21
+optimal 12
+score 2.0
+map
+  .FBG.
+  .#.A.
+  ...A.
+  .CEAD
+  .CE.D
+  .C..D
+blocks
+  A blue
+  B red
+  C red
+  D red
+  E blue
+  F blue
+  G blue
+doors
+  N 2 0 1 red
+  N 3 0 1 blue
+end
+fuera 1
+name 22
+optimal 13
+score 2.2
+map
+  ~.C.
+  ..#B
+  ..#B
+  EF.B
+  EG.A
+  DH..
+blocks
+  A blue
+  B red
+  C red
+  D blue
+  E red
+  F blue
+  G blue
+  H blue
+doors
+  N 3 0 1 red
+  N 1 0 1 blue
+end
+fuera 1
+name 23
+optimal 20
+score 3.5
+map
+  ~~FE
+  ~~G.
+  CHBA
+  CD
+  ..
+blocks
+  A red
+  B red
+  C red
+  D blue ice=2
+  E red
+  F blue
+  G red
+  H blue
+doors
+  S 0 4 1 red
+  W 0 4 1 blue
+end
+fuera 1
+name 24
+optimal 19
+score 3.1
+map
+  .G..F
+  B.E#.
+  .D~#.
+  .CH..
+  AAA..
+blocks
+  A blue
+  B blue
+  C red
+  D red
+  E blue
+  F red
+  G blue
+  H red
+doors
+  N 3 3 1 red
+  W 0 3 2 blue
+end
+fuera 1
+name 25
+optimal 15
+score 5.9
+map
+  HGGG
+  CDDD
+  C.FF
+  .EEE
+  .ABB
+  .ABB
+blocks
+  A yellow
+  B blue
+  C red ice=2
+  D yellow
+  E blue
+  F yellow
+  G yellow
+  H red
+doors
+  S 0 5 2 red
+  W 0 2 3 blue
+  W 0 0 2 yellow
+end
+fuera 1
+name 26
+optimal 10
+intro lane
+score 2.1
+map
+  .DD..
+  .DD..
+  B.AA.
+  BFCCC
+  EEE..
+  .....
+blocks
+  A blue
+  B yellow
+  C yellow
+  D blue
+  E blue lane=h
+  F red
+doors
+  W 0 0 1 red
+  W 0 4 2 blue
+  W 0 2 2 yellow
+end
+fuera 1
+name 27
+optimal 20
+score 6.5
+map
+  ~AA
+  IIHF
+  BBHE
+  DCHG
+  .C.J
+  ~C.
+blocks
+  A red
+  B red
+  C red lane=v
+  D blue
+  E red
+  F red
+  G blue
+  H blue
+  I red
+  J blue
+doors
+  S 1 5 2 red
+  N 3 1 1 blue
+end
+fuera 1
+name 28
+optimal 11
+score 2.7
+map
+  .D.
+  F.A
+  .G..
+  .#..
+  ~.B.
+  ~EBC
+blocks
+  A red lane=v
+  B red
+  C red
+  D blue
+  E red
+  F red
+  G blue ice=1
+doors
+  S 2 5 1 red
+  S 1 2 1 blue
+end
+fuera 1
+name 29
+optimal 18
+score 4.6
+map
+  B.FI
+  B.FI
+  .E..
+  ..AC
+  .H..
+  GGDD
+blocks
+  A red
+  B red
+  C blue
+  D blue ice=1
+  E blue
+  F red
+  G red lane=h
+  H blue
+  I red
+doors
+  E 3 4 2 red
+  E 3 3 1 blue
+end
+fuera 1
+name 30
+optimal 32
+score 10.1
+map
+  A~~~B
+  AJ..B
+  L.#D.
+  LFKDC
+  IE.HG
+  I~~~.
+blocks
+  A blue
+  B blue
+  C green
+  D blue
+  E green
+  F green
+  G yellow
+  H green lane=h
+  I blue
+  J blue
+  K red
+  L blue
+doors
+  E 0 0 1 red
+  S 4 5 1 blue
+  W 0 5 1 yellow
+  E 4 4 1 green
+end
+fuera 1
+name 31
+optimal 19
+score 4.1
+map
+  ..
+  EE
+  EBBDD
+  CC.DD
+  ICAHF
+  GGAH.
+blocks
+  A red
+  B yellow
+  C red
+  D red
+  E red
+  F red
+  G yellow
+  H blue
+  I red
+doors
+  N 3 2 2 red
+  N 2 2 1 blue
+  E 4 3 1 yellow
+end
+fuera 1
+name 32
+optimal 25
+score 4.7
+map
+  F~~~.
+  DDA.G
+  IDAAC
+  B.##C
+  BBKKJ
+  E~~~H
+blocks
+  A blue
+  B blue
+  C yellow
+  D blue
+  E yellow ice=1
+  F blue
+  G blue
+  H yellow
+  I blue
+  J yellow
+  K blue
+doors
+  S 2 2 2 blue
+  E 4 4 2 yellow
+end
+fuera 1
+name 33
+optimal 18
+score 3.8
+map
+  ~~FI
+  D#AI
+  DHCC
+  DGC.
+  .BB.
+  E.
+blocks
+  A yellow
+  B yellow
+  C red
+  D red
+  E red
+  F yellow
+  G blue
+  H yellow
+  I red
+doors
+  S 0 5 2 red
+  W 2 0 2 blue
+  W 0 2 3 yellow
+end
+fuera 1
+name 34
+optimal 22
+score 6.0
+map
+  EE...
+  .DD.C
+  .DHCC
+  .BBGI
+  ~A.FI
+  ~JJF.
+blocks
+  A red
+  B red
+  C blue
+  D blue
+  E blue lane=h
+  F yellow
+  G yellow
+  H blue
+  I blue ice=1
+  J red
+doors
+  E 4 2 1 red
+  W 0 0 2 blue
+  N 2 0 1 yellow
+end
+fuera 1
+name 35
+optimal 26
+score 7.1
+map
+  .FAA.
+  D#.GG
+  DJB.K
+  DIB.K
+  ..H.C
+  .EH.C
+blocks
+  A green
+  B blue
+  C red
+  D blue
+  E red
+  F green
+  G green
+  H yellow
+  I green
+  J blue
+  K red
+doors
+  N 1 2 1 red
+  S 4 5 1 blue
+  N 3 0 1 yellow
+  W 0 3 1 green
+end
+fuera 1
+name 36
+optimal 11
+intro shell
+score 1.9
+map
+  .....
+  ...BB
+  ...BB
+  C.E..
+  .FEA.
+  DF.A.
+blocks
+  A yellow
+  B yellow
+  C yellow
+  D blue
+  E yellow
+  F yellow
+doors
+  E 4 0 1 blue
+  S 1 5 2 yellow
+end
+fuera 1
+name 37
+optimal 21
+score 4.4
+map
+  ~.H.
+  AD#BC
+  AD.BC
+  A.JBC
+  .IGE.
+  ~..F
+blocks
+  A red
+  B red
+  C red
+  D red
+  E red
+  F red
+  G blue shell=yellow
   H blue
   I yellow
-  K pink
-  M blue
-  O pink
-  P blue
-  Q pink
-  R blue
-  S pink
-  T blue
-  U pink
-  V blue
-  W blue
-  X pink
-  Y blue
-  Z pink
-  a blue
-  b pink
-  c blue
-  d pink
-  E green ice=2
-  J red lane=v
-  L purple shell=orange
-  N cyan key=1
+  J yellow
 doors
-  W 0 4 1 pink
-  E 7 4 1 blue
-  E 3 0 2 yellow
-  N 7 0 1 green
-  S 0 5 2 orange
+  N 3 0 1 red
+  E 3 0 1 blue
+  E 4 4 1 yellow
+end
+fuera 1
+name 38
+optimal 17
+score 4.8
+map
+  DDI
+  .EI
+  HHAAF
+  HBA.F
+  .BGCF
+  ~BGCC
+blocks
+  A yellow
+  B yellow
+  C yellow
+  D yellow
+  E red
+  F blue
+  G yellow
+  H yellow
+  I yellow
+doors
+  E 2 1 1 red
+  S 0 4 1 blue
+  N 1 0 2 yellow
+end
+fuera 1
+name 39
+optimal 21
+score 3.6
+map
+  ..G.
+  ~DGCC
+  ~DKEE
+  .FFAJ
+  .##.B
+  .IH..
+blocks
+  A yellow
+  B yellow
+  C yellow
+  D blue
+  E yellow
+  F yellow
+  G red
+  H blue
+  I red
+  J yellow lane=h
+  K red
+doors
+  S 2 3 1 red
+  S 1 3 1 blue
+  W 0 3 1 yellow
+end
+fuera 1
+name 40
+optimal 26
+score 7.2
+map
+  EE.J.
+  E.BBC
+  FFBKK
+  FHM.K
+  .HHII
+  AAGDD
+  AGGLL
+blocks
+  A yellow
+  B yellow ice=1
+  C blue
+  D blue
+  E yellow
+  F yellow
+  G yellow
+  H yellow
+  I blue
+  J green
+  K yellow
+  L yellow
+  M green
+doors
+  E 4 4 1 blue
+  S 0 6 2 yellow
+  S 4 6 1 green
+end
+fuera 1
+name 41
+optimal 18
+score 4.0
+map
+  HIJGG
+  HDJGB
+  HDJBB
+  .AC..
+  .ACE.
+  .A.EF
+blocks
+  A red
+  B red
+  C red
+  D red
+  E red
+  F red
+  G red
+  H red
+  I blue
+  J red
+doors
+  N 1 0 2 red
+  W 0 5 1 blue
+end
+fuera 1
+name 42
+optimal 15
+score 4.2
+map
+  ...C.
+  .EE#.
+  A..#.
+  BB.DD
+  GB.DD
+  G.F.H
+blocks
+  A yellow
+  B yellow
+  C red
+  D yellow
+  E yellow lane=v
+  F yellow
+  G red
+  H blue ice=1
+doors
+  N 2 0 1 red
+  E 4 5 1 blue
+  S 1 5 3 yellow
+end
+fuera 1
+name 43
+optimal 17
+score 5.7
+map
+  .~~~C
+  F~~~C
+  FFADB
+  .AADB
+  .~~~B
+  E~~~G
+blocks
+  A yellow ice=2
+  B red
+  C red
+  D red
+  E yellow
+  F yellow
+  G blue ice=3
+doors
+  N 4 0 1 red
+  E 4 1 1 blue
+  N 2 2 2 yellow
+end
+fuera 1
+name 44
+optimal 26
+score 4.9
+map
+  .~~~.
+  GLAA.
+  B.A.J
+  DC.IJ
+  DEF.H
+  EEFHH
+  .~~~K
+blocks
+  A red
+  B red
+  C yellow
+  D yellow
+  E yellow
+  F yellow
+  G red
+  H yellow
+  I red
+  J red
+  K blue
+  L blue
+doors
+  W 0 5 2 red
+  W 0 2 1 blue
+  S 1 5 2 yellow
+end
+fuera 1
+name 45
+optimal 31
+score 13.0
+map
+  D.CCC
+  D#HH.
+  DEH.
+  AE.JG
+  A.F.G
+  I#FBB
+  ILK.B
+blocks
+  A yellow
+  B red
+  C blue
+  D red
+  E green
+  F red
+  G green
+  H yellow lane=v
+  I green
+  J blue
+  K red
+  L red
+doors
+  W 0 3 3 red
+  W 0 0 1 blue
+  N 2 0 3 yellow
+  N 0 0 1 green
+end
+fuera 1
+name 46
+optimal 11
+intro lock
+score 2.6
+map
+  .DD..
+  .DDF.
+  ...F.
+  BEC.A
+  BE.AA
+  .....
+blocks
+  A red key=1
+  B red
+  C red lock=1
+  D red
+  E blue
+  F blue
+doors
+  S 1 5 3 red
+  N 0 0 1 blue
+end
+fuera 1
+name 47
+optimal 20
+score 5.6
+map
+  .DKA.
+  DDKAA
+  JHB.C
+  HHFFC
+  I.F.C
+  GEEE.
+blocks
+  A blue
+  B blue
+  C yellow lane=v
+  D blue
+  E red
+  F blue
+  G red
+  H red ice=2
+  I red
+  J red
+  K red
+doors
+  W 0 2 3 red
+  E 4 3 2 blue
+  N 4 0 1 yellow
+end
+fuera 1
+name 48
+optimal 20
+score 5.5
+map
+  .KKDD
+  .CFJD
+  CCFJ.
+  HHEJ.
+  H.EEG
+  .AAI.
+  BBBI.
+blocks
+  A yellow
+  B yellow
+  C yellow
+  D yellow
+  E yellow
+  F blue ice=2
+  G yellow
+  H yellow
+  I red
+  J yellow
+  K yellow
+doors
+  S 4 6 1 red
+  S 1 6 1 blue
+  N 0 0 3 yellow
+end
+fuera 1
+name 49
+optimal 23
+score 6.3
+map
+  B.GGL
+  BEE.L
+  BJJJ.
+  IIFFF
+  HH..A
+  DDKKA
+  .CCCA
+blocks
+  A red
+  B yellow key=1
+  C blue
+  D blue
+  E blue
+  F blue lane=h
+  G blue
+  H blue
+  I blue
+  J blue lock=1
+  K blue
+  L yellow ice=2
+doors
+  S 4 6 1 red
+  W 0 3 1 blue
+  S 0 6 1 yellow
+end
+fuera 1
+name 50
+optimal 37
+score 10.8
+map
+  CC.EAA
+  MMMEH.
+  I.JEHL
+  ND#.HL
+  NDFFFG
+  .DKKKG
+  .BBB.G
+blocks
+  A red
+  B red
+  C blue lock=1
+  D green
+  E yellow lane=v
+  F blue
+  G yellow
+  H green
+  I red
+  J red key=1
+  K blue
+  L yellow
+  M red
+  N yellow
+doors
+  W 0 6 1 red
+  E 5 6 1 blue
+  S 3 6 1 yellow
+  S 2 2 1 green
+end
+fuera 1
+name 51
+optimal 26
+score 5.9
+map
+  ~GGII
+  .DDIF.
+  .#MMF.
+  E.AKCC
+  JAAHCC
+  LLBB#.
+  ~.BB.
+blocks
+  A blue
+  B blue
+  C blue
+  D blue
+  E yellow
+  F red
+  G blue
+  H blue
+  I blue
+  J yellow
+  K blue
+  L blue
+  M blue
+doors
   N 1 0 1 red
-  N 2 0 1 purple
-  S 6 5 2 cyan shutter=closed
+  E 5 3 3 blue
+  S 0 5 1 yellow
+end
+fuera 1
+name 52
+optimal 29
+score 7.2
+map
+  K.HBB
+  II#.B
+  IIAFF
+  CCAFF
+  CEALL
+  EEGD.
+  J.GDD
+blocks
+  A yellow
+  B yellow lock=1
+  C yellow
+  D yellow
+  E yellow
+  F yellow ice=3
+  G yellow
+  H blue key=1
+  I yellow
+  J yellow
+  K blue
+  L red shell=blue
+doors
+  E 4 6 1 red
+  E 1 1 1 blue
+  W 0 3 3 yellow
+end
+fuera 1
+name 53
+optimal 29
+score 6.2
+map
+  ~~.GDJ
+  ~~I.EJ
+  ~~I#..
+  ...BBB
+  .A.#
+  .FFF
+  C.HH
+blocks
+  A blue
+  B yellow
+  C blue shell=yellow
+  D yellow
+  E red
+  F yellow
+  G red
+  H yellow lane=h
+  I blue ice=2
+  J red
+doors
+  N 2 0 1 red
+  S 3 1 1 blue
+  E 3 6 1 yellow
+end
+fuera 1
+name 54
+optimal 23
+score 8.5
+map
+  KGG.
+  FG.#
+  FEEHH
+  IBBAH
+  JBBAC
+  ~#.AC
+  ~.DDC
+blocks
+  A red
+  B yellow
+  C red key=1
+  D yellow lock=1
+  E blue
+  F blue
+  G blue
+  H blue
+  I blue lane=v
+  J yellow
+  K blue shell=yellow
+doors
+  N 4 2 1 red
+  S 0 4 2 blue
+  W 0 3 2 yellow
+end
+fuera 1
+name 55
+optimal 27
+score 7.3
+map
+  ..LLLC
+  HFE.G.
+  MFEGGI
+  ~~#BB.
+  ~~NNBJ
+  ~~~AAD
+  ~~~AKK
+blocks
+  A blue
+  B blue
+  C red
+  D yellow
+  E blue ice=1
+  F blue
+  G blue
+  H yellow
+  I blue
+  J blue
+  K red
+  L blue
+  M blue
+  N blue
+doors
+  N 3 0 2 red
+  W 0 1 2 blue
+  E 5 1 1 yellow
+end
+fuera 1
+name 56
+optimal 13
+intro shutter
+score 2.9
+map
+  .....
+  .E...
+  ..DFF
+  BBD..
+  A.D.C
+  .....
+blocks
+  A blue
+  B blue
+  C blue
+  D red
+  E yellow
+  F blue
+doors
+  N 0 0 1 red shutter=closed
+  W 0 5 1 blue
+  S 3 5 1 yellow
+end
+fuera 1
+name 57
+optimal 34
+score 8.0
+map
+  ..~~.K
+  EA~~.K
+  E.#DFK
+  E#BDFL
+  CMNDHL
+  IG.J..
+  IG....
+blocks
+  A yellow
+  B yellow
+  C yellow
+  D blue
+  E red
+  F red
+  G yellow
+  H red
+  I yellow ice=2
+  J blue
+  K red ice=2
+  L yellow
+  M red
+  N red
+doors
+  N 1 4 1 red shutter=closed
+  N 5 0 1 blue
+  S 2 6 1 yellow
+end
+fuera 1
+name 58
+optimal 28
+score 6.2
+map
+  .KKAA
+  GL.AM
+  GE#..
+  .C.DD
+  BCIHD
+  BCHHF
+  B.JFF
+blocks
+  A blue
+  B blue
+  C yellow
+  D blue
+  E blue
+  F blue
+  G blue
+  H blue
+  I green
+  J green
+  K blue
+  L yellow
+  M red
+doors
+  N 0 0 1 red
+  S 3 6 2 blue
+  S 0 6 1 yellow
+  E 4 3 1 green
+end
+fuera 1
+name 59
+optimal 25
+score 6.3
+map
+  G.ID.
+  GBIKE
+  M.JKK
+  .LCCC
+  .L.AH
+  FF.AH
+  .F.A.
+blocks
+  A red ice=2
+  B blue
+  C yellow key=1
+  D red
+  E red
+  F yellow
+  G blue
+  H green
+  I blue
+  J yellow
+  K green ice=3
+  L red
+  M green lock=1
+doors
+  N 0 0 1 red
+  N 1 0 3 blue
+  E 4 2 3 yellow
+  W 0 5 2 green
+end
+fuera 1
+name 60
+optimal 29
+score 8.8
+map
+  .LACCB
+  JEAKBB
+  .EEK..
+  III.DD
+  MGFFD.
+  MGGF#.
+  N...HH
+blocks
+  A green
+  B blue
+  C blue
+  D blue
+  E blue
+  F blue
+  G blue
+  H purple
+  I red
+  J purple
+  K blue lane=h
+  L red
+  M yellow
+  N green
+doors
+  E 5 3 1 red
+  W 0 0 3 blue
+  N 3 0 1 yellow
+  N 1 0 1 green
+  E 5 2 1 purple
+end
+fuera 1
+name 61
+optimal 27
+score 6.2
+map
+  ~~IAK
+  ~~#AK
+  .BBC.
+  DBCCE
+  DD.EE
+  FFG
+  FHJ
+blocks
+  A green
+  B red
+  C red
+  D red
+  E red
+  F red
+  G yellow
+  H green
+  I green
+  J green
+  K green
+doors
+  S 0 6 2 red
+  E 4 4 1 yellow
+  N 0 2 1 green
+end
+fuera 1
+name 62
+optimal 30
+score 7.2
+map
+  L.~HH
+  D.~GH
+  D#~G.
+  A#~.E
+  IJBBE
+  ICCBK
+  ICF.K
+blocks
+  A green
+  B red
+  C red
+  D green
+  E green
+  F yellow
+  G red
+  H red
+  I green
+  J blue ice=2
+  K green shell=red
+  L blue
+doors
+  E 4 5 2 red
+  W 3 3 1 blue
+  W 0 4 1 yellow
+  S 2 6 3 green
+end
+fuera 1
+name 63
+optimal 34
+score 9.6
+map
+  LLIPPP
+  NII.JJ
+  EO.BB.
+  EE.B#.
+  AAGCCH
+  FFDMCH
+  FFDMKK
+blocks
+  A blue
+  B red key=1
+  C red
+  D green lane=v
+  E red
+  F red
+  G green
+  H green
+  I blue
+  J red shell=blue
+  K blue
+  L blue
+  M red lock=1
+  N red
+  O red
+  P blue
+doors
+  W 0 4 3 red
+  E 5 4 3 blue
+  N 2 0 1 green
+end
+fuera 1
+name 64
+optimal 31
+score 9.1
+map
+  ~.AA.
+  DDAHEE
+  ...HE.
+  .KBHOM
+  JKBBMM
+  NNLGGF
+  PNCCFF
+  ~..II
+blocks
+  A yellow
+  B yellow shell=blue
+  C yellow
+  D yellow
+  E blue
+  F yellow lane=h
+  G yellow
+  H blue
+  I blue
+  J blue
+  K blue
+  L yellow
+  M blue
+  N blue
+  O green
+  P blue
+doors
+  E 5 2 3 blue
+  W 0 4 3 yellow
+  N 0 1 1 green
+end
+fuera 1
+name 65
+optimal 30
+score 8.7
+map
+  EEGJN
+  EGG..
+  M.ACC
+  MHACC
+  MHAD.
+  .HDDL
+  BBBKL
+  .IIKF
+blocks
+  A blue
+  B blue
+  C blue
+  D red
+  E red
+  F green
+  G green
+  H yellow
+  I red
+  J purple
+  K blue shell=yellow
+  L red
+  M blue
+  N purple
+doors
+  S 2 7 3 red
+  W 0 5 3 blue
+  E 4 5 3 yellow
+  W 0 3 2 green
+  E 4 2 1 purple
+end
+fuera 1
+name 66
+optimal 30
+score 6.2
+map
+  ..~~L
+  JCCHH
+  NBBHA
+  .BB.F
+  ~GKDM
+  ~#DDM
+  E.III
+blocks
+  A red
+  B blue
+  C green
+  D blue
+  E blue
+  F blue
+  G yellow
+  H blue
+  I blue
+  J green
+  K blue
+  L green
+  M blue
+  N yellow
+doors
+  N 3 1 1 red
+  E 4 3 3 blue
+  E 4 2 1 yellow
+  E 1 0 1 green
+end
+fuera 1
+name 67
+optimal 35
+score 7.1
+map
+  ~.A.G
+  F#A.GJ
+  K.E...
+  L.DDD.
+  LB.HHI
+  LB.COP
+  ~BN.M
+blocks
+  A green
+  B yellow
+  C blue
+  D red
+  E red
+  F blue
+  G yellow
+  H red
+  I yellow
+  J red
+  K red
+  L yellow ice=3
+  M blue
+  N blue
+  O blue
+  P yellow
+doors
+  E 4 6 1 red
+  N 4 0 1 blue
+  S 5 5 1 yellow
+  N 2 0 1 green
+end
+fuera 1
+name 68
+optimal 36
+score 8.4
+map
+  .LLKKI
+  HHL#KI
+  H.A.CI
+  BFAADO
+  EEEDD.
+  NN...G
+  N#JJMG
+  ..J..G
+blocks
+  A green
+  B green
+  C green lane=v
+  D green
+  E blue
+  F green
+  G green
+  H green
+  I green
+  J green
+  K green
+  L green
+  M yellow
+  N green
+  O yellow
+doors
+  W 0 7 1 blue
+  S 1 5 1 yellow
+  N 4 0 2 green
+end
+fuera 1
+name 69
+optimal 28
+score 5.8
+map
+  H.JJJ.
+  N.DMLL
+  ..AAAL
+  BBFF#E
+  .BFF.E
+  II.GCC
+  I.GGKC
+blocks
+  A red
+  B blue
+  C blue
+  D yellow
+  E blue
+  F blue
+  G blue
+  H yellow
+  I blue
+  J red
+  K red ice=1
+  L blue
+  M red lane=h
+  N yellow
+doors
+  W 0 1 1 red
+  W 0 5 2 blue
+  N 1 0 1 yellow
+end
+fuera 1
+name 70
+optimal 36
+score 10.1
+map
+  CCEEH.
+  CCEEHN
+  IIILNN
+  JJAAD.
+  .JMADD
+  GGMQQ.
+  O.FBBB
+  PFFKK.
+blocks
+  A red
+  B yellow
+  C red
+  D red
+  E red
+  F red
+  G green
+  H purple
+  I blue
+  J red
+  K green
+  L green
+  M purple
+  N red
+  O red
+  P yellow
+  Q yellow
+doors
+  S 1 7 3 red
+  E 5 6 1 blue
+  W 0 3 1 yellow
+  W 0 7 1 green
+  S 0 7 1 purple
+end
+fuera 1
+name 71
+optimal 48
+score 8.9
+map
+  .E~~BQ
+  FN~~BB
+  FDD.OM
+  PP.#KK
+  PACC..
+  AA.HJG
+  L.~~JI
+  LL~~II
+blocks
+  A red
+  B red
+  C blue
+  D blue
+  E blue ice=3
+  F red
+  G red
+  H green
+  I red
+  J red
+  K red
+  L red
+  M red
+  N blue
+  O yellow
+  P red
+  Q red
+doors
+  W 0 2 3 red
+  W 4 3 1 blue
+  S 0 7 1 yellow
+  W 4 7 1 green
+end
+fuera 1
+name 72
+optimal 36
+score 5.5
+map
+  ~FFFO
+  IJBB..
+  .AAAEE
+  N.....
+  .#G.H.
+  DDDLC.
+  ~M.KK
+blocks
+  A red
+  B blue
+  C green
+  D blue
+  E yellow
+  F blue
+  G green
+  H red
+  I yellow lane=h
+  J blue
+  K red
+  L yellow
+  M yellow
+  N blue
+  O green
+doors
+  E 5 3 1 red shutter=open
+  W 0 3 1 blue
+  W 0 1 1 yellow
+  E 0 4 1 green
+end
+fuera 1
+name 73
+optimal 34
+score 7.4
+map
+  ~GEK.
+  GGEKAA
+  HCDDA.
+  .CD.MI
+  NFJ#LL
+  FFJBBL
+  ~..BB
+blocks
+  A green
+  B green
+  C green
+  D green
+  E green
+  F green
+  G green
+  H yellow
+  I green
+  J green
+  K green
+  L green ice=3
+  M green
+  N red
+doors
+  W 4 4 1 red
+  E 5 1 1 yellow
+  W 0 3 3 green
+end
+fuera 1
+name 74
+optimal 37
+score 7.5
+map
+  .A.MML
+  ..H..L
+  CEP.JL
+  .E.#DB
+  I.NND.
+  OOGGGK
+  .FF.QK
+blocks
+  A red
+  B red
+  C blue
+  D red
+  E red lock=1
+  F blue
+  G green
+  H yellow key=1
+  I blue
+  J green
+  K yellow
+  L yellow
+  M green
+  N blue
+  O blue
+  P red
+  Q blue
+doors
+  S 5 6 1 red
+  W 0 5 1 blue
+  N 0 0 1 yellow
+  W 0 6 1 green
+end
+fuera 1
+name 75
+optimal 34
+score 11.7
+map
+  OOFCCJ
+  MKFNCJ
+  MHF.GG
+  HHDIAA
+  ..DIIA
+  BBBLLE
+  ...LLE
+blocks
+  A green
+  B yellow
+  C green
+  D purple
+  E blue
+  F purple
+  G green
+  H yellow
+  I green
+  J yellow
+  K purple
+  L yellow
+  M purple
+  N blue
+  O yellow
+doors
+  S 5 6 1 blue
+  E 5 3 3 yellow
+  W 0 5 2 green
+  W 0 1 3 purple
+end
+fuera 1
+name 76
+optimal 32
+score 8.8
+map
+  ..~~AA
+  .B~~.H
+  BBD.HH
+  EEI...
+  ECI.FF
+  MC#N.L
+  MGGNNL
+  MGJ.KL
+blocks
+  A green
+  B yellow
+  C blue lane=v
+  D green
+  E blue
+  F yellow key=1
+  G blue lock=1
+  H yellow shell=blue
+  I yellow
+  J green
+  K yellow
+  L blue
+  M blue ice=2
+  N yellow
+doors
+  S 0 7 3 blue
+  W 0 1 3 yellow
+  E 5 4 1 green
+end
+fuera 1
+name 77
+optimal 31
+score 11.1
+map
+  LL.GGG
+  BBJJ..
+  BBNJEE
+  .KNDHE
+  FKNDD.
+  FIICC.
+  FAAMC.
+  ..AM..
+blocks
+  A red
+  B red
+  C red
+  D red
+  E red
+  F yellow
+  G green
+  H red
+  I green
+  J red
+  K red
+  L green lane=h
+  M yellow ice=2
+  N red
+doors
+  S 0 7 2 red
+  S 5 7 1 yellow
+  W 0 0 1 green
+end
+fuera 1
+name 78
+optimal 45
+score 9.8
+map
+  PA~~O.
+  PA~~HH
+  JA~~HN
+  MM~~D.
+  FK~~BB
+  FF.#.B
+  IGCCEE
+  I.CCEL
+blocks
+  A yellow
+  B yellow ice=1
+  C yellow
+  D green
+  E red
+  F yellow
+  G yellow
+  H red
+  I yellow shell=red
+  J green
+  K yellow
+  L yellow
+  M yellow
+  N yellow
+  O yellow
+  P red
+doors
+  E 5 1 3 red
+  S 2 7 3 yellow
+  E 5 4 1 green
+end
+fuera 1
+name 79
+optimal 29
+score 8.5
+map
+  B.JKKA
+  BBEKAA
+  HHED.M
+  .#EDDL
+  .FCCCL
+  I.N..L
+  O#GGG.
+  ......
+blocks
+  A green lock=1
+  B green
+  C red
+  D green
+  E red
+  F green
+  G green ice=1
+  H blue
+  I green
+  J red
+  K green
+  L green
+  M green key=1
+  N blue
+  O green shell=blue
+doors
+  E 5 4 3 red shutter=closed
+  E 5 0 1 blue
+  N 3 0 3 green
+end
+fuera 1
+name 80
+optimal 35
+score 10.2
+map
+  ~KK.BB
+  ~HK..B
+  ~HEDDD
+  ~HE.CC
+  AMFFN
+  JG.FN
+  JJIII
+  LLL.O
+blocks
+  A red
+  B blue
+  C yellow
+  D green
+  E blue ice=1
+  F blue
+  G red
+  H red
+  I blue
+  J red
+  K blue
+  L red
+  M blue
+  N blue
+  O blue shell=green
+doors
+  W 0 4 3 red
+  W 1 1 2 blue
+  E 5 3 1 yellow
+  E 4 4 1 green
+end
+fuera 1
+name 81
+optimal 36
+score 8.4
+map
+  ..EECCC
+  MH.O...
+  .H.D.JJ
+  NHDDKJ.
+  N.LLAPP
+  .G.LAFI
+  GGBBAFF
+  .QQ.R..
+blocks
+  A red
+  B green
+  C green
+  D red
+  E yellow
+  F red
+  G red
+  H red
+  I yellow
+  J red
+  K blue
+  L red
+  M blue
+  N red
+  O blue
+  P green
+  Q yellow
+  R blue
+doors
+  N 2 0 2 red shutter=closed
+  N 6 0 1 blue
+  E 6 5 3 yellow
+  E 6 2 1 green
+end
+fuera 1
+name 82
+optimal 31
+score 7.5
+map
+  J~~~~L
+  J~~~~K
+  J~~~~K
+  E~~~~K
+  EHHHDD
+  .FI.AA
+  CFIGG.
+  CC.B.M
+blocks
+  A yellow
+  B blue
+  C red
+  D red
+  E blue
+  F red
+  G green
+  H green
+  I blue
+  J red
+  K red
+  L green
+  M green
+doors
+  N 3 4 2 red
+  S 2 7 1 blue
+  E 5 7 1 yellow
+  E 5 4 1 green
+end
+fuera 1
+name 83
+optimal 35
+score 10.0
+map
+  ~~HH.
+  ~~BHJ
+  KKB.GG.
+  LLMCC#.
+  LAFFFDD
+  AAIIID.
+  ~~NNN
+  ~~EEE
+blocks
+  A red
+  B blue
+  C yellow
+  D red
+  E green
+  F green
+  G yellow
+  H red
+  I yellow
+  J blue
+  K red
+  L red
+  M yellow
+  N green
+doors
+  E 4 0 2 red
+  S 4 7 1 blue
+  W 0 5 1 yellow
+  W 2 7 1 green
+end
+fuera 1
+name 84
+optimal 57
+score 20.4
+map
+  ~B..F.
+  .BBFFEJ
+  LL.K..J
+  HHKKPPN
+  HD.OCGN
+  .D#CCGG
+  MMAAQI.
+  ~MA..I
+blocks
+  A yellow
+  B yellow
+  C yellow
+  D red
+  E red
+  F yellow
+  G yellow
+  H yellow
+  I red
+  J yellow
+  K yellow
+  L yellow
+  M yellow
+  N blue
+  O yellow ice=1
+  P yellow
+  Q red
+doors
+  N 1 0 1 red shutter=closed
+  N 5 0 1 blue
+  W 0 4 2 yellow
+end
+fuera 1
+name 85
+optimal 41
+score 9.0
+map
+  .EN~.LL
+  .EP..LF
+  .E#J.GF
+  .DDJCG.
+  .D.JBA.
+  .OIBBAA
+  OOIH.MM
+  KKIH...
+blocks
+  A purple
+  B purple
+  C purple
+  D purple
+  E purple
+  F blue
+  G blue
+  H blue
+  I purple
+  J purple
+  K purple ice=3
+  L purple
+  M green
+  N blue
+  O purple
+  P purple
+doors
+  N 2 0 1 blue
+  E 6 2 2 green
+  S 3 7 3 purple
+end
+fuera 1
+name 86
+optimal 49
+score 8.2
+map
+  IHHH...
+  AANFF.B
+  .A.F..B
+  ...~GGB
+  LJ.~.P.
+  .QQ~.P.
+  .D.#K.M
+  .D.#C.E
+  OOO.C.E
+blocks
+  A green
+  B purple
+  C green
+  D red
+  E red
+  F green
+  G green
+  H green
+  I blue
+  J yellow
+  K green
+  L red
+  M red
+  N green ice=3
+  O yellow
+  P yellow
+  Q blue
+doors
+  N 2 0 1 red
+  E 2 7 1 blue
+  E 2 5 2 yellow
+  E 2 3 2 green
+  N 0 0 1 purple
+end
+fuera 1
+name 87
+optimal 54
+score 13.5
+map
+  KKQQEM.
+  PK.QEMM
+  FOOOEGN
+  .AA~#GN
+  ..A~LG.
+  RRR~L.C
+  .BIJJCC
+  BBIIJ..
+  .DD..HH
+blocks
+  A green
+  B green
+  C red
+  D purple
+  E blue
+  F red
+  G green
+  H yellow
+  I green
+  J red
+  K green
+  L green
+  M green
+  N red
+  O purple
+  P red
+  Q green
+  R green
+doors
+  N 5 0 2 red
+  N 4 4 1 blue
+  E 6 0 1 yellow
+  E 6 3 3 green
+  W 4 5 1 purple
+end
+fuera 1
+name 88
+optimal 33
+score 9.7
+map
+  ~LCC.
+  LL.M#.
+  F#GKAA
+  FGGKAE
+  F.D.HE
+  I.D.HE
+  BBD.J.
+  ~B..J
+blocks
+  A yellow ice=1
+  B yellow
+  C red
+  D green
+  E yellow
+  F yellow
+  G yellow
+  H purple
+  I blue lane=h
+  J green
+  K purple
+  L yellow
+  M blue ice=3
+doors
+  E 3 1 1 red
+  E 5 5 1 blue
+  E 5 2 3 yellow
+  S 4 7 1 green
+  S 1 1 1 purple
+end
+fuera 1
+name 89
+optimal 57
+score 25.2
+map
+  Q..HHOO
+  DDBBHLO
+  RDMM.L.
+  RRF.NL.
+  AAFGG
+  ~AFG.
+  IIICCKK
+  EJ.PPKK
+blocks
+  A yellow
+  B purple key=1
+  C red
+  D red
+  E green
+  F red
+  G red
+  H yellow
+  I purple
+  J red shell=blue
+  K red
+  L red lock=1
+  M blue
+  N red
+  O yellow
+  P purple
+  Q purple
+  R red
+doors
+  N 2 0 2 red
+  W 0 0 1 blue
+  N 5 0 2 yellow
+  N 0 0 1 green
+  E 6 0 1 purple
+end
+fuera 1
+name 90
+optimal 41
+score 10.8
+map
+  PJGGSK
+  B.GAAK
+  BBRDMM
+  HHDD.M
+  HI.QQO
+  CCEE.O
+  CC.ELN
+  .FFFL.
+blocks
+  A purple
+  B green
+  C green
+  D green
+  E green
+  F red
+  G green
+  H green
+  I purple
+  J yellow
+  K green
+  L green ice=2
+  M green
+  N red shell=green
+  O green
+  P purple
+  Q orange
+  R yellow
+  S purple
+doors
+  W 0 7 1 red shutter=closed
+  W 0 3 1 yellow
+  E 5 1 2 green
+  E 5 0 1 purple
+  W 0 0 1 orange
+end
+fuera 1
+name 91
+optimal 65
+score 30.7
+map
+  .ACCC.D
+  AA.ISDD
+  QGIIKKM
+  NGBBHK.
+  NGB#.JJ
+  LL.EEEJ
+  R#OOPPF
+  R..O.FF
+blocks
+  A purple
+  B purple
+  C purple
+  D purple
+  E purple
+  F green
+  G yellow
+  H blue lock=1
+  I purple
+  J green
+  K purple
+  L purple
+  M red
+  N yellow
+  O green
+  P purple lane=h
+  Q blue key=1
+  R yellow
+  S green
+doors
+  E 6 3 1 red shutter=open
+  N 1 0 1 blue
+  N 2 0 2 yellow
+  S 4 7 2 green
+  E 6 6 2 purple
+end
+fuera 1
+name 92
+optimal 41
+score 9.3
+map
+  AEE.
+  MDQJ
+  M.IJO#.
+  MNPFO.B
+  HNP.GCL
+  H#P.GCL
+  ~~~KGCL
+  ~~~K...
+blocks
+  A yellow
+  B purple
+  C blue
+  D red
+  E green ice=2
+  F blue
+  G purple
+  H blue
+  I red
+  J purple
+  K blue
+  L blue
+  M purple
+  N yellow
+  O yellow lock=1
+  P blue key=1
+  Q yellow
+doors
+  E 6 4 1 red
+  S 3 7 1 blue
+  S 4 7 1 yellow
+  W 3 7 1 green
+  N 4 2 1 purple
+end
+fuera 1
+name 93
+optimal 40
+score 8.7
+map
+  .GG~...
+  OGG.#QQ
+  OOHH.Q.
+  .MHH.DD
+  CCE...L
+  .CEEIIL
+  AK.P..L
+  .KK.BF.
+  JN..FF.
+blocks
+  A yellow
+  B blue
+  C yellow
+  D yellow shell=purple
+  E yellow
+  F yellow
+  G yellow
+  H yellow
+  I purple
+  J yellow
+  K yellow
+  L red ice=2
+  M yellow
+  N green
+  O yellow
+  P purple
+  Q yellow
+doors
+  N 3 1 1 red shutter=open
+  W 0 1 1 blue
+  S 5 8 2 yellow
+  N 4 2 1 green
+  E 6 7 1 purple
+end
+fuera 1
+name 94
+optimal 40
+score 11.0
+map
+  NJOO.
+  NFLLC
+  .#BCC
+  MBBEE
+  MM.K.H.
+  ~~GK.AA
+  ~~II.DA
+  ~~.IDD.
+  ~~.....
+blocks
+  A yellow
+  B yellow
+  C yellow
+  D yellow
+  E green ice=1
+  F yellow
+  G red
+  H blue
+  I yellow
+  J red lane=h
+  K yellow
+  L red
+  M yellow
+  N blue
+  O yellow ice=3
+doors
+  E 4 0 1 red shutter=closed
+  S 0 4 1 blue
+  N 5 4 2 yellow
+  W 2 2 1 green
+end
+fuera 1
+name 95
+optimal 36
+score 10.2
+map
+  LL...AA
+  L.CCCA.
+  .GMJ...
+  GG.JHRR
+  .QKKEON
+  ..KK.OO
+  II...DF
+  IPPB..F
+blocks
+  A purple ice=1
+  B orange
+  C purple
+  D purple
+  E green
+  F red
+  G yellow
+  H red
+  I yellow
+  J yellow
+  K red lane=v
+  L yellow
+  M purple
+  N yellow
+  O red
+  P green
+  Q yellow
+  R red
+doors
+  S 1 7 3 red shutter=closed
+  S 5 7 2 yellow
+  E 6 3 1 green
+  E 6 0 3 purple
+  W 0 5 1 orange
+end
+fuera 1
+name 96
+optimal 44
+score 9.6
+map
+  F.CC.DD
+  F.B.KDD
+  TBB.G.R
+  TQ.~GG.
+  HHH~IIP
+  E.S~IIP
+  EOS.NJJ
+  .OOANJJ
+  LLAANMM
+blocks
+  A yellow
+  B red
+  C red
+  D red
+  E yellow
+  F blue
+  G yellow ice=1
+  H red
+  I red
+  J yellow
+  K green
+  L red
+  M yellow
+  N yellow
+  O yellow
+  P red
+  Q yellow
+  R blue
+  S yellow
+  T yellow
+doors
+  E 6 1 3 red
+  N 6 0 1 blue
+  N 4 0 2 yellow
+  E 6 8 1 green
+end
+fuera 1
+name 97
+optimal 38
+score 10.7
+map
+  .GCCLL
+  GGCCEL
+  N.~~E.
+  NN~~K.
+  JJ~~KK
+  .J~~DB
+  I.~~.B
+  OAMHHB
+  OAAHFF
+blocks
+  A yellow lock=1
+  B yellow
+  C yellow
+  D blue
+  E red
+  F yellow
+  G yellow
+  H yellow
+  I green
+  J yellow
+  K yellow
+  L yellow key=1
+  M green
+  N yellow
+  O blue
+doors
+  N 5 0 1 red
+  N 3 7 1 blue
+  E 5 6 3 yellow
+  E 5 3 1 green
+end
+fuera 1
+name 98
+optimal 48
+score 12.2
+map
+  M.~~~OR
+  CCPP#OO
+  CCNHHE.
+  JJGHEE.
+  KJGIIA.
+  KDD.IAA
+  KDDL#.B
+  .F~~~QB
+blocks
+  A yellow ice=1
+  B green
+  C yellow ice=1
+  D yellow
+  E yellow
+  F red
+  G yellow
+  H yellow
+  I yellow
+  J yellow
+  K red
+  L blue
+  M yellow
+  N blue
+  O yellow
+  P yellow
+  Q red
+  R yellow
+doors
+  S 6 7 1 red
+  W 0 7 1 blue
+  N 2 1 2 yellow
+  N 1 0 1 green
+end
+fuera 1
+name 99
+optimal 48
+score 14.1
+map
+  ~~JOOI
+  HHJENN
+  .LCE#.
+  .LCPMG
+  DLC.MG
+  DA#BMF
+  DA.B.F
+  KKKB
+blocks
+  A red
+  B red
+  C red
+  D red
+  E red
+  F blue
+  G green
+  H purple
+  I blue
+  J green ice=1
+  K purple
+  L green
+  M green
+  N yellow
+  O purple
+  P red
+doors
+  N 3 0 1 red
+  S 4 1 1 blue
+  W 2 0 1 yellow
+  S 2 4 1 green
+  W 3 5 1 purple
+end
+fuera 1
+name 100
+optimal 64
+score 19.5
+map
+  RR.BLLQ
+  .ANBBOQ
+  .AAKKHH
+  .SS~.HD
+  .EE~TTD
+  .E.~PGD
+  IIFF#GG
+  CIFMMJJ
+  CC.MM.J
+blocks
+  A red
+  B red
+  C green
+  D orange
+  E red
+  F red
+  G red
+  H orange
+  I green
+  J orange
+  K purple
+  L green
+  M orange
+  N orange
+  O orange
+  P orange
+  Q red
+  R orange
+  S orange
+  T purple
+doors
+  W 4 3 2 red
+  S 4 8 3 green
+  W 0 8 1 purple
+  N 2 0 3 orange
 end

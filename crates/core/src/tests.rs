@@ -302,3 +302,46 @@ end
     assert_eq!(a.optimal, Some(2));
     assert!(a.complete);
 }
+
+#[test]
+fn astar_matches_bfs() {
+    use crate::generator::{Params, Rng, candidate, shapes_by_name};
+    let mut rng = Rng(42);
+    let mut checked = 0;
+    for i in 0..160 {
+        let p = Params {
+            w: 4 + (i % 2),
+            h: 4 + (i % 3) as i16,
+            colors: 2 + (i % 3) as usize,
+            fill: 0.35 + (i % 4) as f32 * 0.1,
+            shapes: shapes_by_name("1,2h,2v,l1"),
+            walls: (i % 2) as usize,
+            ice: (i % 5 == 0) as usize,
+            lanes: (i % 7 == 0) as usize,
+            shells: (i % 6 == 0) as usize,
+            locks: (i % 9 == 0) as usize,
+            shutters: (i % 8 == 0) as usize,
+            ..Params::default()
+        };
+        let Some(level) = candidate(&p, &mut rng) else { continue };
+        let st = crate::State::initial(&level);
+        let a = solver::solve(&level, &st, 60_000);
+        let b = solver::solve_bfs(&level, &st, 60_000);
+        match (&a.result, &b.result) {
+            (Solve::Solved(x), Solve::Solved(y)) => {
+                assert_eq!(x.len(), y.len(), "A* not optimal on\n{}", level.to_text());
+                // The A* path really solves the level.
+                let mut g = Game::new(level.clone());
+                for m in x {
+                    assert!(g.play(*m).is_some());
+                }
+                assert!(g.is_won());
+                checked += 1;
+            }
+            (Solve::Unsolvable, Solve::Unsolvable) => checked += 1,
+            (Solve::TooBig, _) | (_, Solve::TooBig) => {}
+            (x, y) => panic!("A* {x:?} vs BFS {y:?} on\n{}", level.to_text()),
+        }
+    }
+    assert!(checked > 40, "only {checked} levels checked");
+}

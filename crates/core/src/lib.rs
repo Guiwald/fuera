@@ -4,6 +4,7 @@
 //! tools (`fuera-cli`) and in the tests.
 
 pub mod game;
+pub mod generator;
 pub mod geom;
 pub mod level;
 pub mod rules;
