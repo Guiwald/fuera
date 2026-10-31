@@ -448,3 +448,92 @@ pub fn generate(p: &Params, seed: u64, attempts: usize, target: f32, min_slack: 
     }
     best.map(|(l, g, _)| (l, g))
 }
+
+/// A board for a language round: horizontal word tiles (`(width, key)`), doors on the top and bottom walls
+/// (`keys`, all of the same length so a door's size never gives the answer away), wrong doors bounce.
+/// Solvable by construction (A*); `slack` is the wanted number of extra (puzzle) moves.
+pub fn word_board(tiles: &[(i16, Key)], doors: &[Key], seed: u64, attempts: usize, slack: (u16, u16)) -> Option<Level> {
+    let mut rng = Rng(seed);
+    let len = tiles.iter().map(|t| t.0).max().unwrap_or(2).max(2);
+    let top = doors.len().div_ceil(2);
+    let bottom = doors.len() - top;
+    let per = top.max(bottom) as i16;
+    let w = (per * len + (per - 1).max(0) + 2).clamp(6, 9);
+    let h: i16 = if tiles.len() > 6 { 8 } else { 7 };
+    let names: Vec<char> = Level::NAMES.chars().collect();
+    let mut best: Option<(Level, u16)> = None;
+    for _ in 0..attempts {
+        let mut level = Level { w, h, cells: vec![Cell::Floor; (w * h) as usize], doors: Vec::new(), blocks: Vec::new(), start: Vec::new(), meta: Meta::default() };
+        level.meta.wrong_door = crate::level::WrongDoor::Bounce;
+        // Doors, spread along each wall.
+        let mut order: Vec<Key> = doors.to_vec();
+        rng.shuffle(&mut order);
+        for (side, keys, y) in [(Dir::N, &order[..top], 0), (Dir::S, &order[top..], h - 1)] {
+            let n = keys.len() as i16;
+            if n == 0 {
+                continue;
+            }
+            let free = w - n * len;
+            let gap = free / (n + 1).max(1);
+            let mut x = gap + (free - gap * (n + 1)) / 2 + (rng.below(2) as i16 * (free > (n + 1) * gap) as i16);
+            for &k in keys {
+                level.doors.push(Door { side, at: Pos::new(x.min(w - len), y), len: len as u8, key: k, kind: DoorKind::Plain });
+                x += len + gap;
+            }
+        }
+        // A wall cell or two as stoppers.
+        for _ in 0..rng.range(0, 2) {
+            let p = Pos::new(rng.range(0, (w - 1) as i32) as i16, rng.range(2, (h - 3) as i32) as i16);
+            level.cells[(p.y * w + p.x) as usize] = Cell::Wall;
+        }
+        // Tiles on free rows/columns.
+        let mut occ = vec![false; (w * h) as usize];
+        for (i, c) in level.cells.iter().enumerate() {
+            occ[i] = *c != Cell::Floor;
+        }
+        let mut ok = true;
+        for (i, &(tw, key)) in tiles.iter().enumerate() {
+            let mut placed = false;
+            for _ in 0..200 {
+                let at = Pos::new(rng.range(0, (w - tw) as i32) as i16, rng.range(0, (h - 1) as i32) as i16);
+                if (0..tw).all(|dx| !occ[((at.y) * w + at.x + dx) as usize]) {
+                    for dx in 0..tw {
+                        occ[(at.y * w + at.x + dx) as usize] = true;
+                    }
+                    level.blocks.push(BlockDef::plain(names[i % names.len()], Shape::rect(tw, 1), key));
+                    level.start.push(at);
+                    placed = true;
+                    break;
+                }
+            }
+            if !placed {
+                ok = false;
+                break;
+            }
+        }
+        if !ok || !level.validate().is_empty() {
+            continue;
+        }
+        // Not two tiles already sitting under their door at the start.
+        let st = State::initial(&level);
+        let occ8 = rules::occupancy(&level, &st);
+        let free = rules::legal_moves(&level, &st, &occ8).iter().filter(|(_, _, o)| matches!(o.result, rules::Result::Exit { .. })).count();
+        if free > 1 {
+            continue;
+        }
+        let Some(h0) = solver::Heuristic::new(&level).eval(&st) else { continue };
+        let rep = solver::solve(&level, &st, 60_000);
+        let Solve::Solved(m) = rep.result else { continue };
+        let s = (m.len() as u32).saturating_sub(h0) as u16;
+        if s < slack.0 || s > slack.1 {
+            if best.is_none() {
+                level.meta.optimal = Some(m.len() as u16);
+                best = Some((level, s));
+            }
+            continue;
+        }
+        level.meta.optimal = Some(m.len() as u16);
+        return Some(level);
+    }
+    best.map(|b| b.0)
+}

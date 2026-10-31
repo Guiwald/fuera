@@ -3,3 +3,5 @@
 *.p12
 *.keystore
 .DS_Store
+/web/fuera.js
+/web/fuera_bg.wasm

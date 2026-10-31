@@ -1,0 +1,115 @@
+es que|150000
+de hecho|60000
+a lo mejor|45000
+por cierto|60000
+o sea|40000
+es decir|25000
+sin embargo|40000
+en cambio|12000
+a pesar de|24000
+por lo tanto|12000
+ya que|30000
+así que|180000
+sobre todo|25000
+en vez de|18000
+de vez en cuando|8000
+por lo menos|30000
+a menudo|15000
+cada vez más|6000
+de repente|26000
+de nuevo|60000
+de momento|10000
+hoy en día|6000
+a partir de|20000
+dentro de|40000
+al final|30000
+ni siquiera|100000
+por suerte|8000
+ni idea|25000
+ni hablar|12000
+no pasa nada|40000
+menos mal|15000
+qué va|8000
+qué más da|6000
+no hay de qué|15000
+en serio|90000
+por si acaso|12000
+estar a punto de|15000
+darse cuenta|60000
+echar de menos|15000
+llevarse bien|8000
+caer bien|6000
+hacer falta|40000
+tener ganas|15000
+dar igual|20000
+estar harto|9000
+ponerse de acuerdo|3000
+echar una mano|6000
+valer la pena|25000
+acabar de|50000
+volver a|60000
+dejar de|60000
+hacer caso|8000
+pasarlo bien|8000
+tener la culpa|20000
+darse prisa|20000
+hacer cola|1500
+contar con|20000
+cita previa|300
+medio ambiente|2500
+redes sociales|2500
+centro de salud|300
+paso de peatones|300
+carné de conducir|1500
+que aproveche|1000
+que te mejores|1000
+a no ser que|6000
+con tal de que|3000
+a la vez|15000
+tener lugar|6000
+desde luego|25000
+por lo visto|5000
+tener en cuenta|8000
+mientras tanto|15000
+en cualquier caso|8000
+en fin|25000
+acerca de|25000
+en cuanto|30000
+en cuanto a|8000
+dado que|8000
+puesto que|12000
+cuanto antes|10000
+a lo largo de|5000
+debido a|15000
+aun así|15000
+en absoluto|20000
+a propósito|15000
+sin querer|6000
+por desgracia|6000
+hacer ilusión|800
+tomar el pelo|3000
+meter la pata|2500
+dar la gana|3000
+ponerse las pilas|600
+estar hecho polvo|600
+poner en marcha|2500
+llevar a cabo|3000
+echar la culpa|4000
+dar a luz|3000
+qué rollo|1500
+qué pasada|800
+ir al grano|1500
+ola de calor|600
+en realidad|30000
+de todas formas|20000
+gracias a|40000
+en lugar de|10000
+al menos|40000
+de pronto|15000
+por fin|40000
+a través de|15000
+punto de vista|6000
+a causa de|8000
+aire acondicionado|1500
+cambio climático|300
+horas extra|800

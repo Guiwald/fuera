@@ -1,0 +1,6 @@
+expr: gracias a|en lugar de|al menos|de pronto|por fin|a través de|punto de vista|a causa de|aire acondicionado|cambio climático|horas extra
+n: realidad modo relación sistema víctima situación recuerdo soldado crimen investigación bomba energía nivel resultado máquina posibilidad sentimiento operación deseo detalle riesgo efecto presión justicia condición memoria intención necesidad responsabilidad espectáculo sociedad ciencia habilidad venta pintura límite humor conexión voluntad ocasión adulto contacto emoción amenaza solución objetivo cuento conocimiento promesa violencia saludo adolescente comportamiento diferencia paciencia crisis consecuencia proyecto causa calidad conflicto población economía libertad estrés
+v: imaginar existir escapar obtener actuar destruir recuperar dirigir controlar abandonar utilizar divertirse considerar sobrevivir sorprender acompañar mencionar causar respirar admitir depender cometer demostrar investigar sugerir obligar relajarse observar defender incluir afectar proponer respetar organizar participar
+adj: público falso privado principal común ridículo enorme responsable profundo honesto exacto impresionante sincero práctico ilegal curioso disponible urgente
+adv: simplemente completamente totalmente finalmente especialmente
+

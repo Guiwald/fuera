@@ -23,11 +23,19 @@ pub struct Look {
     pub rgb: (u8, u8, u8),
     pub symbol: Option<Symbol>,
     pub label: Option<String>,
+    /// Legend mark (A, B, C…) shown on a door whose text is in the legend.
+    pub mark: Option<String>,
+    /// Audio-only tile: a speaker instead of the text.
+    pub speaker: bool,
 }
 
 impl Look {
     pub fn key(k: u16) -> Look {
-        Look { rgb: theme::key_rgb(k), symbol: theme::key_symbol(k), label: None }
+        Look { rgb: theme::key_rgb(k), symbol: theme::key_symbol(k), label: None, mark: None, speaker: false }
+    }
+
+    pub fn text(rgb: (u8, u8, u8), label: &str) -> Look {
+        Look { rgb, symbol: None, label: Some(label.to_string()), mark: None, speaker: false }
     }
 }
 
@@ -147,8 +155,10 @@ impl BoardView {
 
     pub fn layout(&mut self, level: &Level, x: f32, y: f32, w: f32, h: f32) {
         let area = (x, y, w, h);
+        // Room for door signs above and below (language rounds).
+        let signs = if self.skin.doors.iter().any(|d| d.label.is_some() || d.mark.is_some()) { 2.0 * SIGN } else { 0.0 };
         let cw = w / (level.w as f32 + 2.0 * RIM);
-        let ch = h / (level.h as f32 + 2.0 * RIM);
+        let ch = h / (level.h as f32 + 2.0 * RIM + signs);
         let cell = cw.min(ch).floor().max(8.0);
         if area == self.area && cell == self.cell && self.tray.is_some() {
             return;
@@ -467,11 +477,24 @@ impl BoardView {
                 let dot = gfx::circle(x + w - c * 0.08, y + c * 0.08, c * 0.05);
                 fill(pm, &dot, &solid(col(theme::WHITE)), Transform::identity());
             }
-            if let Some(label) = &look.label {
-                let px = (c * 0.3).max(10.0);
-                let fx = fonts.fit(Face::Bold, label, px, if dx != 0 { rim * 3.0 } else { w - c * 0.2 });
-                let (lx, ly) = if dx != 0 { (cx + dx as f32 * (rim * 1.5), cy) } else { (cx, cy + dy as f32 * (rim * 1.4)) };
-                fonts.draw_shadowed(pm, Face::Bold, label, lx, ly + fx * 0.35, fx, col(theme::WHITE), Align::Center);
+            let text = look.mark.clone().or_else(|| look.label.clone());
+            if let Some(label) = text {
+                // A sign outside the wall: above top doors, below bottom ones, beside side doors.
+                let sign_h = c * 0.72;
+                let max_w = if dx != 0 { c * 2.4 } else { (d.len as f32 * c + c * 0.9).max(c * 2.2) };
+                let px = fonts.fit(Face::Bold, &label, c * 0.36, max_w - c * 0.3);
+                let tw = fonts.width(Face::Bold, &label, px).max(c * 0.5) + c * 0.36;
+                let (sx, sy) = match d.side {
+                    Dir::N => (cx - tw / 2.0, y - rim * 0.15 - sign_h - c * 0.06),
+                    Dir::S => (cx - tw / 2.0, y + h + rim * 0.15 + c * 0.06),
+                    Dir::E => (x + w + c * 0.1, cy - sign_h / 2.0),
+                    Dir::W => (x - c * 0.1 - tw, cy - sign_h / 2.0),
+                };
+                let glow_sign = glow;
+                fill(pm, &gfx::rrect(sx, sy + c * 0.05, tw, sign_h, sign_h * 0.3), &solid(col_a((0, 0, 0), 0.25)), Transform::identity());
+                let bg = if look.mark.is_some() { theme::GOLD } else { theme::PLASTER };
+                fill(pm, &gfx::rrect(sx, sy, tw, sign_h, sign_h * 0.3), &solid(col(if glow_sign { shade(bg, 0.3) } else { bg })), Transform::identity());
+                fonts.draw(pm, Face::Bold, &label, sx + tw / 2.0, sy + sign_h / 2.0 + px * 0.36, px, col(theme::INK), Align::Center);
             }
         }
     }
@@ -488,7 +511,9 @@ impl BoardView {
             (0.0, 0.0)
         };
         blit(pm, self.tray.as_ref().unwrap(), shx.round(), shy, 1.0, 1.0);
-        let need = self.selected.filter(|&b| game.state.blocks[b].alive).map(|b| rules::needed_key(level, &game.state, b));
+        // Light up the doors that take the held block, in the classic mode only (in language rounds it would give
+        // the answer away).
+        let need = self.selected.filter(|&b| game.state.blocks[b].alive && level.meta.wrong_door == fuera_core::WrongDoor::Rest).map(|b| rules::needed_key(level, &game.state, b));
         self.draw_doors(pm, game, fonts, need);
         // Draw order: lower rows first so shadows fall naturally; exiting blocks too.
         let mut order: Vec<usize> = (0..self.vis.len()).filter(|&i| self.vis[i].alpha > 0.0).collect();
@@ -588,10 +613,11 @@ impl BoardView {
                 fill(pm, &ch, &solid(col_a(theme::WHITE, 0.9 * alpha)), Transform::identity());
             }
         }
-        // Word label on top of the brick.
-        if let Some(label) = &self.skin.blocks[b].label
-            && (ice == 0 || true)
-        {
+        if self.skin.blocks[b].speaker {
+            let w = def.shape.w as f32 * c;
+            let (cx, cy) = (x + w / 2.0, y + def.shape.h as f32 * c / 2.0);
+            crate::icons::draw(pm, crate::icons::Icon::Speaker, cx, cy, c * 0.7, col_a(theme::INK, alpha));
+        } else if let Some(label) = &self.skin.blocks[b].label {
             let w = def.shape.w as f32 * c;
             let (cx, cy) = (x + w / 2.0, y + def.shape.h as f32 * c / 2.0);
             let px = fonts.fit(Face::Bold, label, c * 0.36, w - c * 0.24);
@@ -617,6 +643,8 @@ impl BoardView {
 
 /// Space around a sprite for its shadow.
 const PAD: f32 = 0.18;
+/// Height of the door signs, in cells.
+const SIGN: f32 = 0.95;
 
 fn anchor_center(cells: &[Pos], x: f32, y: f32, c: f32) -> (f32, f32) {
     // Centre of the first cell of the top row: always on the block.

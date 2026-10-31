@@ -1,8 +1,13 @@
 //! The application: screens, buttons, input, saved progress. Platform code only forwards events and shows the
 //! picture.
 
+mod learn;
+
 use fuera_core::rules::{self, Result, Stuck};
 use fuera_core::{Dir, Game, Level, Move};
+use fuera_learn::content::{Band, Content};
+use fuera_learn::memory::Memory;
+use fuera_learn::plan::Mode;
 use tiny_skia::{Color, Pixmap, Transform};
 
 use crate::board::{BoardView, Fx, Skin};
@@ -32,6 +37,10 @@ pub trait Host {
     /// Days since 1970-01-01 (local time), for the daily puzzle and streaks.
     fn today(&self) -> i64 {
         0
+    }
+    /// Time in days since 1970-01-01 (local), with the fraction of the day.
+    fn now_days(&self) -> f64 {
+        self.today() as f64
     }
 }
 
@@ -71,6 +80,17 @@ enum Action {
     ToggleVib,
     CycleLang,
     Credits,
+    LearnHome,
+    LearnSession,
+    LearnMode(Mode),
+    LearnGo,
+    LearnNext,
+    Notebook,
+    ToggleBase,
+    Placement,
+    SayIntro(usize),
+    SayMiss(usize),
+    Dismiss,
 }
 
 #[derive(Clone, Copy)]
@@ -113,6 +133,11 @@ enum Screen {
     Play(Box<Play>),
     Settings,
     Credits,
+    LearnHome,
+    LearnIntro(Box<learn::LearnPlay>),
+    LearnPlay(Box<learn::LearnPlay>),
+    Notebook { scroll: f32, drag: Option<(f32, f32, f32)> },
+    Placed(Band),
 }
 
 pub struct App {
@@ -135,6 +160,9 @@ pub struct App {
     bg: Option<Pixmap>,
     dirty: bool,
     since_input: f32,
+    content: Option<Content>,
+    memory: Memory,
+    placement: Vec<(Option<Band>, bool)>,
 }
 
 static CAMPAIGN: &str = include_str!("../../../assets/levels/campaign.txt");
@@ -160,6 +188,7 @@ impl App {
     pub fn new(mut host: Box<dyn Host>) -> App {
         let save = host.load().map(|t| Save::parse(&t)).unwrap_or_default();
         let lang = save.get("lang").and_then(Lang::from_code).or_else(|| Lang::from_code(&host.locale())).unwrap_or(Lang::En);
+        let memory = Memory::from_pairs(save.keys_with_prefix("m.").chain(save.keys_with_prefix("l.")));
         App {
             host,
             fonts: Fonts::new(),
@@ -180,6 +209,9 @@ impl App {
             bg: None,
             dirty: true,
             since_input: 0.0,
+            content: None,
+            memory,
+            placement: Vec::new(),
         }
     }
 
@@ -189,8 +221,8 @@ impl App {
         self.h = h as f32;
         self.top = top;
         self.bottom = bottom;
-        let col = self.w.min(self.h * 0.6);
-        self.u = (col / 412.0).max(0.5);
+        // One unit = one dp of a 412×915 phone; the layout always fits the height.
+        self.u = (self.w / 412.0).min((self.h - top - bottom) / 880.0).max(0.5);
         self.bg = None;
         self.dirty = true;
     }
@@ -227,6 +259,7 @@ impl App {
             Screen::Home => self.since_input < 30.0,
             Screen::Play(p) => p.view.animating() || p.toast.is_some() || p.won.is_some_and(|t| t < 3.0) || p.intro.is_some() && self.since_input < 30.0,
             Screen::Levels { .. } => false,
+            Screen::LearnPlay(p) => p.view.animating() || p.feedback.is_some() || p.won.is_some_and(|t| t < 1.0),
             _ => false,
         }
     }
@@ -283,6 +316,7 @@ impl App {
         let dt = dt.min(0.1);
         self.time += dt;
         self.since_input += dt;
+        self.learn_update(dt);
         let mut fx = Vec::new();
         let mut won_now = false;
         if let Screen::Play(p) = &mut self.screen {
@@ -357,6 +391,7 @@ impl App {
         self.pointer = (x, y);
         self.since_input = 0.0;
         self.dirty = true;
+        self.learn_pointer(ev, x, y);
         match ev {
             PointerEvent::Down => {
                 self.down = Some((x, y));
@@ -368,7 +403,7 @@ impl App {
                     p.view.select(Some(b));
                     p.intro = p.intro.filter(|_| p.game.moves < 1);
                 }
-                if let Screen::Levels { scroll, drag } = &mut self.screen {
+                if let Screen::Levels { scroll, drag } | Screen::Notebook { scroll, drag } = &mut self.screen {
                     *drag = Some((y, *scroll, 0.0));
                 }
             }
@@ -395,14 +430,14 @@ impl App {
                 if let Some(mv) = try_move {
                     self.play_move(mv);
                 }
-                if let Screen::Levels { scroll, drag: Some((y0, s0, moved)) } = &mut self.screen {
+                if let Screen::Levels { scroll, drag: Some((y0, s0, moved)) } | Screen::Notebook { scroll, drag: Some((y0, s0, moved)) } = &mut self.screen {
                     *scroll = (*s0 - (y - *y0)).max(0.0);
                     *moved = moved.max((y - *y0).abs());
                 }
             }
             PointerEvent::Up | PointerEvent::Cancel => {
                 let mut scrolled = false;
-                if let Screen::Levels { drag, .. } = &mut self.screen {
+                if let Screen::Levels { drag, .. } | Screen::Notebook { drag, .. } = &mut self.screen {
                     scrolled = drag.is_some_and(|d| d.2 > 12.0 * self.u);
                     *drag = None;
                 }
@@ -424,6 +459,52 @@ impl App {
                 }
                 self.down = None;
             }
+        }
+    }
+
+    /// Opens a screen by name (screenshots and tests): `learn`, `session`, `placement`, `notebook`, `mode:<n>`,
+    /// `level:<n>`, `go`, `next`.
+    #[doc(hidden)]
+    pub fn open(&mut self, what: &str) {
+        let a = match what {
+            "learn" => Action::Learn,
+            "session" => Action::LearnSession,
+            "placement" => Action::Placement,
+            "notebook" => Action::Notebook,
+            "go" => Action::LearnGo,
+            "next" => Action::LearnNext,
+            "home" => Action::LearnHome,
+            _ => {
+                if let Some(n) = what.strip_prefix("mode:").and_then(|n| n.parse::<usize>().ok()) {
+                    Action::LearnMode(Mode::MENU[n % Mode::MENU.len()])
+                } else if let Some(n) = what.strip_prefix("level:").and_then(|n| n.parse::<usize>().ok()) {
+                    Action::Open(n)
+                } else {
+                    return;
+                }
+            }
+        };
+        self.act(a);
+    }
+
+    /// Plays the hint move (screenshots and tests).
+    #[doc(hidden)]
+    pub fn auto_move(&mut self) -> bool {
+        let mv = match &self.screen {
+            Screen::LearnPlay(p) => fuera_core::solver::hint(&p.game.level, &p.game.state, 200_000),
+            Screen::Play(p) => fuera_core::solver::hint(&p.game.level, &p.game.state, 200_000),
+            _ => None,
+        };
+        match (mv, &self.screen) {
+            (Some(m), Screen::LearnPlay(_)) => {
+                self.learn_move(m);
+                true
+            }
+            (Some(m), Screen::Play(_)) => {
+                self.play_move(m);
+                true
+            }
+            _ => false,
         }
     }
 
@@ -453,6 +534,14 @@ impl App {
                 }
             }
             KeyEvent::Arrow(d) => {
+                if let Screen::LearnPlay(p) = &mut self.screen {
+                    let sel = p.view.selected.or_else(|| (0..p.game.state.blocks.len()).find(|&i| p.game.state.blocks[i].alive));
+                    p.view.select(sel);
+                    if let Some(b) = sel {
+                        self.learn_move(Move { block: b as u8, dir: d });
+                    }
+                    return;
+                }
                 let sel = if let Screen::Play(p) = &mut self.screen {
                     if p.view.selected.is_none() {
                         let first = (0..p.game.state.blocks.len()).find(|&i| p.game.state.blocks[i].alive);
@@ -520,7 +609,18 @@ impl App {
                 let scroll = (row * 76.0 * self.u - self.h * 0.3).max(0.0);
                 self.screen = Screen::Levels { scroll, drag: None };
             }
-            Action::Learn => {}
+            Action::Learn => self.screen = Screen::LearnHome,
+            Action::LearnHome
+            | Action::LearnSession
+            | Action::LearnMode(_)
+            | Action::LearnGo
+            | Action::LearnNext
+            | Action::Notebook
+            | Action::ToggleBase
+            | Action::Placement
+            | Action::SayIntro(_)
+            | Action::SayMiss(_)
+            | Action::Dismiss => self.learn_act(a),
             Action::Settings => self.screen = Screen::Settings,
             Action::Credits => self.screen = Screen::Credits,
             Action::Back => {
@@ -530,6 +630,7 @@ impl App {
                         Screen::Levels { scroll: (row * 76.0 * self.u - self.h * 0.3).max(0.0), drag: None }
                     }
                     Screen::Credits => Screen::Settings,
+                    Screen::LearnPlay(_) | Screen::LearnIntro(_) | Screen::Notebook { .. } | Screen::Placed(_) => Screen::LearnHome,
                     Screen::Home => {
                         self.host.quit();
                         Screen::Home
@@ -538,6 +639,12 @@ impl App {
                 };
             }
             Action::Undo => {
+                if let Screen::LearnPlay(p) = &mut self.screen
+                    && p.won.is_none()
+                    && p.game.undo()
+                {
+                    p.view.sync(&p.game);
+                }
                 if let Screen::Play(p) = &mut self.screen
                     && p.won.is_none()
                     && p.game.undo()
@@ -548,6 +655,12 @@ impl App {
                 }
             }
             Action::Restart => {
+                if let Screen::LearnPlay(p) = &mut self.screen
+                    && p.won.is_none()
+                {
+                    p.game.restart();
+                    p.view.sync(&p.game);
+                }
                 if let Screen::Play(p) = &mut self.screen {
                     p.game.restart();
                     p.view.sync(&p.game);
@@ -557,6 +670,7 @@ impl App {
                 }
             }
             Action::Hint => {
+                self.learn_hint();
                 if let Screen::Play(p) = &mut self.screen
                     && p.won.is_none()
                 {
@@ -640,6 +754,14 @@ impl App {
             Screen::Play(_) => self.draw_play(pm),
             Screen::Settings => self.draw_settings(pm),
             Screen::Credits => self.draw_credits(pm),
+            Screen::LearnHome => self.draw_learn_home(pm),
+            Screen::LearnIntro(_) => self.draw_learn_intro(pm),
+            Screen::LearnPlay(_) => self.draw_learn_play(pm),
+            Screen::Notebook { .. } => self.draw_notebook(pm),
+            Screen::Placed(b) => {
+                let b = *b;
+                self.draw_placed(pm, b)
+            }
         }
     }
 

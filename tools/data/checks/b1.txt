@@ -1,0 +1,554 @@
+quedar|v||se retrouver|to meet up|ocio||quedar con alguien; also: rester
+vale|interj||d'accord|OK|comunicacion||Spain; LatAm: está bien
+suponer|v||supposer|to suppose|abstracto||irregular (like poner)
+listo|adj||malin|clever|descripcion||estar listo = être prêt / to be ready
+aún|adv||encore|still|tiempo||aun (sans accent) = même / even
+conseguir|v||obtenir|to get|acciones||conseguir + inf = réussir à
+único|adj||unique|only|descripcion||
+tratar|v||traiter|to treat|acciones||tratar de + inf = essayer de
+quedarse|v||rester|to stay|acciones||
+preocuparse|v||s'inquiéter|to worry|emociones||
+así que|expr||donc|so|gramatica||
+sacar|v||sortir|to take out|acciones||sacar dinero, sacar fotos
+vaya|interj||zut|oh dear|comunicacion||also: ¡vaya coche! = quelle voiture !
+mantener|v||maintenir|to maintain|acciones||irregular (like tener)
+cariño|n|m|affection|affection|emociones||also: chéri / darling
+significar|v||signifier|to mean|comunicacion||
+mientras|conj||pendant que|while|gramatica||
+es que|expr||c'est que|the thing is|comunicacion||
+pues|conj||eh bien|well|gramatica||
+contra|prep||contre|against|gramatica||
+hacia|prep||vers|towards|gramatica||
+propio|adj||propre|own|descripcion||≠ FR: propre (= limpio)
+ocurrir|v||arriver|to happen|abstracto||
+suficiente|adj||suffisant|enough|cantidad||
+echar|v||jeter|to throw|acciones||also: mettre, verser / to put
+venga|interj||allez|come on|comunicacion||Spain
+adelante|adv||en avant|forward|ciudad||¡adelante! = entrez !
+prueba|n|f|preuve|proof|abstracto||also: épreuve, test / test
+permitir|v||permettre|to allow|acciones||
+incluso|adv||même|even|gramatica||
+detener|v||arrêter|to arrest|sociedad||irregular (like tener)
+oportunidad|n|f|occasion|opportunity|abstracto||
+ni siquiera|expr||même pas|not even|gramatica||
+prometer|v||promettre|to promise|comunicacion||
+en serio|expr||sérieusement|seriously|comunicacion||
+negocio|n|m|affaire|business|trabajo||
+confiar|v||faire confiance|to trust|emociones||confiar en
+atrás|adv||en arrière|back|ciudad||
+molestar|v||déranger|to bother|emociones||≠ EN: molest
+par|n|m|paire|pair|cantidad||
+raro|adj||bizarre|strange|descripcion||also: rare / rare
+quitar|v||enlever|to remove|acciones||
+cierto|adj||vrai|true|descripcion||also: certain / certain
+estado|n|m|État|state|sociedad||also: état / condition
+asegurar|v||assurer|to assure|comunicacion||
+mentir|v||mentir|to lie|comunicacion||
+seguridad|n|f|sécurité|security|sociedad||
+hecho|n|m|fait|fact|abstracto||
+arreglar|v||réparer|to fix|casa||also: arranger / to arrange
+ponerse|v||devenir|to become|gramatica||ponerse nervioso, rojo
+asunto|n|m|affaire|matter|abstracto||
+mejorar|v||améliorer|to improve|acciones||
+proteger|v||protéger|to protect|acciones||
+tirar|v||jeter|to throw away|casa||also: tirer (porte) / to pull
+descubrir|v||découvrir|to discover|acciones||
+fuerza|n|f|force|strength|abstracto||
+paso|n|m|pas|step|abstracto||
+seguro|n|m|assurance|insurance|dinero||
+serio|adj||sérieux|serious|descripcion||
+resultar|v||s'avérer|to turn out|abstracto||
+aparecer|v||apparaître|to appear|acciones||
+asustar|v||effrayer|to frighten|emociones||
+darse cuenta|expr||se rendre compte|to realize|acciones||darse cuenta de
+de hecho|expr||en fait|in fact|gramatica||
+de nuevo|expr||de nouveau|again|tiempo||
+dejar de|expr||arrêter de|to stop (doing)|gramatica||dejar de + inf
+por cierto|expr||au fait|by the way|comunicacion||
+volver a|expr||refaire|to do again|gramatica||volver a + inf
+golpear|v||frapper|to hit|acciones||
+demás|pron||autres|others|gramatica||los demás = les autres
+desaparecer|v||disparaître|to disappear|acciones||
+frente|n|f|front|forehead|cuerpo||el frente = le front / front
+caso|n|m|cas|case|abstracto||
+disculparse|v||s'excuser|to apologize|comunicacion||
+atrapar|v||attraper|to catch|acciones||
+luchar|v||lutter|to fight|acciones||
+ley|n|f|loi|law|sociedad||
+mente|n|f|esprit|mind|abstracto||
+sino|conj||mais|but (rather)|gramatica||no ... sino ...
+lograr|v||réussir à|to manage to|acciones||
+volverse|v||devenir|to become|gramatica||volverse loco
+parecerse|v||se ressembler|to look like|descripcion||parecerse a
+averiguar|v||tirer au clair|to find out|acciones||
+agradecer|v||remercier|to thank|comunicacion||
+ofrecer|v||offrir|to offer|acciones||≠ FR: offrir un cadeau = regalar
+devolver|v||rendre|to give back|acciones||
+merecer|v||mériter|to deserve|abstracto||
+montón|n|m|tas|pile|cantidad||un montón de = plein de
+esconder|v||cacher|to hide|acciones||
+carrera|n|f|études|degree|estudios||also: course / race
+evitar|v||éviter|to avoid|acciones||
+derecho|n|m|droit|right|sociedad||
+recoger|v||ramasser|to pick up|acciones||also: aller chercher (qqn) / to collect
+disculpa|n|f|excuses|apology|comunicacion||
+encontrarse|v||se sentir|to feel|salud||also: se trouver / to be located
+acabar de|expr||venir de|to have just|gramatica||acabo de llegar = je viens d'arriver
+soltar|v||lâcher|to let go|acciones||
+volar|v||voler|to fly|transporte||≠ FR: voler (dérober) = robar
+moverse|v||bouger|to move|acciones||
+convertirse|v||se transformer|to turn into|gramatica||convertirse en
+alrededor|adv||autour|around|ciudad||alrededor de
+broma|n|f|plaisanterie|joke|comunicacion||en broma = pour rire
+llenar|v||remplir|to fill|acciones||
+tardar|v||mettre (du temps)|to take (time)|tiempo||¿cuánto tardas?
+gracioso|adj||drôle|funny|descripcion||≠ FR: gracieux; ≠ EN: gracious
+mandar|v||envoyer|to send|comunicacion||also: ordonner / to order
+bromear|v||plaisanter|to joke|comunicacion||
+alma|n|f|âme|soul|abstracto||el alma
+molesto|adj||agacé|annoyed|emociones||
+disfrutar|v||profiter|to enjoy|ocio||disfrutar de
+preocupado|adj||inquiet|worried|emociones||
+revisar|v||vérifier|to check|acciones||≠ FR: réviser (examen) = repasar
+gritar|v||crier|to shout|comunicacion||
+a lo mejor|expr||peut-être|maybe|gramatica||+ indicativo
+soler|v||avoir l'habitude de|to usually (do)|gramatica||suelo + inf
+antiguo|adj||ancien|old|descripcion||
+crecer|v||grandir|to grow|acciones||
+engañar|v||tromper|to deceive|acciones||
+acercarse|v||s'approcher|to come closer|acciones||
+entregar|v||remettre|to hand in|acciones||
+cualquiera|pron||n'importe qui|anyone|gramatica||
+reconocer|v||reconnaître|to recognize|acciones||
+cárcel|n|f|prison|prison|sociedad||
+oler|v||sentir|to smell|cuerpo||irregular: huelo
+manejar|v||manier|to handle|acciones||LatAm: conduire (= conducir)
+mentira|n|f|mensonge|lie|comunicacion||
+fondo|n|m|fond|bottom|abstracto||
+equivocarse|v||se tromper|to be wrong|abstracto||
+dentro de|expr||dans|in, within|tiempo||dentro de una hora = dans une heure
+hacer falta|expr||falloir|to be needed|gramatica||hace falta + inf
+no pasa nada|expr||ce n'est pas grave|it's OK|comunicacion||
+o sea|expr||c'est-à-dire|I mean|comunicacion||coloquial
+sin embargo|expr||cependant|however|gramatica||
+construir|v||construire|to build|acciones||
+animar|v||encourager|to cheer up|emociones||
+cerebro|n|m|cerveau|brain|cuerpo|🧠|
+sufrir|v||souffrir|to suffer|salud||
+basura|n|f|ordures|rubbish|casa||
+poder|n|m|pouvoir|power|sociedad||
+huir|v||fuir|to flee|acciones||
+dudar|v||douter|to doubt|abstracto||
+discutir|v||se disputer|to argue|comunicacion||≠ FR: discuter (= hablar, charlar)
+agradable|adj||agréable|pleasant|descripcion||
+anda|interj||ça alors|wow|comunicacion||Spain
+rato|n|m|moment|while|tiempo||un rato = un moment
+cubrir|v||couvrir|to cover|acciones||
+según|prep||selon|according to|gramatica||
+crear|v||créer|to create|acciones||
+orgulloso|adj||fier|proud|emociones||
+agarrar|v||saisir|to grab|acciones||
+abogado|n|m|avocat|lawyer|trabajo||
+enamorado|adj||amoureux|in love|emociones||
+mayoría|n|f|majorité|majority|cantidad||
+cumplir|v||accomplir|to fulfil|acciones||cumplir 30 años = avoir 30 ans
+enseguida|adv||tout de suite|right away|tiempo||
+resolver|v||résoudre|to solve|abstracto||
+firmar|v||signer|to sign|sociedad||
+pegar|v||coller|to stick|acciones||also: frapper / to hit
+despedir|v||licencier|to fire|trabajo||
+vigilar|v||surveiller|to watch over|acciones||
+juez|n|mf|juge|judge|sociedad||
+pertenecer|v||appartenir|to belong|abstracto||
+apenas|adv||à peine|hardly|gramatica||
+puesto|n|m|poste|position|trabajo||puesto de trabajo
+éxito|n|m|succès|success|abstracto||≠ EN: exit (= salida)
+sangre|n|f|sang|blood|cuerpo|🩸|
+roto|adj||cassé|broken|descripcion||
+pareja|n|f|couple|couple|familia||also: partenaire / partner
+negar|v||nier|to deny|comunicacion||
+inocente|adj||innocent|innocent|sociedad||
+culpable|adj||coupable|guilty|sociedad||
+valor|n|m|valeur|value|abstracto||also: courage / courage
+estupendo|adj||formidable|great|descripcion||
+elección|n|f|élection|election|sociedad||also: choix / choice
+tontería|n|f|bêtise|nonsense|comunicacion||
+asustado|adj||effrayé|scared|emociones||
+herida|n|f|blessure|wound|salud||
+cruzar|v||traverser|to cross|ciudad||
+convencer|v||convaincre|to convince|comunicacion||
+cuestión|n|f|question|issue|abstracto||
+capaz|adj||capable|capable|descripcion||
+avisar|v||prévenir|to let know|comunicacion||
+borracho|adj||ivre|drunk|bebida||
+colega|n|mf|collègue|colleague|trabajo||coloquial: pote / mate
+al final|expr||finalement|in the end|tiempo||
+en realidad|expr||en réalité|actually|gramatica||
+por lo menos|expr||au moins|at least|cantidad||
+ya que|expr||puisque|since|gramatica||
+vacío|adj||vide|empty|descripcion||
+contratar|v||embaucher|to hire|trabajo||
+marca|n|f|marque|brand|compras||
+motivo|n|m|raison|reason|abstracto||
+ojo|interj||attention|watch out|comunicacion||¡ojo!
+piedra|n|f|pierre|stone|naturaleza|🪨|
+sitio|n|m|endroit|place|ciudad||also: site web
+ojalá|interj||pourvu que|hopefully|gramatica||+ subjuntivo
+resto|n|m|reste|rest|cantidad||
+entrada|n|f|billet|ticket|ocio||also: entrée / entrance
+enfermedad|n|f|maladie|illness|salud||
+comprobar|v||vérifier|to check|acciones||
+cita|n|f|rendez-vous|appointment|tiempo||also: date (romantic)
+informe|n|m|rapport|report|trabajo||
+cargar|v||charger|to charge|tecnologia||
+encantador|adj||charmant|charming|descripcion||
+red|n|f|réseau|network|tecnologia||also: filet / net
+ladrón|n|m|voleur|thief|sociedad||
+de repente|expr||soudain|suddenly|tiempo||
+archivo|n|m|fichier|file|tecnologia||
+superar|v||surmonter|to overcome|acciones||
+notar|v||remarquer|to notice|acciones||
+política|n|f|politique|politics|sociedad||
+es decir|expr||c'est-à-dire|that is|gramatica||
+ni idea|expr||aucune idée|no idea|comunicacion||
+sobre todo|expr||surtout|above all|gramatica||
+valer la pena|expr||valoir la peine|to be worth it|abstracto||
+faltar|v||manquer|to be missing|cantidad||me falta = il me manque
+colgar|v||accrocher|to hang|casa||also: raccrocher / to hang up
+confianza|n|f|confiance|trust|emociones||
+distinto|adj||différent|different|descripcion||
+daño|n|m|dégât|damage|abstracto||hacer daño = faire mal
+fallar|v||rater|to fail|acciones||
+a pesar de|expr||malgré|despite|gramatica||
+justo|adj||juste|fair|descripcion||
+apoyar|v||soutenir|to support|acciones||also: appuyer / to lean
+principio|n|m|début|beginning|abstracto||also: principe / principle
+obra|n|f|œuvre|work|cultura||obras = travaux / roadworks
+fuente|n|f|fontaine|fountain|ciudad||also: source / source
+marcar|v||marquer|to mark|acciones||also: composer (numéro) / to dial
+débil|adj||faible|weak|descripcion||
+hueso|n|m|os|bone|cuerpo|🦴|
+dato|n|m|donnée|piece of data|abstracto||
+sonreír|v||sourire|to smile|emociones||
+esperanza|n|f|espoir|hope|emociones||
+aguantar|v||supporter|to put up with|emociones||
+siglo|n|m|siècle|century|tiempo||
+velocidad|n|f|vitesse|speed|transporte||
+seguramente|adv||sûrement|probably|gramatica||
+época|n|f|époque|era|tiempo||
+enfadado|adj||fâché|angry|emociones||LatAm: enojado
+desnudo|adj||nu|naked|descripcion||
+valiente|adj||courageux|brave|descripcion||
+rechazar|v||refuser|to reject|acciones||
+complicado|adj||compliqué|complicated|descripcion||
+aspecto|n|m|allure|appearance|descripcion||also: aspect / aspect
+inútil|adj||inutile|useless|descripcion||
+a partir de|expr||à partir de|from|tiempo||
+contar con|expr||compter sur|to count on|acciones||
+dar igual|expr||être égal|not to matter|emociones||me da igual
+darse prisa|expr||se dépêcher|to hurry|acciones||¡date prisa!
+de todas formas|expr||de toute façon|anyway|gramatica||
+tener la culpa|expr||être fautif|to be to blame|emociones||
+despacio|adv||lentement|slowly|descripcion||
+realizar|v||réaliser|to carry out|acciones||≠ EN: realize (= darse cuenta)
+costa|n|f|côte|coast|naturaleza||
+atender|v||s'occuper de|to attend to|trabajo||≠ FR: attendre (= esperar); ≠ EN: attend (= asistir)
+pérdida|n|f|perte|loss|dinero||
+baja|n|f|arrêt maladie|sick leave|salud||estar de baja
+últimamente|adv||dernièrement|lately|tiempo||
+adecuado|adj||approprié|suitable|descripcion||
+escenario|n|m|scène|stage|cultura||≠ EN: scenario
+bolsillo|n|m|poche|pocket|ropa||
+extranjero|adj||étranger|foreign|viaje||el extranjero = l'étranger / abroad
+pesado|adj||lourd|heavy|descripcion||coloquial: casse-pieds / annoying
+polvo|n|m|poussière|dust|casa||
+traje|n|m|costume|suit|ropa||
+tormenta|n|f|orage|storm|clima|⛈️|
+en vez de|expr||au lieu de|instead of|gramatica||
+lástima|n|f|dommage|pity|emociones||¡qué lástima!
+rueda|n|f|roue|wheel|transporte|🛞|
+lobo|n|m|loup|wolf|animales|🐺|
+político|n|m|homme politique|politician|sociedad||
+entrenador|n|m|entraîneur|coach|deporte||
+sencillo|adj||simple|simple|descripcion||
+copa|n|f|verre (à pied)|glass|bebida||tomar una copa = prendre un verre
+pecho|n|m|poitrine|chest|cuerpo||
+soltero|adj||célibataire|single|familia||
+alcalde|n|m|maire|mayor|sociedad||
+adivinar|v||deviner|to guess|acciones||
+curar|v||guérir|to cure|salud||
+temporada|n|f|saison|season|tiempo||
+celoso|adj||jaloux|jealous|emociones||
+tamaño|n|m|taille|size|cantidad||
+paquete|n|m|colis|parcel|comunicacion|📦|
+personaje|n|m|personnage|character|cultura||
+conocido|n|m|connaissance|acquaintance|personas||
+rodilla|n|f|genou|knee|cuerpo||
+olor|n|m|odeur|smell|cuerpo||
+instituto|n|m|lycée|secondary school|estudios||≠ EN: institute
+medida|n|f|mesure|measure|sociedad||
+opinar|v||penser|to think (opinion)|comunicacion||
+mudarse|v||déménager|to move house|casa||
+enamorarse|v||tomber amoureux|to fall in love|emociones||enamorarse de
+aprovechar|v||profiter de|to make the most of|acciones||
+trabajador|adj||travailleur|hard-working|descripcion||
+muñeca|n|f|poignet|wrist|cuerpo||also: poupée / doll
+deuda|n|f|dette|debt|dinero||
+comunidad|n|f|communauté|community|sociedad||comunidad de vecinos = copropriété
+altura|n|f|hauteur|height|cantidad||
+girar|v||tourner|to turn|transporte||
+compromiso|n|m|engagement|commitment|abstracto||≠ EN: compromise; ≠ FR: compromis
+hombro|n|m|épaule|shoulder|cuerpo||
+labio|n|m|lèvre|lip|cuerpo||
+pata|n|f|patte|paw|animales||
+a menudo|expr||souvent|often|tiempo||
+echar de menos|expr||manquer à|to miss|emociones||te echo de menos = tu me manques; LatAm: extrañar
+estar a punto de|expr||être sur le point de|to be about to|gramatica||
+menos mal|expr||heureusement|thank goodness|comunicacion||
+no hay de qué|expr||il n'y a pas de quoi|don't mention it|comunicacion||
+tener ganas|expr||avoir envie|to feel like|emociones||tener ganas de
+fábrica|n|f|usine|factory|trabajo|🏭|≠ EN: fabric (= tela)
+frontera|n|f|frontière|border|viaje||
+campaña|n|f|campagne|campaign|sociedad||≠ FR: campagne (champs) = campo
+ventaja|n|f|avantage|advantage|abstracto||
+mentiroso|n|m|menteur|liar|personas||
+ahorrar|v||économiser|to save|dinero||
+cancelar|v||annuler|to cancel|acciones||
+conductor|n|m|conducteur|driver|transporte||≠ EN: conductor
+sano|adj||sain|healthy|salud||
+hoja|n|f|feuille|leaf|naturaleza||also: feuille (papier) / sheet
+entrenamiento|n|m|entraînement|training|deporte||
+calentar|v||chauffer|to heat up|comida||
+botón|n|m|bouton|button|ropa||
+chiste|n|m|blague|joke|comunicacion||
+ambulancia|n|f|ambulance|ambulance|salud|🚑|
+emocionado|adj||ému|excited|emociones||
+anillo|n|m|bague|ring|ropa|💍|
+acostumbrarse|v||s'habituer|to get used to|acciones||acostumbrarse a
+cuadro|n|m|tableau|painting|cultura|🖼️|
+incendio|n|m|incendie|fire|sociedad||
+serpiente|n|f|serpent|snake|animales|🐍|
+impedir|v||empêcher|to prevent|acciones||
+campeón|n|m|champion|champion|deporte||
+solicitar|v||demander|to apply for|sociedad||
+esfuerzo|n|m|effort|effort|abstracto||
+sentido|n|m|sens|sense|abstracto||
+impuesto|n|m|impôt|tax|dinero||
+educación|n|f|éducation|education|estudios||also: politesse / manners
+título|n|m|diplôme|degree|estudios||also: titre / title
+abrazar|v||serrer dans ses bras|to hug|emociones||
+pastilla|n|f|comprimé|pill|salud|💊|
+preocupación|n|f|inquiétude|worry|emociones||
+análisis|n|m|analyse|test|salud||pl. análisis
+anciano|n|m|personne âgée|elderly person|personas||
+aprobar|v||réussir (examen)|to pass (exam)|estudios||also: approuver / to approve
+miel|n|f|miel|honey|comida|🍯|
+cobrar|v||faire payer|to charge|dinero||also: toucher (salaire) / to earn
+en cambio|expr||en revanche|on the other hand|gramatica||
+ni hablar|expr||pas question|no way|comunicacion||
+por lo tanto|expr||donc|therefore|gramatica||
+por si acaso|expr||au cas où|just in case|gramatica||
+salsa|n|f|sauce|sauce|comida||
+casualidad|n|f|hasard|coincidence|abstracto||≠ EN: casualty; por casualidad = by chance
+orgullo|n|m|fierté|pride|emociones||
+garganta|n|f|gorge|throat|cuerpo||
+incómodo|adj||inconfortable|uncomfortable|descripcion||
+emocionante|adj||passionnant|exciting|descripcion||
+entrevista|n|f|entretien|interview|trabajo||
+costumbre|n|f|coutume|custom|cultura||≠ EN: costume (= disfraz)
+prohibido|adj||interdit|forbidden|sociedad||
+pantalla|n|f|écran|screen|tecnologia||
+pillar|v||choper|to catch|acciones||coloquial (Spain)
+actual|adj||actuel|current|tiempo||≠ EN: actual (= real)
+queja|n|f|plainte|complaint|comunicacion||
+discusión|n|f|dispute|argument|comunicacion||≠ FR: discussion (= conversación)
+apetecer|v||avoir envie|to fancy|emociones||Spain: ¿te apetece?
+asco|n|m|dégoût|disgust|emociones||¡qué asco!
+sabor|n|m|goût|flavour|comida||
+despedirse|v||dire au revoir|to say goodbye|comunicacion||despedirse de
+alquiler|n|m|loyer|rent|casa||
+de momento|expr||pour l'instant|for now|tiempo||
+ligero|adj||léger|light|descripcion||
+sensible|adj||sensible|sensitive|descripcion||≠ EN: sensible (= sensato)
+callado|adj||silencieux|quiet|descripcion||
+batería|n|f|batterie|battery|tecnologia|🔋|
+pariente|n|m|parent (famille)|relative|familia||≠ FR: parents (= padres)
+borrar|v||effacer|to delete|tecnologia||
+gasto|n|m|dépense|expense|dinero||
+decepcionar|v||décevoir|to disappoint|emociones||≠ EN: deceive (= engañar)
+cartera|n|f|portefeuille|wallet|dinero||also: cartable / school bag
+asistir|v||assister à|to attend|acciones||≠ EN: assist (= ayudar)
+prohibir|v||interdire|to forbid|sociedad||
+igualmente|adv||également|likewise|comunicacion||¡igualmente! = toi aussi !
+enfrente|adv||en face|opposite|ciudad||enfrente de
+lectura|n|f|lecture|reading|estudios||≠ EN: lecture (= conferencia)
+mezclar|v||mélanger|to mix|comida||
+estar harto|expr||en avoir marre|to be fed up|emociones||estar harto de
+avergonzado|adj||honteux|ashamed|emociones||
+añadir|v||ajouter|to add|acciones||
+limpieza|n|f|ménage|cleaning|casa||
+ilusión|n|f|enthousiasme|excitement|emociones||also: illusion; me hace ilusión
+carácter|n|m|caractère|personality|descripcion||pl. caracteres
+clima|n|m|climat|climate|clima||
+de vez en cuando|expr||de temps en temps|from time to time|tiempo||
+hacer caso|expr||écouter|to pay attention|comunicacion||hacer caso a alguien
+llevarse bien|expr||bien s'entendre|to get on well|personas||llevarse bien con
+pasarlo bien|expr||bien s'amuser|to have a good time|ocio||
+por suerte|expr||heureusement|luckily|gramatica||
+qué va|expr||pas du tout|no way|comunicacion||coloquial (Spain)
+denunciar|v||porter plainte|to report (to police)|sociedad||also: dénoncer / to denounce
+equipaje|n|m|bagages|luggage|viaje||
+propietario|n|m|propriétaire|owner|casa||
+estropear|v||abîmer|to damage|acciones||
+enhorabuena|interj||félicitations|congratulations|comunicacion||
+quejarse|v||se plaindre|to complain|comunicacion||
+factura|n|f|facture|bill|dinero||
+mascota|n|f|animal de compagnie|pet|animales||
+novela|n|f|roman|novel|cultura||≠ FR: nouvelle (= relato)
+charlar|v||bavarder|to chat|comunicacion||
+plazo|n|m|délai|deadline|tiempo||
+decepcionado|adj||déçu|disappointed|emociones||
+síntoma|n|m|symptôme|symptom|salud||
+infancia|n|f|enfance|childhood|personas||
+agotado|adj||épuisé|exhausted|emociones||also: épuisé (stock) / sold out
+vago|adj||paresseux|lazy|descripcion||also: vague / vague
+fianza|n|f|caution|deposit|casa||
+solicitud|n|f|demande|application|sociedad||
+educado|adj||poli|polite|descripcion||≠ EN: educated (= culto)
+aburrirse|v||s'ennuyer|to get bored|emociones||
+felicitar|v||féliciter|to congratulate|comunicacion||
+fastidiar|v||embêter|to annoy|emociones||
+dedicarse|v||travailler dans|to do for a living|trabajo||¿a qué te dedicas?
+cada vez más|expr||de plus en plus|more and more|cantidad||
+caer bien|expr||être sympathique à|to like (sb)|personas||me cae bien = je le trouve sympa
+echar una mano|expr||donner un coup de main|to lend a hand|acciones||
+hoy en día|expr||de nos jours|nowadays|tiempo||
+qué más da|expr||qu'importe|what does it matter|comunicacion||
+autopista|n|f|autoroute|motorway|transporte||
+actualmente|adv||actuellement|currently|tiempo||≠ EN: actually (= en realidad)
+celos|n|m|jalousie|jealousy|emociones||pl.
+soledad|n|f|solitude|loneliness|emociones||
+suspender|v||rater (examen)|to fail (exam)|estudios||also: suspendre / to suspend
+fijarse|v||remarquer|to notice|acciones||fijarse en
+susto|n|m|frayeur|fright|emociones||
+bastar|v||suffire|to be enough|cantidad||
+multa|n|f|amende|fine|sociedad||
+descargar|v||télécharger|to download|tecnologia||also: décharger / to unload
+abrazo|n|m|câlin|hug|emociones||
+enfadarse|v||se fâcher|to get angry|emociones||LatAm: enojarse
+propina|n|f|pourboire|tip|comida||
+comentar|v||commenter|to mention|comunicacion||
+recibo|n|m|reçu|receipt|dinero|🧾|
+urgencias|n|f|urgences|A&E|salud||pl.
+contraseña|n|f|mot de passe|password|tecnologia||
+portátil|n|m|ordinateur portable|laptop|tecnologia|💻|
+formulario|n|m|formulaire|form|sociedad||
+ayuntamiento|n|m|mairie|town hall|ciudad||
+portarse|v||se conduire|to behave|acciones||portarse bien / mal
+funcionario|n|m|fonctionnaire|civil servant|trabajo||
+picante|adj||épicé|spicy|comida||
+zapatilla|n|f|basket|trainer|ropa|👟|also: chausson / slipper
+refresco|n|m|soda|soft drink|bebida||
+cola|n|f|queue|tail|animales||also: queue (attente) / queue
+tranquilizarse|v||se calmer|to calm down|emociones||
+ansiedad|n|f|anxiété|anxiety|emociones||
+sobrar|v||rester (en trop)|to be left over|cantidad||
+repasar|v||réviser|to revise|estudios||
+ánimo|n|m|moral|spirits|emociones||¡ánimo! = courage !
+regular|adj||moyen|so-so|descripcion||also: régulier / regular
+aviso|n|m|avertissement|warning|comunicacion||≠ FR: avis (= opinión)
+aparcar|v||se garer|to park|transporte||LatAm: estacionar
+cariñoso|adj||affectueux|affectionate|descripcion||
+chulo|adj||chouette|cool|descripcion||Spain; also: crâneur / cocky
+tapa|n|f|tapa|tapa|comida||also: couvercle / lid
+aparcamiento|n|m|parking|car park|transporte||LatAm: estacionamiento
+ahorros|n|m|économies|savings|dinero||pl.
+inconveniente|n|m|inconvénient|drawback|abstracto||
+prácticas|n|f|stage|internship|trabajo||pl.
+molar|v||plaire|to be cool|emociones||coloquial (Spain): me mola
+vivienda|n|f|logement|housing|casa||
+ponerse de acuerdo|expr||se mettre d'accord|to agree|comunicacion||
+cajero|n|m|distributeur|cash machine|dinero|🏧|= cajero automático; also: caissier / cashier
+vacuna|n|f|vaccin|vaccine|salud||
+manifestación|n|f|manifestation|demonstration|sociedad||
+caña|n|f|demi|small beer|bebida||Spain: draught beer
+despedida|n|f|adieux|farewell|comunicacion||
+inquilino|n|m|locataire|tenant|casa||
+inmigrante|n|mf|immigré|immigrant|sociedad||
+gasolinera|n|f|station-service|petrol station|transporte|⛽|
+suegro|n|m|beau-père|father-in-law|familia||
+alojamiento|n|m|logement|accommodation|viaje||
+caber|v||tenir (dans)|to fit|cantidad||irregular: quepo, cupe
+librería|n|f|librairie|bookshop|compras||≠ EN: library (= biblioteca)
+guay|adj||génial|cool|descripcion||coloquial (Spain)
+medio ambiente|expr||environnement|environment|naturaleza||
+redes sociales|expr||réseaux sociaux|social media|tecnologia||
+aduana|n|f|douane|customs|viaje||
+beca|n|f|bourse|grant|estudios||
+tos|n|f|toux|cough|salud||
+jornada|n|f|journée de travail|working day|trabajo||jornada completa = full-time
+apuntarse|v||s'inscrire|to sign up|ocio||apuntarse a
+envío|n|m|envoi|delivery|compras||
+mudanza|n|f|déménagement|house move|casa||
+ración|n|f|portion|portion|comida||
+calefacción|n|f|chauffage|heating|casa||
+sueldo|n|m|salaire|salary|dinero||
+carpeta|n|f|dossier|folder|tecnologia|📁|≠ EN: carpet (= alfombra)
+grifo|n|m|robinet|tap|casa||LatAm: llave, canilla
+tacaño|adj||radin|stingy|descripcion||
+mareo|n|m|vertige|dizziness|salud||also: nausée / sickness
+majo|adj||sympa|nice|descripcion||Spain
+enfermero|n|m|infirmier|nurse|salud||
+cargador|n|m|chargeur|charger|tecnologia||
+rabia|n|f|rage|rage|emociones||me da rabia = ça m'énerve
+hipoteca|n|f|prêt immobilier|mortgage|dinero||
+semáforo|n|m|feu (de circulation)|traffic light|ciudad|🚦|
+retraso|n|m|retard|delay|transporte||
+sartén|n|f|poêle|frying pan|casa||
+contaminación|n|f|pollution|pollution|naturaleza||
+huelga|n|f|grève|strike|sociedad||
+maleducado|adj||mal élevé|rude|descripcion||
+paro|n|m|chômage|unemployment|trabajo||Spain: estar en el paro
+bombilla|n|f|ampoule|light bulb|casa|💡|
+presupuesto|n|m|budget|budget|dinero||also: devis / quote
+descuento|n|m|réduction|discount|compras||
+enlace|n|m|lien|link|tecnologia|🔗|
+encargado|n|m|responsable|person in charge|trabajo||
+carné de conducir|expr||permis de conduire|driving licence|transporte||
+hacer cola|expr||faire la queue|to queue|ciudad||
+carné|n|m|carte|card|sociedad|🪪|carné de identidad = ID card
+talla|n|f|taille|size|ropa||
+currículum|n|m|CV|CV|trabajo||
+aceituna|n|f|olive|olive|comida|🫒|
+despido|n|m|licenciement|dismissal|trabajo||
+gamba|n|f|crevette|prawn|comida|🦐|LatAm: camarón
+cuñado|n|m|beau-frère|brother-in-law|familia||
+fatal|adj||nul|awful|descripcion||coloquial: estoy fatal
+dependiente|n|m|vendeur|shop assistant|compras||
+marisco|n|m|fruits de mer|seafood|comida||
+fregar|v||faire la vaisselle|to wash up|casa||also: fregar el suelo = to mop
+ambiente|n|m|ambiance|atmosphere|abstracto||
+envidia|n|f|jalousie|envy|emociones||≠ FR: envie (= ganas)
+auriculares|n|m|écouteurs|headphones|tecnologia|🎧|pl.
+madrugada|n|f|petit matin|early hours|tiempo||
+que aproveche|expr||bon appétit|enjoy your meal|comida||
+que te mejores|expr||bon rétablissement|get well soon|salud||
+resaca|n|f|gueule de bois|hangover|bebida||
+acera|n|f|trottoir|pavement|ciudad||LatAm: banqueta, vereda
+comisaría|n|f|commissariat|police station|ciudad||
+timbre|n|m|sonnette|doorbell|casa||≠ FR: timbre (= sello)
+enchufe|n|m|prise|plug|casa|🔌|coloquial: piston / connections
+ajo|n|m|ail|garlic|comida|🧄|
+agobiado|adj||débordé|overwhelmed|emociones||Spain
+atasco|n|m|embouteillage|traffic jam|transporte||
+asignatura|n|f|matière|subject|estudios||
+resfriado|n|m|rhume|cold|salud||
+apuntes|n|m|notes de cours|notes|estudios||pl.
+enfado|n|m|colère|anger|emociones||Spain; LatAm: enojo
+trámite|n|m|démarche|procedure|sociedad||
+centro de salud|expr||centre de santé|health centre|salud||
+cita previa|expr||rendez-vous|appointment|sociedad||Spain: administración
+paso de peatones|expr||passage piéton|zebra crossing|ciudad||
+rebajas|n|f|soldes|sales|compras||pl.
+despistado|adj||distrait|absent-minded|descripcion||
+constipado|adj||enrhumé|having a cold|salud||≠ FR: constipé; ≠ EN: constipated (= estreñido)

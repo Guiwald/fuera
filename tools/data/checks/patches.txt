@@ -1,0 +1,46 @@
+pariente|n|gender|mf
+sitio|n|note|sitio web = site web / website
+pena|n|en|sorrow, pity
+propio|adj|note|≠ FR: propre (clean) = limpio
+molesto|adj|note|also: gênant / annoying
+tamaño|n|fr|taille, dimension
+talla|n|fr|taille (vêtement)
+talla|n|en|size (clothes)
+comunidad|n|note|comunidad de vecinos = copropriété / residents' association
+conductor|n|note|≠ EN: conductor (= revisor, director de orquesta)
+emocionado|adj|en|moved, excited
+abrazar|v|fr|enlacer
+análisis|n|note|pl. análisis; análisis de sangre = prise de sang / blood test
+avergonzado|adj|note|also: gêné / embarrassed
+limpieza|n|fr|nettoyage
+carácter|n|en|temperament
+estropear|v|en|to spoil
+plazo|n|note|a plazos = en plusieurs fois / in instalments
+jornada|n|note|jornada completa = temps plein / full-time
+ración|n|note|Spain: plat à partager (bar) / sharing plate
+sartén|n|note|LatAm: also el sartén
+envidia|n|fr|envie, jalousie
+envidia|n|note|≠ FR: envie (désir) = ganas
+cortado|n|en|macchiato
+anda|interj|note|Spain; also: allez / come on
+broma|n|en|joke, prank
+cita|n|note|also: rendez-vous galant / date
+incómodo|adj|note|estar incómodo = être mal à l'aise
+referirse|v|fr|se référer à
+ligar|v|note|coloquial (Spain); also: lier / to bind
+ternera|n|note|Spain: also bœuf / beef
+fontanero|n|note|LatAm: plomero
+bañador|n|note|Spain; LatAm: traje de baño
+portátil|n|note|LatAm: laptop
+zapatilla|n|note|also: chausson / slipper; LatAm: tenis
+maletero|n|note|LatAm: cajuela, baúl
+cartera|n|note|also: cartable / school bag; LatAm: billetera
+resfriado|n|note|LatAm: resfrío
+fregar|v|note|also: fregar el suelo = to mop; LatAm: lavar los platos
+bombilla|n|note|LatAm: foco, bombillo
+seguramente|adv|note|= probablemente
+soldado|n|gender|mf
+recuerdo|n|en|memory
+recuerdo|n|note|also: souvenir (objet) / souvenir
+cabrearse|v|en|to get mad
+agobiarse|v|en|to get overwhelmed

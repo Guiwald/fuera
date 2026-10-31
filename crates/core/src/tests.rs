@@ -345,3 +345,16 @@ fn astar_matches_bfs() {
     }
     assert!(checked > 40, "only {checked} levels checked");
 }
+
+#[test]
+fn word_boards_are_solvable() {
+    use crate::generator::word_board;
+    for seed in 0..30u64 {
+        let tiles = [(2, 0), (2, 1), (3, 2), (2, 3)];
+        let doors = [0, 1, 2, 3, 100];
+        let l = word_board(&tiles, &doors, seed, 40, (0, 3)).expect("board");
+        assert_eq!(l.meta.wrong_door, crate::WrongDoor::Bounce);
+        let r = solver::solve(&l, &crate::State::initial(&l), 100_000);
+        assert!(matches!(r.result, Solve::Solved(_)), "seed {seed}\n{}", l.to_text());
+    }
+}

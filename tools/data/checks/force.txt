@@ -1,0 +1,20 @@
+# expressions moved to B2
+B2: a la vez|cuanto antes|sin querer|tener lugar|hacer ilusión|por desgracia|tener en cuenta|desde luego|en fin|mientras tanto
+# advanced / colloquial items kept at B2 regardless of frequency
+B2: pasarse meterse ocurrirse largarse hacerse referirse suceder pretender comprometerse desconfiar cabrearse agobiarse flipar currar cotillear ligar chorrada mogollón curro chaval cotilla cutre pijo cabezota ostras aposta cuyo mediante tras ante billón oposiciones disgusto embarazoso ingenuo comprensivo conveniente sensato dispuesto imprescindible
+B2: bajo deber logro juzgado conferencia tensión registrar liso asombroso pendiente
+# everyday Spain-life items kept at B1 despite low subtitle frequency
+B1: dedicarse aprovechar ahorrar cancelar aprobar suspender cobrar apetecer quejarse aburrirse opinar borrar descargar mezclar añadir fastidiar molar aparcar fregar soler tardar sobrar calentar repasar felicitar comentar charlar decepcionar asistir denunciar estropear solicitar impedir acostumbrarse portarse tranquilizarse pillar adivinar curar abrazar girar prohibir caber bastar
+B1: multa huelga beca propina ración tapa caña urgencias paro contraseña ayuntamiento formulario refresco funcionario descuento resfriado vacuna aparcamiento ahorros hipoteca vivienda cajero inquilino resaca alojamiento acera aduana librería tos jornada mudanza calefacción carpeta grifo mareo enchufe atasco rebajas asignatura cuñado suegro retraso presupuesto talla envío celos susto rabia soledad envidia ansiedad despido prácticas carné currículum dependiente semáforo sartén bombilla auriculares cargador portátil enlace apuntes aceituna gamba marisco gasolinera autopista timbre contaminación manifestación inmigrante inconveniente madrugada enfado zapatilla enfermero trámite
+B1: fatal guay agotado vago educado regular majo constipado decepcionado cariñoso tacaño picante despistado agobiado maleducado chulo
+B1: enseguida apenas ojalá ojo últimamente actualmente seguramente enhorabuena despacio igualmente enfrente
+B1: según alrededor cualquiera anda faltar fijarse enfadarse enamorarse aguantar apuntarse notar superar atender realizar sonreír marcar rechazar fallar apoyar
+B1: sano alquiler sueldo factura recibo gasto plazo fianza solicitud síntoma comisaría equipaje sabor asco abrazo ánimo ilusión pariente actual sensible lectura novela carácter propietario limpieza encargado infancia clima mascota emocionado incómodo prohibido emocionante ligero callado avergonzado batería cartera
+B2: arma ejército testigo rayo trago mando meta delito pulmón deshacer encerrar montar renunciar enterrar emocionarse
+B1: despedirse mudarse cruzar avisar convencer contratar comprobar cumplir firmar colgar cargar pesado extranjero sencillo soltero trabajador celoso sino impuesto pastilla título despedida queja discusión costumbre casualidad pantalla aviso conductor cola ambiente educación ajo
+B1: enterarse encargarse alegrarse acordarse marcharse reunirse tratarse dormirse callarse probarse negarse soportar atreverse ordenar prestar quemar empujar grabar aclarar vomitar
+B1: culpa gusto pena sobre acuerdo suelo odio matrimonio intento peligro gobierno prensa oferta baile empleo contrato robo destino firma permiso amistad falta apoyo docena medianoche cinturón guante herramienta trozo efectivo divorcio vergüenza turno pedido charla
+B1: embarazada grave parecido desconocido jamás ambos gratis
+B2: ladrón alcalde lobo entrenador alma mente atrapar golpear averiguar
+B1: reconocer construir equivocarse discutir crear resolver despedir negar incluso atrás demás justo enfadado complicado hombro anillo chiste entrevista ventaja hoja esfuerzo preocupación lío frontera
+B2: cambio climático|horas extra|en lugar de|a través de|de pronto

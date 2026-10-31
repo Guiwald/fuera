@@ -1,0 +1,23 @@
+<title>¡Fuera!</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* One-screen game: the canvas fills the frame; the game draws its own Mediterranean look. */
+  :root { --sea: #0c3352; --ink: #ffffff; color-scheme: dark; }
+  html, body { height: 100%; margin: 0; background: var(--sea); color: var(--ink); overflow: hidden; touch-action: none; overscroll-behavior: none; }
+  body { padding-left: max(0px, env(safe-area-inset-left, 0px)); padding-right: max(0px, env(safe-area-inset-right, 0px)); }
+  canvas { display: block; width: 100%; height: 100%; outline: none; touch-action: none; }
+  #loading { position: fixed; inset: 0; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; font: 600 20px system-ui, sans-serif; }
+  #loading small { font-weight: 400; font-size: 14px; opacity: .75; max-width: 30ch; text-align: center; }
+</style>
+<div id="loading">¡Fuera!<small id="status">Chargement… / Loading…</small></div>
+<script type="module">
+  const status = document.getElementById("status");
+  try {
+    const mod = await import("./fuera.js");
+    await mod.default({ module_or_path: "./fuera_bg.wasm" });
+    document.getElementById("loading").remove();
+    document.querySelector("canvas")?.focus();
+  } catch (e) {
+    status.textContent = "Erreur de chargement : " + (e && e.message ? e.message : e);
+  }
+</script>
