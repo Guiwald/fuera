@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use fuera_core::rules::Result as MoveResult;
 use fuera_core::{Dir, Game, Move};
-use fuera_learn::content::{Band, Base, Content};
+use fuera_learn::content::{Band, Base, Content, Course, Target};
 use fuera_learn::fsrs::Rating;
 use fuera_learn::plan::{self, Mode, Planner, Round};
 use tiny_skia::{Pixmap, Transform};
@@ -12,7 +12,7 @@ use tiny_skia::{Pixmap, Transform};
 use super::{Action, App, Drag, Hit, Screen, Style};
 use crate::board::{BoardView, Look, Skin};
 use crate::gfx::{self, fill, solid};
-use crate::i18n::{T, tr};
+use crate::i18n::{T, tr, tr_course};
 use crate::icons::{self, Icon};
 use crate::sfx::Sfx;
 use crate::text::{Align, Face};
@@ -39,40 +39,62 @@ pub(super) struct LearnPlay {
     /// Worst rating per item this round, applied when the round ends.
     ratings: HashMap<String, Rating>,
     pub feedback: Option<(String, f32)>,
+    /// What the correction card is about (item id, or the tile's text for a distractor), for reporting it.
+    pub feedback_item: Option<String>,
     pub won: Option<f32>,
     pub session: bool,
     /// Legend: (mark, text) for doors with long texts.
     pub legend: Vec<(String, String)>,
-    /// (tile text, right?) in answer order, for the summary.
-    pub results: Vec<(String, bool)>,
+    /// (tile text, right?, item id or text) in answer order, for the summary.
+    pub results: Vec<(String, bool, String)>,
 }
 
 impl App {
+    /// The language of the meanings for the current course (its own setting; by default the interface language
+    /// when the course offers it).
     pub(super) fn base(&self) -> Base {
-        match self.save.get("base") {
-            Some("en") => Base::En,
-            Some("fr") => Base::Fr,
-            _ => {
-                if self.lang == crate::i18n::Lang::Fr {
-                    Base::Fr
-                } else {
-                    Base::En
-                }
-            }
+        let target = self.course().target;
+        let key = if target == Target::Es { "base" } else { "fr.base" };
+        let bases = target.bases();
+        if let Some(b) = self.save.get(key).and_then(Base::from_code).filter(|b| bases.contains(b)) {
+            return b;
         }
+        let ui = match self.lang {
+            crate::i18n::Lang::Fr => Base::Fr,
+            crate::i18n::Lang::En => Base::En,
+            crate::i18n::Lang::Es => Base::Es,
+        };
+        if bases.contains(&ui) { ui } else { Base::En }
     }
 
     fn content(&mut self) -> &Content {
-        if self.content.is_none() {
-            self.content = Some(Content::load());
+        let course = self.course();
+        if self.content.as_ref().is_none_or(|c| c.course != course) {
+            self.content = Some(Content::load(course));
         }
         self.content.as_ref().unwrap()
     }
 
     pub(super) fn save_memory(&mut self) {
+        let p = super::mem_prefix(self.memory_of);
         for (k, v) in self.memory.to_pairs() {
-            self.save.set(&k, v);
+            self.save.set(&format!("{p}{k}"), v);
         }
+        self.persist();
+    }
+
+    /// Switches course: the progress of the one left is saved, the other one's loaded.
+    fn set_course(&mut self, course: Course) {
+        self.save_memory();
+        self.save.set("course", course.target.code());
+        if course.target == Target::Es {
+            self.save.set("es_variant", if course.latam { "419" } else { "es" });
+        }
+        if self.memory_of != course.target {
+            self.memory = super::load_memory(&self.save, course.target);
+            self.memory_of = course.target;
+        }
+        self.placement.clear();
         self.persist();
     }
 
@@ -85,10 +107,8 @@ impl App {
         let day = self.host.today();
         let done = if self.memory.today.0 == day { self.memory.today.1 } else { 0 };
         let band = self.band();
-        let grammar: Vec<Mode> = [Mode::Gender, Mode::Verbs, Mode::SerEstar, Mode::PorPara, Mode::Past, Mode::Subjunctive, Mode::FalseFriends]
-            .into_iter()
-            .filter(|m| m.min_band() <= band)
-            .collect();
+        let target = self.course().target;
+        let grammar: Vec<Mode> = Mode::grammar(target).iter().copied().filter(|m| m.min_band(target) <= band).collect();
         let g = |k: i64| grammar[((day + k).rem_euclid(grammar.len() as i64)) as usize];
         match done % 5 {
             0 => Mode::Words,
@@ -108,12 +128,13 @@ impl App {
     pub(super) fn start_round(&mut self, mode: Mode, session: bool) {
         let now = self.host.now_days();
         let base = self.base();
+        let latam = self.latam();
         let band = if mode == Mode::Placement { Band::B2 } else { self.band() };
         let seed = (now * 86_400.0) as u64 ^ (self.time * 1000.0) as u64;
         self.content();
         let content = self.content.as_ref().unwrap();
         let round = {
-            let mut p = Planner::new(content, &self.memory, base, band, now, seed);
+            let mut p = Planner::new(content, &self.memory, base, band, now, seed).with_latam(latam);
             p.plan(mode)
         };
         let Some(mut round) = round else { return };
@@ -132,7 +153,7 @@ impl App {
             log::warn!("no board for {mode:?}");
             return;
         };
-        level.meta.name = mode.name_es().to_string();
+        level.meta.name = mode.name(self.course().target).to_string();
         // Looks: pastel tiles (colour unrelated to the answer), terracotta doors with signs.
         let mut legend = Vec::new();
         let marks = ["A", "B", "C", "D", "E"];
@@ -180,6 +201,7 @@ impl App {
             wrong: 0,
             ratings: HashMap::new(),
             feedback: None,
+            feedback_item: None,
             won: None,
             session,
             legend,
@@ -208,7 +230,7 @@ impl App {
                 if !p.answered[i] {
                     p.answered[i] = true;
                     p.right += 1;
-                    p.results.push((tile.text.clone(), true));
+                    p.results.push((tile.text.clone(), true, tile.item.clone().unwrap_or_else(|| format!("t:{}", tile.text))));
                     if let Some(item) = &tile.item {
                         let r = if p.hinted[i] { Rating::Hard } else { Rating::Good };
                         let e = p.ratings.entry(item.clone()).or_insert(r);
@@ -228,7 +250,7 @@ impl App {
                 if !p.answered[i] {
                     p.answered[i] = true;
                     p.wrong += 1;
-                    p.results.push((tile.text.clone(), false));
+                    p.results.push((tile.text.clone(), false, tile.item.clone().unwrap_or_else(|| format!("t:{}", tile.text))));
                     let gate_item = p.round.gates.iter().find(|g| g.key == p.game.level.doors[door].key).and_then(|g| g.item.clone());
                     if let Some(item) = tile.item.clone().or(gate_item) {
                         p.ratings.insert(item, Rating::Again);
@@ -238,12 +260,13 @@ impl App {
                     }
                 }
                 p.feedback = Some((tile.explain.clone(), 5.0));
+                p.feedback_item = Some(tile.item.clone().unwrap_or_else(|| format!("t:{}", tile.text)));
                 say = tile.say.clone();
             }
             _ => {}
         }
         if let Some(s) = say {
-            self.say_es(&s);
+            self.say(&s);
         }
     }
 
@@ -328,24 +351,82 @@ impl App {
             }
             Action::Notebook => self.screen = Screen::Notebook { scroll: 0.0, drag: None },
             Action::ToggleBase => {
-                let b = if self.base() == Base::Fr { "en" } else { "fr" };
-                self.save.set("base", b);
+                let target = self.course().target;
+                let bases = target.bases();
+                let next = if self.base() == bases[0] { bases[1] } else { bases[0] };
+                self.save.set(if target == Target::Es { "base" } else { "fr.base" }, next.code());
                 self.persist();
             }
+            Action::Courses => self.screen = Screen::Courses,
+            Action::PickCourse(c) => {
+                self.set_course(c);
+                self.screen = Screen::LearnHome;
+            }
+            Action::ToggleVariant => {
+                let v = if self.latam() { "es" } else { "419" };
+                self.save.set("es_variant", v);
+                self.persist();
+            }
+            Action::Feedback => self.send_feedback(),
+            Action::FlagFeedback => {
+                if let Screen::LearnPlay(p) = &self.screen
+                    && let (Some(item), Some((text, _))) = (p.feedback_item.clone(), p.feedback.clone())
+                {
+                    self.flagging = Some((item, text));
+                }
+            }
+            Action::FlagResult(i) => {
+                if let Screen::LearnPlay(p) = &self.screen
+                    && let Some((text, _, item)) = p.results.get(i).cloned()
+                {
+                    self.flagging = Some((item, text));
+                }
+            }
+            Action::FlagMiss(i) => {
+                let base = self.base();
+                let latam = self.latam();
+                if let Some(id) = self.memory.misses.get(i).cloned() {
+                    self.content();
+                    let text = plan::describe(self.content.as_ref().unwrap(), &id, base, latam).map(|d| d.0).unwrap_or_else(|| id.clone());
+                    self.flagging = Some((id, text));
+                }
+            }
+            Action::FlagReason(r) => {
+                if let Some((item, text)) = self.flagging.take() {
+                    let reason = ["voice", "meaning", "other"][r.min(2) as usize];
+                    let course = self.course();
+                    // Fields separated by U+001E (item ids contain `|`), entries by U+001F.
+                    let day = self.host.today();
+                    let entry = format!("{}\u{1e}{}\u{1e}{}\u{1e}{}\u{1e}{day}", course.voice_pack(), item, reason, text.replace(['\u{1e}', '\u{1f}', '\n'], " "));
+                    let mut flags: Vec<String> = self.save.get("fb.flags").unwrap_or("").split('\u{1f}').filter(|x| !x.is_empty()).map(|x| x.to_string()).collect();
+                    flags.retain(|f| f.split('\u{1e}').nth(1) != Some(item.as_str()));
+                    flags.push(entry);
+                    // The 60 most recent reports.
+                    let n = flags.len();
+                    if n > 60 {
+                        flags.drain(..n - 60);
+                    }
+                    self.save.set("fb.flags", flags.join("\u{1f}"));
+                    self.persist();
+                    self.toast = Some((tr(self.lang, T::Reported).to_string(), 3.0));
+                }
+            }
+            Action::FlagCancel => self.flagging = None,
             Action::SayIntro(i) => {
                 if let Screen::LearnIntro(p) = &self.screen
                     && let Some(w) = p.round.intro.get(i)
                 {
-                    let s = w.es.clone();
-                    self.say_es(&s);
+                    let s = w.say.clone();
+                    self.say(&s);
                 }
             }
             Action::SayMiss(i) => {
                 let base = self.base();
+                let latam = self.latam();
                 if let Some(id) = self.memory.misses.get(i).cloned() {
                     self.content();
-                    if let Some((_, say)) = plan::describe(self.content.as_ref().unwrap(), &id, base) {
-                        self.say_es(&say);
+                    if let Some((_, say)) = plan::describe(self.content.as_ref().unwrap(), &id, base, latam) {
+                        self.say(&say);
                     }
                 }
             }
@@ -408,6 +489,9 @@ impl App {
         // Tapping a tile reads it aloud without its answer, unless the player chose to hear the answer (counted as
         // a hint for that tile, like the light bulb).
         let say_answer = self.save.get_bool("say_answer", false);
+        if self.flagging.is_some() {
+            return false;
+        }
         {
             let Screen::LearnPlay(p) = &mut self.screen else { return false };
             if p.won.is_some() {
@@ -458,7 +542,7 @@ impl App {
             self.learn_move(m);
         }
         if let Some(s) = tap {
-            self.say_es(&s);
+            self.say(&s);
         }
         false
     }
@@ -478,8 +562,16 @@ impl App {
     pub(super) fn draw_learn_home(&mut self, pm: &mut Pixmap) {
         let u = self.u;
         let lang = self.lang;
-        let title = tr(lang, T::Spanish);
+        let course = self.course();
+        let target = course.target;
+        let title = match target {
+            Target::Es => tr(lang, T::Spanish),
+            Target::Fr => tr(lang, T::French),
+        };
         let mut y = self.draw_header(pm, title) + 4.0 * u;
+        // Feedback, top right.
+        let fy = self.top + 40.0 * u;
+        self.round_button(pm, Action::Feedback, self.w - 36.0 * u, fy, 48.0 * u, Icon::Bubble, None);
         let day = self.host.today();
         let w = self.w;
         let cx = w / 2.0;
@@ -496,8 +588,8 @@ impl App {
         fill(pm, &gfx::rrect(x0, y, bw * f, 10.0 * u, 5.0 * u), &solid(col(theme::GOLD)), Transform::identity());
         y += 24.0 * u;
         if self.memory.placed.is_none() {
-            let ask = tr(lang, T::PlacementAsk);
-            self.button(pm, Action::Placement, x0, y, bw, 52.0 * u, ask, None, Style::Primary);
+            let ask = tr_course(lang, T::PlacementAsk, target);
+            self.button(pm, Action::Placement, x0, y, bw, 52.0 * u, &ask, None, Style::Primary);
             y += 52.0 * u + 14.0 * u;
             let s = tr(lang, T::TodaySession);
             self.button(pm, Action::LearnSession, x0, y, bw, 56.0 * u, s, Some(Icon::Play), Style::Secondary);
@@ -506,26 +598,31 @@ impl App {
             self.button(pm, Action::LearnSession, x0, y, bw, 64.0 * u, s, Some(Icon::Play), Style::Primary);
         }
         y += 64.0 * u + 18.0 * u;
-        // Modes, two per row.
+        // Modes, two per row (names in the language learnt).
         let gap = 10.0 * u;
         let mw = (bw - gap) / 2.0;
         let mh = 46.0 * u;
         let band = self.band();
-        for (i, m) in Mode::MENU.iter().enumerate() {
+        let menu = Mode::menu(target);
+        for (i, m) in menu.iter().enumerate() {
             let (col_i, row) = (i % 2, i / 2);
             let bx = x0 + col_i as f32 * (mw + gap);
             let by = y + row as f32 * (mh + gap);
-            let style = if m.min_band() <= band { Style::Secondary } else { Style::Ghost };
-            self.button(pm, Action::LearnMode(*m), bx, by, mw, mh, m.name_es(), None, style);
+            let style = if m.min_band(target) <= band { Style::Secondary } else { Style::Ghost };
+            self.button(pm, Action::LearnMode(*m), bx, by, mw, mh, m.name(target), None, style);
         }
-        y += Mode::MENU.len().div_ceil(2) as f32 * (mh + gap) + 6.0 * u;
+        y += menu.len().div_ceil(2) as f32 * (mh + gap) + 6.0 * u;
+        // Notebook, meanings, course.
+        let sq = mh;
+        let w2 = (bw - 2.0 * gap - sq) / 2.0;
         let nb = tr(lang, T::Notebook);
         let n_miss = self.memory.misses.len();
         let label = if n_miss > 0 { format!("{nb} ({n_miss})") } else { nb.to_string() };
-        self.button(pm, Action::Notebook, x0, y, mw, mh, &label, Some(Icon::Book), Style::Ghost);
-        let base = if self.base() == Base::Fr { "FR" } else { "EN" };
+        self.button(pm, Action::Notebook, x0, y, w2, mh, &label, Some(Icon::Book), Style::Ghost);
+        let base = self.base().code().to_uppercase();
         let meanings = format!("{} {base}", tr(lang, T::Meanings));
-        self.button(pm, Action::ToggleBase, x0 + mw + gap, y, mw, mh, &meanings, None, Style::Ghost);
+        self.button(pm, Action::ToggleBase, x0 + w2 + gap, y, w2, mh, &meanings, None, Style::Ghost);
+        self.button(pm, Action::Courses, x0 + 2.0 * (w2 + gap), y, sq, mh, "", Some(Icon::Globe), Style::Ghost);
         y += mh + 16.0 * u;
         let (seen, _, solid_n) = self.memory.counts("w:");
         let lvl = match self.memory.placed {
@@ -537,6 +634,159 @@ impl App {
         if self.memory.placed.is_some() {
             self.hits.push(Hit { x: x0, y: y - 10.0 * u, w: bw, h: 26.0 * u, a: Action::Placement });
         }
+    }
+
+    /// The course picker: three courses, the one matching the device's language first in colour.
+    pub(super) fn draw_courses(&mut self, pm: &mut Pixmap) {
+        let u = self.u;
+        let lang = self.lang;
+        let title = tr(lang, T::LearnLanguage);
+        let mut y = self.draw_header(pm, title) + 24.0 * u;
+        let cx = self.w / 2.0;
+        let q = tr(lang, T::WhichLanguage);
+        for l in self.fonts.wrap(Face::Bold, q, 19.0 * u, self.w - 48.0 * u) {
+            self.fonts.draw_shadowed(pm, Face::Bold, &l, cx, y + 8.0 * u, 19.0 * u, col(theme::WHITE), Align::Center);
+            y += 26.0 * u;
+        }
+        y += 18.0 * u;
+        let current = if self.save.get("course").is_some() {
+            Some(self.course())
+        } else {
+            // Nothing chosen yet: Spanish-speaking devices are offered French, the others Spanish.
+            Some(match self.lang {
+                crate::i18n::Lang::Es => Course::FRENCH,
+                _ => {
+                    if self.latam() {
+                        Course::LATAM
+                    } else {
+                        Course::SPAIN
+                    }
+                }
+            })
+        };
+        let bw = (330.0 * u).min(self.w * 0.88);
+        let bh = 76.0 * u;
+        let x = cx - bw / 2.0;
+        let opts = [(Course::SPAIN, T::CourseSpain, T::CourseSpainNote), (Course::LATAM, T::CourseLatam, T::CourseLatamNote), (Course::FRENCH, T::CourseFrench, T::CourseFrenchNote)];
+        for (c, name, note) in opts {
+            let style = if Some(c) == current { Style::Primary } else { Style::Secondary };
+            self.button(pm, Action::PickCourse(c), x, y, bw, bh * 0.72, tr(lang, name), Some(Icon::Globe), style);
+            let n = tr(lang, note);
+            self.fonts.draw_shadowed(pm, Face::Bold, n, cx, y + bh * 0.72 + 22.0 * u, 14.0 * u, col_a(theme::WHITE, 0.8), Align::Center);
+            y += bh + 22.0 * u;
+        }
+        let kept = tr(lang, T::ProgressKept);
+        self.fonts.draw_shadowed(pm, Face::Bold, kept, cx, y + 10.0 * u, 15.0 * u, col_a(theme::WHITE, 0.85), Align::Center);
+    }
+
+    /// The "report this word" card, over any screen.
+    pub(super) fn draw_flagging(&mut self, pm: &mut Pixmap) {
+        let Some((_, text)) = self.flagging.clone() else { return };
+        let u = self.u;
+        let (w, h) = (self.w, self.h);
+        let lang = self.lang;
+        gfx::fill_rect(pm, 0.0, 0.0, w, h, &solid(col_a((5, 20, 35), 0.55)));
+        self.hits.push(Hit { x: 0.0, y: 0.0, w, h, a: Action::FlagCancel });
+        let cw = (340.0 * u).min(w * 0.92);
+        let px = 16.0 * u;
+        let lines = self.fonts.wrap(Face::Bold, &text, px, cw - 40.0 * u);
+        let lines: Vec<String> = lines.into_iter().take(3).collect();
+        let bh = 50.0 * u;
+        let ch = 70.0 * u + lines.len() as f32 * px * 1.35 + 4.0 * (bh + 10.0 * u) + 10.0 * u;
+        let x = w / 2.0 - cw / 2.0;
+        let y = h / 2.0 - ch / 2.0;
+        fill(pm, &gfx::rrect(x, y + 6.0 * u, cw, ch, 24.0 * u), &solid(col_a((0, 0, 0), 0.3)), Transform::identity());
+        fill(pm, &gfx::rrect(x, y, cw, ch, 24.0 * u), &solid(col(theme::PLASTER)), Transform::identity());
+        self.hits.push(Hit { x, y, w: cw, h: ch, a: Action::Noop });
+        let t = tr(lang, T::Report);
+        icons::draw(pm, Icon::Flag, x + 34.0 * u, y + 36.0 * u, 28.0 * u, col(theme::ACCENT));
+        self.fonts.draw(pm, Face::Title, t, x + 56.0 * u, y + 44.0 * u, 24.0 * u, col(theme::INK), Align::Left);
+        let mut ty = y + 70.0 * u;
+        for l in &lines {
+            self.fonts.draw(pm, Face::Bold, l, x + 20.0 * u, ty + px, px, col(shade(theme::INK, 0.3)), Align::Left);
+            ty += px * 1.35;
+        }
+        ty += 14.0 * u;
+        let bw = cw - 40.0 * u;
+        for (i, r) in [T::ReportVoice, T::ReportMeaning, T::ReportOther].into_iter().enumerate() {
+            self.button(pm, Action::FlagReason(i as u8), x + 20.0 * u, ty, bw, bh, tr(lang, r), None, Style::Secondary);
+            ty += bh + 10.0 * u;
+        }
+        self.button(pm, Action::FlagCancel, x + 20.0 * u, ty, bw, bh, tr(lang, T::Cancel), None, Style::Ghost);
+    }
+
+    pub(super) fn draw_toast(&mut self, pm: &mut Pixmap, text: &str, t: f32) {
+        let u = self.u;
+        let a = t.min(0.4) / 0.4;
+        let cw = (360.0 * u).min(self.w - 24.0 * u);
+        let px = 16.0 * u;
+        let lines = self.fonts.wrap(Face::Bold, text, px, cw - 32.0 * u);
+        let ch = lines.len() as f32 * px * 1.35 + 24.0 * u;
+        let x = self.w / 2.0 - cw / 2.0;
+        let y = self.h - self.bottom - 150.0 * u - ch;
+        fill(pm, &gfx::rrect(x, y, cw, ch, 16.0 * u), &solid(col_a((0x1C, 0x3B, 0x52), 0.95 * a)), Transform::identity());
+        for (i, l) in lines.iter().enumerate() {
+            self.fonts.draw(pm, Face::Bold, l, self.w / 2.0, y + 12.0 * u + (i as f32 + 0.8) * px * 1.35, px, col_a(theme::WHITE, a), Align::Center);
+        }
+    }
+
+    /// Opens the system's share sheet (or a mail to the project) with the reported words and some context, for the
+    /// player to add their own words — typed or spoken in their messaging app.
+    fn send_feedback(&mut self) {
+        let lang = self.lang;
+        let course = self.course();
+        let base = self.base();
+        let band = self.memory.placed.map(|b| b.name()).unwrap_or("-");
+        let mut body = format!(
+            "¡Fuera! {} · {} · {}→{} · {} · {}\n",
+            env!("CARGO_PKG_VERSION"),
+            self.host.platform(),
+            base.code(),
+            course.voice_pack(),
+            band,
+            lang.code()
+        );
+        // Reports of the last two weeks (they stay saved: a share sheet closed without sending loses nothing).
+        let today = self.host.today();
+        let flags: Vec<String> = self
+            .save
+            .get("fb.flags")
+            .unwrap_or("")
+            .split('\u{1f}')
+            .filter(|x| !x.is_empty())
+            .filter(|x| x.rsplit('\u{1e}').next().and_then(|d| d.parse::<i64>().ok()).is_none_or(|d| today - d <= 14))
+            .map(|x| x.to_string())
+            .collect();
+        if !flags.is_empty() {
+            body.push_str(&format!("\n{} :\n", tr(lang, T::FeedbackFlags)));
+            for f in &flags {
+                let c: Vec<&str> = f.splitn(5, '\u{1e}').collect();
+                if c.len() >= 4 {
+                    let reason = match c[2] {
+                        "voice" => tr(lang, T::ReportVoice),
+                        "meaning" => tr(lang, T::ReportMeaning),
+                        _ => tr(lang, T::ReportOther),
+                    };
+                    body.push_str(&format!("- {} — {} [{} {}]\n", c[3], reason, c[0], c[1]));
+                }
+            }
+        }
+        body.push_str(&format!("\n{}\n\n", tr(lang, T::FeedbackBody)));
+        let subject = format!("¡Fuera! — {}", tr(lang, T::Feedback));
+        if !self.host.share(&subject, &body) {
+            let enc = |s: &str| -> String {
+                s.bytes()
+                    .map(|b| match b {
+                        b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => (b as char).to_string(),
+                        _ => format!("%{b:02X}"),
+                    })
+                    .collect()
+            };
+            let url = format!("mailto:fuera@librejeu.fr?subject={}&body={}", enc(&subject), enc(&body));
+            self.host.open_url(&url);
+        }
+        self.save.set("fb.asked", 1);
+        self.persist();
     }
 
     pub(super) fn draw_learn_intro(&mut self, pm: &mut Pixmap) {
@@ -581,22 +831,25 @@ impl App {
             Screen::LearnPlay(p) => (p.round.mode, p.round.heading.clone(), p.round.production, p.legend.clone()),
             _ => return,
         };
-        let title = if heading.is_empty() { mode.name_es().to_string() } else { heading };
+        let target = self.course().target;
+        let title = if heading.is_empty() { mode.name(target).to_string() } else { heading };
         let y = self.draw_header(pm, &title);
         let ins = match mode {
             Mode::Words if production => T::InsProduction,
             Mode::Words => T::InsWords,
             Mode::Listening => T::InsListening,
+            Mode::Gender if target == Target::Fr => T::InsGenderFr,
             Mode::Gender => T::InsGender,
             Mode::Verbs => T::InsVerbs,
             Mode::SerEstar | Mode::PorPara => T::InsBinary,
-            Mode::Past | Mode::Subjunctive => T::InsSentences,
+            Mode::Auxiliary => T::InsAuxiliary,
+            Mode::Past | Mode::Subjunctive | Mode::Partitive => T::InsSentences,
             Mode::FalseFriends => T::InsFalse,
             Mode::Placement => T::InsPlacement,
         };
-        let ins = tr(lang, ins);
-        let px = self.fonts.fit(Face::Bold, ins, 15.0 * u, w - 24.0 * u);
-        self.fonts.draw_shadowed(pm, Face::Bold, ins, w / 2.0, y + 6.0 * u, px, col_a(theme::WHITE, 0.9), Align::Center);
+        let ins = tr_course(lang, ins, target);
+        let px = self.fonts.fit(Face::Bold, &ins, 15.0 * u, w - 24.0 * u);
+        self.fonts.draw_shadowed(pm, Face::Bold, &ins, w / 2.0, y + 6.0 * u, px, col_a(theme::WHITE, 0.9), Align::Center);
         let mut board_top = y + 22.0 * u;
         // Legend for long door texts.
         if !legend.is_empty() {
@@ -651,7 +904,7 @@ impl App {
         let cw = (360.0 * u).min(w - 24.0 * u);
         let px = 18.0 * u;
         let lines = self.fonts.wrap(Face::Bold, text, px, cw - 70.0 * u);
-        let ch = lines.len() as f32 * px * 1.35 + 28.0 * u;
+        let ch = (lines.len() as f32 * px * 1.35 + 28.0 * u).max(64.0 * u);
         let x = w / 2.0 - cw / 2.0;
         let y = bottom_y - ch + 10.0 * u;
         fill(pm, &gfx::rrect(x, y + 5.0 * u, cw, ch, 18.0 * u), &solid(col_a((0, 0, 0), 0.3)), Transform::identity());
@@ -662,9 +915,12 @@ impl App {
         }
         icons::draw(pm, Icon::Close, x + cw - 26.0 * u, y + 22.0 * u, 22.0 * u, col(shade(theme::INK, 0.4)));
         self.hits.push(Hit { x, y, w: cw, h: ch, a: Action::Dismiss });
+        // Report this word (bottom right of the card).
+        icons::draw(pm, Icon::Flag, x + cw - 26.0 * u, y + ch - 20.0 * u, 20.0 * u, col(shade(theme::INK, 0.45)));
+        self.hits.push(Hit { x: x + cw - 50.0 * u, y: y + ch - 44.0 * u, w: 50.0 * u, h: 44.0 * u, a: Action::FlagFeedback });
     }
 
-    fn draw_round_done(&mut self, pm: &mut Pixmap, t: f32, right: u32, wrong: u32, results: &[(String, bool)]) {
+    fn draw_round_done(&mut self, pm: &mut Pixmap, t: f32, right: u32, wrong: u32, results: &[(String, bool, String)]) {
         let u = self.u;
         let (w, h) = (self.w, self.h);
         let lang = self.lang;
@@ -672,29 +928,40 @@ impl App {
         gfx::fill_rect(pm, 0.0, 0.0, w, h, &solid(col_a((5, 20, 35), 0.5 * a)));
         let cw = (340.0 * u).min(w * 0.92);
         let rows = results.len().min(8) as f32;
-        let ch = 190.0 * u + rows * 26.0 * u;
+        let day = self.host.today();
+        let ask = self.memory.today.0 == day && self.memory.today.1 == DAILY_GOAL && !self.save.get_bool("fb.asked", false);
+        let ch = 190.0 * u + rows * 26.0 * u + if ask { 52.0 * u } else { 0.0 };
         let pop = gfx::ease_back((t / 0.35).min(1.0));
         let x = w / 2.0 - cw / 2.0;
         let y = h * 0.45 - ch / 2.0 + (1.0 - pop) * 50.0 * u;
         fill(pm, &gfx::rrect(x, y + 8.0 * u, cw, ch, 26.0 * u), &solid(col_a((0, 0, 0), 0.3 * a)), Transform::identity());
         fill(pm, &gfx::rrect(x, y, cw, ch, 26.0 * u), &solid(col_a(theme::PLASTER, a)), Transform::identity());
         let total = right + wrong;
-        let title = if wrong == 0 { "¡Perfecto!" } else { tr(lang, T::RoundDone) };
+        let perfect = if self.course().target == Target::Fr { "Parfait !" } else { "¡Perfecto!" };
+        let title = if wrong == 0 { perfect } else { tr(lang, T::RoundDone) };
         self.fonts.draw(pm, Face::Title, title, w / 2.0, y + 50.0 * u, 34.0 * u, col_a(theme::ACCENT, a), Align::Center);
         let score = format!("{right} / {total} {}", tr(lang, T::Right));
         self.fonts.draw(pm, Face::Bold, &score, w / 2.0, y + 80.0 * u, 18.0 * u, col_a(theme::INK, a), Align::Center);
         let mut ry = y + 112.0 * u;
-        for (text, ok) in results.iter().take(8) {
+        for (i, (text, ok, _)) in results.iter().take(8).enumerate() {
             let c = if *ok { (0x2E, 0x9E, 0x5B) } else { (0xD0, 0x45, 0x45) };
             fill(pm, &gfx::circle(x + 30.0 * u, ry - 6.0 * u, 7.0 * u), &solid(col_a(c, a)), Transform::identity());
-            let px = self.fonts.fit(Face::Bold, text, 16.0 * u, cw - 70.0 * u);
+            let px = self.fonts.fit(Face::Bold, text, 16.0 * u, cw - 100.0 * u);
             self.fonts.draw(pm, Face::Bold, text, x + 48.0 * u, ry, px, col_a(theme::INK, a), Align::Left);
+            icons::draw(pm, Icon::Flag, x + cw - 30.0 * u, ry - 6.0 * u, 16.0 * u, col_a(shade(theme::INK, 0.55), a * 0.8));
+            self.hits.push(Hit { x: x + cw - 54.0 * u, y: ry - 22.0 * u, w: 48.0 * u, h: 26.0 * u, a: Action::FlagResult(i) });
             ry += 26.0 * u;
         }
         let day = self.host.today();
         if self.memory.today.0 == day && self.memory.today.1 == DAILY_GOAL {
             let g = tr(lang, T::GoalDone);
             self.fonts.draw(pm, Face::Bold, g, w / 2.0, ry + 4.0 * u, 15.0 * u, col_a((0x2E, 0x9E, 0x5B), a), Align::Center);
+            // Once, after the first full session: an invitation to give an opinion.
+            if !self.save.get_bool("fb.asked", false) {
+                let ask = tr(lang, T::FeedbackAsk);
+                let bwide = cw - 40.0 * u;
+                self.button(pm, Action::Feedback, x + 20.0 * u, ry + 18.0 * u, bwide, 40.0 * u, ask, Some(Icon::Bubble), Style::Ghost);
+            }
         }
         let bh = 52.0 * u;
         let bw = cw * 0.42;
@@ -710,6 +977,7 @@ impl App {
         let title = tr(lang, T::Notebook);
         let y0 = self.draw_header(pm, title) + 16.0 * u;
         let base = self.base();
+        let latam = self.latam();
         let misses = self.memory.misses.clone();
         if misses.is_empty() {
             let t = tr(lang, T::NotebookEmpty);
@@ -724,9 +992,9 @@ impl App {
         let x0 = self.w / 2.0 - bw / 2.0;
         let mut y = y0 - scroll;
         for (i, id) in misses.iter().enumerate() {
-            let Some((text, _)) = plan::describe(self.content.as_ref().unwrap(), id, base) else { continue };
+            let Some((text, _)) = plan::describe(self.content.as_ref().unwrap(), id, base, latam) else { continue };
             let px = 15.0 * u;
-            let lines = self.fonts.wrap(Face::Bold, &text, px, bw - 64.0 * u);
+            let lines = self.fonts.wrap(Face::Bold, &text, px, bw - 96.0 * u);
             let rh = lines.len() as f32 * px * 1.35 + 20.0 * u;
             if y + rh > y0 - 10.0 * u && y < self.h {
                 fill(pm, &gfx::rrect(x0, y, bw, rh, 14.0 * u), &solid(col(theme::PLASTER)), Transform::identity());
@@ -735,6 +1003,8 @@ impl App {
                 }
                 icons::draw(pm, Icon::Speaker, x0 + bw - 26.0 * u, y + rh / 2.0, 24.0 * u, col(theme::ACCENT));
                 self.hits.push(Hit { x: x0, y, w: bw, h: rh, a: Action::SayMiss(i) });
+                icons::draw(pm, Icon::Flag, x0 + bw - 58.0 * u, y + rh / 2.0, 18.0 * u, col(shade(theme::INK, 0.55)));
+                self.hits.push(Hit { x: x0 + bw - 76.0 * u, y, w: 34.0 * u, h: rh, a: Action::FlagMiss(i) });
             }
             y += rh + 8.0 * u;
         }

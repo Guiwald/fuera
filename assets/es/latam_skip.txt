@@ -1,0 +1,16 @@
+# Spanish-course items left out of the Latin-American variant, reviewed by hand (the automatic filter in
+# `Content::to_latam` already drops vosotros forms and the words replaced in latam.tsv).
+# One item per line: a grammar prompt exactly as in its file, or a word of genero.tsv / falsos_amigos.tsv.
+malo de la tripa
+en obras
+hecho polvo
+en paro
+de baja
+Me he dormido, ___ eso llego tarde.
+Tu madre ha preguntado ___ ti.
+Te llamo ___ quedar.
+Anoche alguien ___ a la puerta. (llamar)
+Me da pena que te ___ tan pronto. (ir)
+Es necesario que usted ___ este formulario. (rellenar)
+radio
+remover

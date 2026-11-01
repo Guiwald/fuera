@@ -26,3 +26,7 @@ francophone, en Espagne ; ouvert à tous. Espagnol d'Espagne.
 Profils et mode enfant (« Pequeños »), phrases à remettre en ordre (Tatoeba), « Simón dice », enregistrements
 humains (Lingua Libre) à la place de la voix du système, images (émojis Twemoji/Fluent) sur les portes, Amérique
 latine puis d'autres langues.
+
+*Mise à jour (01/11/2026)* : les voix humaines sont venues avec la 1.0.1, l'espagnol d'Amérique latine et le
+français avec la 1.1 (ADR 0007 et 0008). Les profils, « Pequeños », Tatoeba, « Simón dice » et les images restent à
+faire (1.2 et après).

@@ -5,7 +5,9 @@ mod learn;
 
 use fuera_core::rules::{self, Result, Stuck};
 use fuera_core::{Dir, Game, Level, Move};
-use fuera_learn::content::{Band, Content};
+use std::collections::HashMap;
+
+use fuera_learn::content::{Band, Content, Course, Target};
 use fuera_learn::memory::Memory;
 use fuera_learn::plan::Mode;
 use tiny_skia::{Color, Pixmap, Transform};
@@ -28,8 +30,17 @@ pub trait Host {
     fn speak(&mut self, _text: &str, _lang: &str) {}
     fn vibrate(&mut self, _ms: u32) {}
     fn open_url(&mut self, _url: &str) {}
+    /// Hands a message to the system's share sheet (Android, phones' browsers), where the player picks an app and
+    /// a person; returns false where there is none (then the app opens a mail to the project instead).
+    fn share(&mut self, _subject: &str, _body: &str) -> bool {
+        false
+    }
     /// Leaves the app (Android back on the home screen).
     fn quit(&mut self) {}
+    /// Short platform name for feedback messages (`android`, `web`, `macos`…).
+    fn platform(&self) -> &'static str {
+        std::env::consts::OS
+    }
     /// System language, like "fr-FR".
     fn locale(&self) -> String {
         "en".into()
@@ -92,6 +103,19 @@ enum Action {
     SayIntro(usize),
     SayMiss(usize),
     Dismiss,
+    /// Course picker, then a course chosen.
+    Courses,
+    PickCourse(Course),
+    ToggleVariant,
+    Feedback,
+    /// Report the word of the correction card, of a summary row, of a notebook row.
+    FlagFeedback,
+    FlagResult(usize),
+    FlagMiss(usize),
+    FlagReason(u8),
+    FlagCancel,
+    /// A tap that only stops taps going through a card.
+    Noop,
 }
 
 #[derive(Clone, Copy)]
@@ -142,6 +166,7 @@ enum Screen {
     LearnPlay(Box<learn::LearnPlay>),
     Notebook { scroll: f32, drag: Option<(f32, f32, f32)> },
     Placed(Band),
+    Courses,
 }
 
 pub struct App {
@@ -160,8 +185,8 @@ pub struct App {
     pointer: (f32, f32),
     down: Option<(f32, f32)>,
     sounds: Vec<Sfx>,
-    /// Recorded pronunciations, when the platform has loaded them (see `set_voices`).
-    voices: Option<fuera_learn::voice::Voices>,
+    /// Recorded pronunciations by pack (`es`, `es-419`, `fr`), as the platform loads them (see `set_voices`).
+    voices: HashMap<String, fuera_learn::voice::Voices>,
     /// Recordings to play now: (mono samples, sample rate).
     clips: Vec<(Vec<i16>, u32)>,
     time: f32,
@@ -170,7 +195,13 @@ pub struct App {
     since_input: f32,
     content: Option<Content>,
     memory: Memory,
+    /// Course whose progress `memory` holds.
+    memory_of: Target,
     placement: Vec<(Option<Band>, bool)>,
+    /// A short message over any screen.
+    toast: Option<(String, f32)>,
+    /// A word being reported: (item id or tile text, what to show).
+    flagging: Option<(String, String)>,
 }
 
 static CAMPAIGN: &str = include_str!("../../../assets/levels/campaign.txt");
@@ -194,9 +225,17 @@ pub fn parse_pack(text: &str) -> Vec<Level> {
 
 impl App {
     pub fn new(mut host: Box<dyn Host>) -> App {
-        let save = host.load().map(|t| Save::parse(&t)).unwrap_or_default();
+        let mut save = host.load().map(|t| Save::parse(&t)).unwrap_or_default();
+        // A 1.0 save with Spanish progress: it stays the Spanish of Spain course.
+        if save.get("course").is_none() && (save.keys_with_prefix("m.").next().is_some() || save.keys_with_prefix("l.").next().is_some()) {
+            save.set("course", "es");
+            if save.get("es_variant").is_none() {
+                save.set("es_variant", "es");
+            }
+        }
         let lang = save.get("lang").and_then(Lang::from_code).or_else(|| Lang::from_code(&host.locale())).unwrap_or(Lang::En);
-        let memory = Memory::from_pairs(save.keys_with_prefix("m.").chain(save.keys_with_prefix("l.")));
+        let target = save.get("course").and_then(Target::from_code).unwrap_or(Target::Es);
+        let memory = load_memory(&save, target);
         App {
             host,
             fonts: Fonts::new(),
@@ -213,7 +252,7 @@ impl App {
             pointer: (0.0, 0.0),
             down: None,
             sounds: Vec::new(),
-            voices: None,
+            voices: HashMap::new(),
             clips: Vec::new(),
             time: 0.0,
             bg: None,
@@ -221,7 +260,10 @@ impl App {
             since_input: 0.0,
             content: None,
             memory,
+            memory_of: target,
             placement: Vec::new(),
+            toast: None,
+            flagging: None,
         }
     }
 
@@ -245,14 +287,20 @@ impl App {
         self.save.get_bool("sound", true)
     }
 
-    /// Sounds to play since the last call.
-    /// Gives the app a voice pack (`fuera_learn::voice`); the platform calls this once it has the bytes and can
-    /// play recordings.
-    pub fn set_voices(&mut self, data: Vec<u8>) {
-        self.voices = fuera_learn::voice::Voices::parse(data);
-        if let Some(v) = &self.voices {
-            log::info!("voice pack: {} recordings by {} speakers", v.len(), v.speakers().len());
+    /// Gives the app a voice pack (`fuera_learn::voice`) named `id` (`es`, `es-419`, `fr`); the platform calls this
+    /// once it has the bytes and can play recordings.
+    pub fn set_voices(&mut self, id: &str, data: Vec<u8>) {
+        if let Some(v) = fuera_learn::voice::Voices::parse(data) {
+            log::info!("voice pack {id}: {} recordings by {} speakers", v.len(), v.speakers().len());
+            self.voices.insert(id.to_string(), v);
         }
+    }
+
+    /// The voice pack the current course needs and the app does not have yet (the platform loads it).
+    pub fn wanted_voice_pack(&self) -> Option<&'static str> {
+        self.save.get("course")?;
+        let id = self.course().voice_pack();
+        if self.voices.contains_key(id) { None } else { Some(id) }
     }
 
     /// Recordings to play (taken once).
@@ -260,16 +308,36 @@ impl App {
         std::mem::take(&mut self.clips)
     }
 
-    /// Says some Spanish: a human recording when there is one, else the system voice.
-    pub(crate) fn say_es(&mut self, text: &str) {
-        if let Some(v) = &self.voices
+    /// Says something in the language learnt: a human recording when there is one, else the system voice.
+    pub(crate) fn say(&mut self, text: &str) {
+        let course = self.course();
+        if let Some(v) = self.voices.get(course.voice_pack())
             && let Some(pcm) = v.clip(text)
         {
             self.clips.clear();
             self.clips.push((pcm, v.rate()));
             return;
         }
-        self.host.speak(text, "es-ES");
+        self.host.speak(text, course.locale());
+    }
+
+    /// The course chosen (Spanish of Spain by default, as in 1.0).
+    pub(crate) fn course(&self) -> Course {
+        let target = self.save.get("course").and_then(Target::from_code).unwrap_or(Target::Es);
+        Course { target, latam: target == Target::Es && self.latam() }
+    }
+
+    /// Spanish as in Latin America: the course variant and the Spanish glosses (setting; by default from the
+    /// system language: es-ES → Spain, another Spanish-speaking country → Latin America).
+    pub(crate) fn latam(&self) -> bool {
+        match self.save.get("es_variant") {
+            Some("419") => true,
+            Some(_) => false,
+            None => {
+                let loc = self.host.locale().replace('_', "-");
+                loc.starts_with("es-") && !loc.starts_with("es-ES")
+            }
+        }
     }
 
     pub fn take_sounds(&mut self) -> Vec<Sfx> {
@@ -353,6 +421,13 @@ impl App {
         self.time += dt;
         self.since_input += dt;
         self.learn_update(dt);
+        if let Some((_, t)) = &mut self.toast {
+            *t -= dt;
+            if *t <= 0.0 {
+                self.toast = None;
+                self.dirty = true;
+            }
+        }
         let mut fx = Vec::new();
         let mut won_now = false;
         if let Screen::Play(p) = &mut self.screen {
@@ -511,9 +586,18 @@ impl App {
             "next" => Action::LearnNext,
             "home" => Action::LearnHome,
             "settings" => Action::Settings,
+            "courses" => Action::Courses,
+            "feedback" => Action::Feedback,
             _ => {
                 if let Some(n) = what.strip_prefix("mode:").and_then(|n| n.parse::<usize>().ok()) {
-                    Action::LearnMode(Mode::MENU[n % Mode::MENU.len()])
+                    let menu = Mode::menu(self.course().target);
+                    Action::LearnMode(menu[n % menu.len()])
+                } else if let Some(c) = what.strip_prefix("course:") {
+                    Action::PickCourse(match c {
+                        "fr" => Course::FRENCH,
+                        "es-419" => Course::LATAM,
+                        _ => Course::SPAIN,
+                    })
                 } else if let Some(n) = what.strip_prefix("level:").and_then(|n| n.parse::<usize>().ok()) {
                     Action::Open(n)
                 } else {
@@ -522,6 +606,13 @@ impl App {
             }
         };
         self.act(a);
+    }
+
+    /// Reports a word of the round summary with a reason (tests).
+    #[doc(hidden)]
+    pub fn report_result(&mut self, row: usize, reason: u8) {
+        self.act(Action::FlagResult(row));
+        self.act(Action::FlagReason(reason));
     }
 
     /// Name of the current screen (tests).
@@ -538,6 +629,7 @@ impl App {
             Screen::LearnPlay(_) => "round",
             Screen::Notebook { .. } => "notebook",
             Screen::Placed(_) => "placed",
+            Screen::Courses => "courses",
         }
     }
 
@@ -677,7 +769,9 @@ impl App {
                 let scroll = (row * 76.0 * self.u - self.h * 0.3).max(0.0);
                 self.screen = Screen::Levels { scroll, drag: None };
             }
-            Action::Learn => self.screen = Screen::LearnHome,
+            Action::Learn => {
+                self.screen = if self.save.get("course").is_some() { Screen::LearnHome } else { Screen::Courses };
+            }
             Action::LearnHome
             | Action::LearnSession
             | Action::LearnMode(_)
@@ -688,9 +782,20 @@ impl App {
             | Action::Placement
             | Action::SayIntro(_)
             | Action::SayMiss(_)
-            | Action::Dismiss => self.learn_act(a),
+            | Action::Dismiss
+            | Action::Courses
+            | Action::PickCourse(_)
+            | Action::ToggleVariant
+            | Action::Feedback
+            | Action::FlagFeedback
+            | Action::FlagResult(_)
+            | Action::FlagMiss(_)
+            | Action::FlagReason(_)
+            | Action::FlagCancel => self.learn_act(a),
+            Action::Noop => {}
             Action::Settings => self.screen = Screen::Settings,
             Action::Credits => self.screen = Screen::Credits,
+            Action::Back if self.flagging.is_some() => self.flagging = None,
             Action::Back => {
                 self.screen = match &self.screen {
                     Screen::Play(_) => {
@@ -699,6 +804,7 @@ impl App {
                     }
                     Screen::Credits => Screen::Settings,
                     Screen::LearnPlay(_) | Screen::LearnIntro(_) | Screen::Notebook { .. } | Screen::Placed(_) => Screen::LearnHome,
+                    Screen::Courses if self.save.get("course").is_some() => Screen::LearnHome,
                     Screen::Home => {
                         self.host.quit();
                         Screen::Home
@@ -842,6 +948,13 @@ impl App {
                 let b = *b;
                 self.draw_placed(pm, b)
             }
+            Screen::Courses => self.draw_courses(pm),
+        }
+        if self.flagging.is_some() {
+            self.draw_flagging(pm);
+        }
+        if let Some((text, t)) = self.toast.clone() {
+            self.draw_toast(pm, &text, t);
         }
     }
 
@@ -928,7 +1041,11 @@ impl App {
         let lv = self.t(T::Levels);
         self.button(pm, Action::Levels, cx - bw / 2.0, y, bw, bh, lv, Some(Icon::Star), Style::Secondary);
         y += bh + 16.0 * u;
-        let learn = self.t(T::LearnSpanish);
+        let learn = match self.save.get("course").and_then(Target::from_code) {
+            Some(Target::Es) => self.t(T::LearnSpanish),
+            Some(Target::Fr) => self.t(T::LearnFrench),
+            None => self.t(T::LearnLanguage),
+        };
         self.button(pm, Action::Learn, cx - bw / 2.0, y, bw, bh, learn, Some(Icon::Book), Style::Secondary);
         y += bh + 16.0 * u;
         let st = self.t(T::Settings);
@@ -1144,6 +1261,12 @@ impl App {
         let say = format!("{} : {}", self.t(T::SayAnswer), on(self.save.get_bool("say_answer", false), self));
         self.button(pm, Action::ToggleSayAnswer, x, y, bw, bh, &say, Some(Icon::Speaker), Style::Secondary);
         y += bh + 16.0 * u;
+        let variant = format!("{} : {}", self.t(T::SpanishVariant), if self.latam() { self.t(T::LatinAmerica) } else { self.t(T::Spain) });
+        self.button(pm, Action::ToggleVariant, x, y, bw, bh, &variant, Some(Icon::Globe), Style::Secondary);
+        y += bh + 16.0 * u;
+        let fb = self.t(T::Feedback);
+        self.button(pm, Action::Feedback, x, y, bw, bh, fb, Some(Icon::Bubble), Style::Secondary);
+        y += bh + 16.0 * u;
         let cr = self.t(T::Credits);
         self.button(pm, Action::Credits, x, y, bw, bh, cr, Some(Icon::Book), Style::Ghost);
         let v = concat!("¡Fuera! ", env!("CARGO_PKG_VERSION"));
@@ -1155,9 +1278,16 @@ impl App {
         let title = self.t(T::Credits);
         let mut y = self.draw_header(pm, title) + 30.0 * u;
         let mut text = CREDITS.to_string();
-        if let Some(v) = &self.voices {
+        let mut packs: Vec<(&String, &fuera_learn::voice::Voices)> = self.voices.iter().collect();
+        packs.sort_by_key(|(k, _)| k.as_str());
+        for (id, v) in packs {
+            let what = match id.as_str() {
+                "fr" => "French words",
+                "es-419" => "Latin-American Spanish words",
+                _ => "Spanish words",
+            };
             text.push_str(&format!(
-                "\n\nVoices: {} recordings from Lingua Libre (Wikimedia Commons), CC BY-SA 4.0, CC BY 4.0 or CC0, trimmed and compressed; speakers: {}. Other Spanish is read by your system's voice.",
+                "\n\nVoices ({what}): {} recordings from Lingua Libre (Wikimedia Commons), CC BY-SA 4.0, CC BY 4.0 or CC0, trimmed and compressed; speakers: {}. Anything else is read by your system's voice.",
                 v.len(),
                 v.speakers().join(", ")
             ));
@@ -1173,7 +1303,23 @@ impl App {
     }
 }
 
-const CREDITS: &str = "¡Fuera! — free and open-source game (MIT licence) by Guiwald, written in Rust. github.com/Guiwald/fuera\n\nFonts: Lilita One (Juan Montoreano) and Atkinson Hyperlegible (Braille Institute), SIL Open Font License 1.1.\n\nSpanish content: written for ¡Fuera!, checked against the English Wiktionary (kaikki.org) and ordered with Hermit Dave's FrequencyWords (OpenSubtitles 2018); released under CC BY-SA 4.0.\n\nInspired by colour-sorting block puzzles. All levels, graphics and sounds are original.";
+const CREDITS: &str = "¡Fuera! — free and open-source game (MIT licence) by Guiwald, written in Rust. github.com/Guiwald/fuera\n\nFonts: Lilita One (Juan Montoreano) and Atkinson Hyperlegible (Braille Institute), SIL Open Font License 1.1.\n\nSpanish and French content: written for ¡Fuera!, checked against the English and French Wiktionaries (kaikki.org, wiktextract) and ordered with Hermit Dave's FrequencyWords (OpenSubtitles 2018); released under CC BY-SA 4.0. Feedback: fuera@librejeu.fr.\n\nInspired by colour-sorting block puzzles. All levels, graphics and sounds are original.";
+
+/// Progress of one course from the save: Spanish under `m.` / `l.` (as in 1.0), French under `fr.m.` / `fr.l.`.
+fn load_memory(save: &Save, target: Target) -> Memory {
+    let p = mem_prefix(target);
+    let mk = format!("{p}m.");
+    let lk = format!("{p}l.");
+    let pairs: Vec<(String, String)> = save.keys_with_prefix(&mk).chain(save.keys_with_prefix(&lk)).map(|(k, v)| (k[p.len()..].to_string(), v.to_string())).collect();
+    Memory::from_pairs(pairs.iter().map(|(k, v)| (k.as_str(), v.as_str())))
+}
+
+fn mem_prefix(target: Target) -> &'static str {
+    match target {
+        Target::Es => "",
+        Target::Fr => "fr.",
+    }
+}
 
 fn inside(h: &Hit, x: f32, y: f32) -> bool {
     x >= h.x && x <= h.x + h.w && y >= h.y && y <= h.y + h.h

@@ -1,11 +1,11 @@
 # ¡Fuera!
 
-**Fais sortir chaque bloc par la porte de sa couleur — et apprends l'espagnol en jouant.**
+**Fais sortir chaque bloc par la porte de sa couleur — et apprends l'espagnol ou le français en jouant.**
 
 Un bloc qu'on lance glisse jusqu'à ce qu'il bute ; s'il arrive face à une porte de sa couleur, il sort. Le plateau est
-encombré : tout l'art est dans l'ordre des coups. Le mode espagnol garde la même mécanique, mais les blocs portent des
-mots et les portes des sens, des personnes, *ser* ou *estar*… et une mauvaise porte renvoie le bloc en montrant la
-bonne réponse.
+encombré : tout l'art est dans l'ordre des coups. Le mode langue garde la même mécanique, mais les blocs portent des
+mots et les portes des sens, des personnes, *ser* ou *estar*, *un* ou *une*… et une mauvaise porte renvoie le bloc en
+montrant la bonne réponse. Trois cours : espagnol d'Espagne, espagnol d'Amérique latine, français.
 
 Gratuit, sans pub, sans compte, hors ligne. Mac, Windows, Linux, Android, et dans le navigateur :
 **https://fuera.librejeu.fr**.
@@ -25,19 +25,21 @@ Gratuit, sans pub, sans compte, hors ligne. Mac, Windows, Linux, Android, et dan
 **Commandes** : glisser un bloc (doigt ou souris). Au clavier : Tab choisit un bloc, les flèches le lancent, Z annule,
 R recommence, H donne un indice, Échap revient en arrière.
 
-## Le mode espagnol
+## Les cours de langue
 
-- **Test « ¿Existe? »** (3 minutes) : des vrais mots et des mots inventés ; il place ton niveau (A1 à B2) et marque
-  les mots plus faciles comme connus.
-- **Séance du jour** : 5 manches qui alternent vocabulaire et grammaire. Une série de jours, avec un jour manqué
-  pardonné.
-- **Modes** : Palabras (mot ↔ sens), Escucha (à l'oreille), El o la, Verbos (sept temps, *vosotros* compris), Ser o
-  estar, Por o para, Pasado (*pretérito* ou *imperfecto*), Subjuntivo, Falsos amigos.
-- **Mi cuaderno** : les mots ratés, à réécouter.
-- Les révisions sont espacées (algorithme FSRS) : un mot revient juste avant que tu l'oublies. Sens en français ou en
-  anglais. Prononciation : **voix humaines** enregistrées par les bénévoles de Lingua Libre pour les mots isolés
-  (locuteurs d'Espagne en priorité), voix espagnole du système pour les phrases (sur Mac, Réglages → Accessibilité →
-  Contenu énoncé pour en télécharger une plus belle).
+« Apprendre une langue » propose trois cours ; chacun garde ses progrès.
+
+- **Espagnol d'Espagne** (sens en français ou en anglais) et **espagnol d'Amérique latine** (*ustedes* sans
+  *vosotros*, *carro*, *computadora*…). Modes : Palabras (mot ↔ sens), Escucha (à l'oreille), El o la, Verbos (sept
+  temps), Ser o estar, Por o para, Pasado (*pretérito* ou *imperfecto*), Subjuntivo, Falsos amigos.
+- **Français** (sens en espagnol ou en anglais) : Mots, Écoute, Un ou une, Verbes (six temps), Du, de la, des, Être
+  ou avoir, Passé (passé composé ou imparfait), Subjonctif, Faux amis.
+- Pour chaque cours : test de niveau (« ¿Existe? », « Ça existe ? », A1 à B2), séance du jour de 5 manches, série
+  de jours (un jour manqué pardonné), cahier des mots ratés, révisions espacées (algorithme FSRS).
+- **Prononciation** : voix humaines enregistrées par les bénévoles de Lingua Libre pour les mots isolés (Espagne,
+  Amérique latine ou France selon le cours), voix du système pour le reste.
+- **Ton avis** : le bouton bulle ouvre le menu de partage du téléphone avec un message déjà rempli ; le drapeau
+  signale un mot mal prononcé ou mal traduit. Sur ordinateur : fuera@librejeu.fr.
 
 ## Pour les développeurs
 
@@ -51,24 +53,28 @@ cargo run --release -p fuera-cli -- deadends assets/levels/campaign.txt   # impa
 cargo xtask web | apk | bundle-mac <bin> | dist-windows | icons
 ```
 
-Architecture et décisions : `docs/adr/`. Licences : code MIT, polices OFL, contenus d'espagnol CC BY-SA 4.0
-(`THIRD_PARTY.md`).
+Architecture et décisions : `docs/adr/`. Licences : code MIT, polices OFL, contenus d'espagnol et de français
+CC BY-SA 4.0, voix CC BY-SA, CC BY ou CC0 selon l'enregistrement (`THIRD_PARTY.md`).
 
 ---
 
 ## English
 
-**Slide every block out through the door of its colour — and learn Spanish while you play.**
+**Slide every block out through the door of its colour — and learn Spanish or French while you play.**
 
 A block you swipe slides until it hits something; if it reaches a door of its colour, it leaves. The board is
-crowded, so the order of your moves is the puzzle. The Spanish mode keeps the same mechanic: blocks carry words, doors
-carry meanings, persons, *ser* or *estar*…, and a wrong door bounces the block back and shows the right answer.
+crowded, so the order of your moves is the puzzle. The language mode keeps the same mechanic: blocks carry words, doors
+carry meanings, persons, *ser* or *estar*, *un* or *une*…, and a wrong door bounces the block back and shows the right
+answer. Three courses: Spanish from Spain, Latin-American Spanish, and French.
 
 Free, no ads, no account, offline. Mac, Windows, Linux, Android, and in the browser at **https://fuera.librejeu.fr**.
 Downloads are on the [releases page](https://github.com/Guiwald/fuera/releases/latest).
 
-Spanish mode: a 3-minute "¿Existe?" placement test (A1–B2), a 5-round daily session, nine modes (vocabulary,
-listening, gender, verbs in seven tenses, ser/estar, por/para, preterite/imperfect, subjunctive, false friends), a
-notebook of missed words, spaced repetition (FSRS), meanings in English or French, system voices for pronunciation.
+Courses: Spanish (Spain or Latin America, meanings in English or French) and French (meanings in English or Spanish),
+each with a 3-minute placement test (A1–B2), a 5-round daily session, nine modes (vocabulary, listening, gender, verbs,
+and each language's own traps: ser/estar, por/para, preterite/imperfect, subjunctive; partitives, être/avoir, passé
+composé/imparfait, subjonctif; false friends), a notebook of missed words and spaced repetition (FSRS). Single words
+are spoken by Lingua Libre volunteers, the rest by your system's voice. A feedback button opens your phone's share
+menu with a prefilled message (or a mail to fuera@librejeu.fr on a computer).
 
-Code: MIT. Fonts: SIL OFL. Spanish content: CC BY-SA 4.0. See `THIRD_PARTY.md`.
+Code: MIT. Fonts: SIL OFL. Spanish and French content: CC BY-SA 4.0. Voices: CC BY-SA, CC BY or CC0 per recording. See `THIRD_PARTY.md`.

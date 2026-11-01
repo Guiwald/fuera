@@ -6,6 +6,7 @@
 //! fuera-cli gen [k=v ...]                 one random level (w h outline colors fill shapes walls ice lanes
 //!                                         shells locks shutters seed attempts target minpark)
 //! fuera-cli campaign <out.txt> [seed]     build the 100-level campaign
+//! fuera-cli conj-fr < infinitives         French paradigms (infinitive, tense, person, form), for the data checks
 //! ```
 
 use std::time::Instant;
@@ -27,6 +28,8 @@ fn main() {
         Some("deadends") => deadends(&a[1]),
         Some("voices") => voices(&a[1], &a[2], &a[3]),
         Some("voice") => voice_wav(&a[1], &a[2], &a[3]),
+        Some("conj-fr") => conj_fr(),
+        Some("words") => words(&a[1]),
         _ => {
             eprintln!("usage: fuera-cli solve <lvl> | check <pack> | gen [k=v…] | campaign <out> [seed]");
             std::process::exit(2);
@@ -595,3 +598,46 @@ doors
   E 3 2 1 yellow
 end
 ";
+
+/// Reads French infinitives (one per line) and prints every form the game's conjugator gives:
+/// `infinitive tense person form` (tab-separated); `aux` and `pp` rows give the auxiliary and the participle.
+fn conj_fr() {
+    use fuera_learn::conj_fr::{Aux, Person, Tense, auxiliary, conjugate, participle};
+    use std::io::BufRead;
+    for line in std::io::stdin().lock().lines().map_while(Result::ok) {
+        let inf = line.trim();
+        if inf.is_empty() {
+            continue;
+        }
+        if let Some(pp) = participle(inf) {
+            println!("{inf}\tpp\t-\t{pp}");
+            println!("{inf}\taux\t-\t{}", if auxiliary(inf) == Aux::Etre { "être" } else { "avoir" });
+        }
+        for t in Tense::ALL {
+            for p in Person::ALL {
+                if let Some(f) = conjugate(inf, t, p) {
+                    println!("{inf}\t{}\t{}\t{f}", t.name(), p.pronoun());
+                }
+            }
+        }
+    }
+}
+
+/// Prints every word a course can say alone (lexicon, gender traps, false friends), one per line, for the voice
+/// pack scripts: `fuera-cli words es | es-419 | fr`.
+fn words(course: &str) {
+    use fuera_learn::content::{Content, Course};
+    let c = Content::load(match course {
+        "fr" => Course::FRENCH,
+        "es-419" => Course::LATAM,
+        _ => Course::SPAIN,
+    });
+    let mut out: Vec<String> = c.words.iter().map(|w| w.lemma.clone()).collect();
+    out.extend(c.gender_traps.iter().map(|w| w.lemma.clone()));
+    out.extend(c.false_friends.iter().map(|f| f.word.clone()));
+    out.sort();
+    out.dedup();
+    for w in out {
+        println!("{w}");
+    }
+}

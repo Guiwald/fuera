@@ -19,6 +19,12 @@ pub enum Icon {
     Close,
     Calendar,
     Dice,
+    /// Report a word (feedback).
+    Flag,
+    /// Speech bubble (send an opinion).
+    Bubble,
+    /// Language / course.
+    Globe,
 }
 
 fn arc(pb: &mut PathBuilder, cx: f32, cy: f32, r: f32, a0: f32, a1: f32) {
@@ -143,6 +149,41 @@ pub fn draw(pm: &mut Pixmap, icon: Icon, cx: f32, cy: f32, s: f32, color: Color)
             for (dx, dy) in [(-0.14, -0.14), (0.0, 0.0), (0.14, 0.14)] {
                 fill(pm, &gfx::circle(cx + s * dx, cy + s * dy, s * 0.05), &p, id);
             }
+        }
+        Icon::Flag => {
+            fill(pm, &gfx::rrect(cx - s * 0.26, cy - s * 0.34, s * 0.07, s * 0.7, s * 0.03), &p, id);
+            let mut pb = PathBuilder::new();
+            pb.move_to(cx - s * 0.2, cy - s * 0.32);
+            pb.line_to(cx + s * 0.3, cy - s * 0.32);
+            pb.line_to(cx + s * 0.16, cy - s * 0.16);
+            pb.line_to(cx + s * 0.3, cy);
+            pb.line_to(cx - s * 0.2, cy);
+            pb.close();
+            fill(pm, &pb.finish(), &p, id);
+        }
+        Icon::Bubble => {
+            fill(pm, &gfx::rrect(cx - s * 0.34, cy - s * 0.3, s * 0.68, s * 0.46, s * 0.14), &p, id);
+            let mut pb = PathBuilder::new();
+            pb.move_to(cx - s * 0.16, cy + s * 0.12);
+            pb.line_to(cx - s * 0.2, cy + s * 0.34);
+            pb.line_to(cx + s * 0.04, cy + s * 0.12);
+            pb.close();
+            fill(pm, &pb.finish(), &p, id);
+        }
+        Icon::Globe => {
+            stroke(pm, &gfx::circle(cx, cy, s * 0.32), &p, w * 0.8, id);
+            let mut pb = PathBuilder::new();
+            pb.move_to(cx - s * 0.32, cy);
+            pb.line_to(cx + s * 0.32, cy);
+            pb.move_to(cx, cy - s * 0.32);
+            pb.line_to(cx, cy + s * 0.32);
+            stroke(pm, &pb.finish(), &p, w * 0.6, id);
+            let mut pb = PathBuilder::new();
+            arc(&mut pb, cx + s * 0.3, cy, s * 0.44, 2.4, 3.88);
+            stroke(pm, &pb.finish(), &p, w * 0.6, id);
+            let mut pb = PathBuilder::new();
+            arc(&mut pb, cx - s * 0.3, cy, s * 0.44, -0.74, 0.74);
+            stroke(pm, &pb.finish(), &p, w * 0.6, id);
         }
     }
 }

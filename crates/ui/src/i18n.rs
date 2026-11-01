@@ -57,6 +57,31 @@ msgs! {
     Play => ["Jouer", "Play", "Jugar"],
     Levels => ["Niveaux", "Levels", "Niveles"],
     LearnSpanish => ["Apprendre l'espagnol", "Learn Spanish", "Aprender español"],
+    LearnFrench => ["Apprendre le français", "Learn French", "Aprender francés"],
+    LearnLanguage => ["Apprendre une langue", "Learn a language", "Aprender un idioma"],
+    WhichLanguage => ["Quelle langue veux-tu apprendre ?", "Which language do you want to learn?", "¿Qué idioma quieres aprender?"],
+    CourseSpain => ["Espagnol d'Espagne", "Spanish from Spain", "Español de España"],
+    CourseLatam => ["Espagnol d'Amérique latine", "Latin-American Spanish", "Español de Latinoamérica"],
+    CourseFrench => ["Français (France)", "French (France)", "Francés (Francia)"],
+    CourseSpainNote => ["vosotros, coche, ordenador", "vosotros, coche, ordenador", "vosotros, coche, ordenador"],
+    CourseLatamNote => ["ustedes, carro, computadora", "ustedes, carro, computadora", "ustedes, carro, computadora"],
+    CourseFrenchNote => ["avec des voix de France", "with voices from France", "con voces de Francia"],
+    ProgressKept => ["Chaque langue garde ses progrès.", "Each language keeps its own progress.", "Cada idioma guarda su progreso."],
+    French => ["Français", "French", "Francés"],
+    SpanishVariant => ["Espagnol", "Spanish", "Español"],
+    Spain => ["Espagne", "Spain", "España"],
+    LatinAmerica => ["Amérique latine", "Latin America", "Latinoamérica"],
+    Feedback => ["Donner mon avis", "Send feedback", "Dar mi opinión"],
+    FeedbackAsk => ["Un avis ? Écris-le ou dis-le à voix haute.", "Any thoughts? Write them or just say them.", "¿Una opinión? Escríbela o dila en voz alta."],
+    FeedbackBody => ["Écris ou enregistre ton message ici :", "Write or record your message here:", "Escribe o graba tu mensaje aquí:"],
+    FeedbackFlags => ["Mots signalés", "Reported words", "Palabras señaladas"],
+    Report => ["Signaler ce mot", "Report this word", "Señalar esta palabra"],
+    ReportVoice => ["La voix sonne mal", "The voice sounds wrong", "La voz suena mal"],
+    ReportMeaning => ["Traduction bizarre", "Odd translation", "Traducción rara"],
+    ReportOther => ["Autre chose", "Something else", "Otra cosa"],
+    Cancel => ["Annuler", "Cancel", "Cancelar"],
+    Reported => ["Noté, merci ! Il partira avec ton prochain avis.", "Noted, thanks! It goes with your next feedback.", "¡Anotado, gracias! Irá con tu próxima opinión."],
+    InsAuxiliary => ["Être ou avoir : quel auxiliaire ?", "Être or avoir: which auxiliary?", "¿Être o avoir? Elige el auxiliar."],
     Settings => ["Réglages", "Settings", "Ajustes"],
     Level => ["Niveau", "Level", "Nivel"],
     Moves => ["Coups", "Moves", "Movimientos"],
@@ -104,7 +129,7 @@ msgs! {
     Retry => ["Réessayer", "Try again", "Reintentar"],
     Spanish => ["Espagnol", "Spanish", "Español"],
     TodaySession => ["Séance du jour", "Today's session", "Sesión de hoy"],
-    PlacementAsk => ["Quel est ton niveau ? Test « ¿Existe? » (3 min)", "What's your level? “¿Existe?” test (3 min)", "¿Qué nivel tienes? Test «¿Existe?» (3 min)"],
+    PlacementAsk => ["Quel est ton niveau ? Test « {test} » (3 min)", "What's your level? “{test}” test (3 min)", "¿Qué nivel tienes? Test «{test}» (3 min)"],
     YourLevel => ["Ton niveau", "Your level", "Tu nivel"],
     Notebook => ["Mon cahier", "My notebook", "Mi cuaderno"],
     NotebookEmpty => ["Rien ici pour l'instant : les mots que tu rates viendront s'y ranger.", "Nothing yet: the words you miss will be collected here.", "Nada todavía: aquí se guardan las palabras que fallas."],
@@ -121,14 +146,36 @@ msgs! {
     Known => ["acquis", "known", "sabidas"],
     Learning => ["en cours", "learning", "aprendiendo"],
     InsWords => ["Envoie chaque mot vers son sens.", "Send each word to its meaning.", "Lleva cada palabra a su significado."],
-    InsProduction => ["Envoie chaque sens vers le mot espagnol.", "Send each meaning to the Spanish word.", "Lleva cada significado a su palabra."],
+    InsProduction => ["Envoie chaque sens vers le mot {lang}.", "Send each meaning to the {Lang} word.", "Lleva cada significado a su palabra en {lang}."],
     InsListening => ["Touche un bloc pour l'écouter, puis envoie-le vers son sens.", "Tap a block to hear it, then send it to its meaning.", "Toca un bloque para oírlo y llévalo a su significado."],
     InsGender => ["El ou la ?", "El or la?", "¿El o la?"],
+    InsGenderFr => ["Un ou une ?", "Un or une?", "¿Un o une?"],
     InsVerbs => ["Chaque forme vers sa personne.", "Each form to its person.", "Cada forma con su persona."],
     InsBinary => ["Quel mot va dans le trou ?", "Which word fills the gap?", "¿Qué palabra falta?"],
-    InsSentences => ["Chaque forme dans sa phrase ; les autres dans « ninguna ».", "Each form into its sentence; the others into “ninguna”.", "Cada forma en su frase; las demás a «ninguna»."],
+    InsSentences => ["Chaque forme dans sa phrase ; les autres dans « {none} ».", "Each form into its sentence; the others into “{none}”.", "Cada forma en su frase; las demás a «{none}»."],
     InsFalse => ["Attention aux faux amis !", "Watch out for false friends!", "¡Cuidado con los falsos amigos!"],
-    InsPlacement => ["Ce mot existe-t-il en espagnol ?", "Is this a real Spanish word?", "¿Existe esta palabra?"],
+    InsPlacement => ["Ce mot existe-t-il en {lang} ?", "Is this a real {Lang} word?", "¿Existe esta palabra en {lang}?"],
     PlacementDone => ["Test terminé", "Test complete", "Test terminado"],
     PlacementNote => ["Les mots plus faciles sont marqués comme acquis ; ils reviendront de temps en temps.", "Easier words are marked as known; they will come back now and then.", "Las palabras más fáciles cuentan como sabidas; volverán de vez en cuando."],
+}
+
+/// Name of a language learnt, as an adjective inside a sentence (`le mot {lang}`): espagnol, Spanish, español…
+pub fn lang_adj(lang: Lang, target: fuera_learn::content::Target, capital: bool) -> &'static str {
+    use fuera_learn::content::Target;
+    match (lang, target, capital) {
+        (Lang::Fr, Target::Es, _) => "espagnol",
+        (Lang::Fr, Target::Fr, _) => "français",
+        (Lang::En, Target::Es, _) => "Spanish",
+        (Lang::En, Target::Fr, _) => "French",
+        (Lang::Es, Target::Es, _) => "español",
+        (Lang::Es, Target::Fr, _) => "francés",
+    }
+}
+
+/// A message with the course filled in: `{lang}` / `{Lang}`, `{none}` (the bin door), `{test}` (the placement test).
+pub fn tr_course(lang: Lang, t: T, target: fuera_learn::content::Target) -> String {
+    use fuera_learn::content::Target;
+    let none = if target == Target::Fr { "aucune" } else { "ninguna" };
+    let test = fuera_learn::plan::Mode::Placement.name(target);
+    tr(lang, t).replace("{lang}", lang_adj(lang, target, false)).replace("{Lang}", lang_adj(lang, target, true)).replace("{none}", none).replace("{test}", test)
 }

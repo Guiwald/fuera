@@ -246,8 +246,11 @@ fn web(out: Option<PathBuf>) -> Res {
     }
     let v = version();
     std::fs::write(out.join("index.html"), WEB_PAGE.replace("{v}", &v))?;
-    // Recorded pronunciations, fetched by the page in the background.
-    std::fs::copy(root.join("assets/es/voces/voces-es.fvox"), out.join("voces-es.fvox"))?;
+    // Recorded pronunciations, fetched by the page in the background for the course being played.
+    for pack in ["assets/es/voces/voces-es.fvox", "assets/es/voces/voces-es-419.fvox", "assets/fr/voces/voces-fr.fvox"] {
+        let src = root.join(pack);
+        std::fs::copy(&src, out.join(src.file_name().unwrap()))?;
+    }
     std::fs::write(out.join("icon-192.png"), png(192, true))?;
     std::fs::write(out.join("icon-512.png"), png(512, true))?;
     std::fs::write(

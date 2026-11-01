@@ -620,9 +620,14 @@ impl BoardView {
         } else if let Some(label) = &self.skin.blocks[b].label {
             let w = def.shape.w as f32 * c;
             let (cx, cy) = (x + w / 2.0, y + def.shape.h as f32 * c / 2.0);
-            let px = fonts.fit(Face::Bold, label, c * 0.36, w - c * 0.24);
             let ink = if st.blocks[b].shell && self.skin.shells[b].is_some() { theme::WHITE } else { theme::INK };
-            fonts.draw(pm, Face::Bold, label, cx, cy + px * 0.35, px, col_a(ink, alpha), Align::Center);
+            let h = def.shape.h as f32 * c;
+            let (lines, px) = fit_lines(fonts, label, c * 0.36, w - c * 0.24, h);
+            let lh = px * 1.12;
+            let top = cy - lh * (lines.len() as f32 - 1.0) / 2.0;
+            for (i, l) in lines.iter().enumerate() {
+                fonts.draw(pm, Face::Bold, l, cx, top + i as f32 * lh + px * 0.35, px, col_a(ink, alpha), Align::Center);
+            }
         }
     }
 
@@ -675,6 +680,29 @@ fn door_center(d: &fuera_core::Door, rim_cells: f32) -> (f32, f32) {
         Dir::W => (x0 - rim_cells / 2.0, y0 + half),
         Dir::N => (x0 + half, y0 - rim_cells / 2.0),
         Dir::S => (x0 + half, y0 + 1.0 + rim_cells / 2.0),
+    }
+}
+
+/// A tile's text on one line, or on two when one line would be too small to read (a sentence on a tile): the lines
+/// and the font size.
+fn fit_lines(fonts: &mut Fonts, label: &str, max_px: f32, w: f32, h: f32) -> (Vec<String>, f32) {
+    let one = fonts.fit(Face::Bold, label, max_px, w);
+    if one >= max_px * 0.8 || !label.contains(' ') {
+        return (vec![label.to_string()], one);
+    }
+    // Best split at a space: the two halves as even as possible.
+    let words: Vec<&str> = label.split(' ').collect();
+    let mut best: Option<(f32, Vec<String>)> = None;
+    for k in 1..words.len() {
+        let (a, b) = (words[..k].join(" "), words[k..].join(" "));
+        let px = fonts.fit(Face::Bold, &a, max_px, w).min(fonts.fit(Face::Bold, &b, max_px, w)).min(h * 0.4);
+        if best.as_ref().is_none_or(|(p, _)| px > *p) {
+            best = Some((px, vec![a, b]));
+        }
+    }
+    match best {
+        Some((px, lines)) if px > one * 1.15 => (lines, px),
+        _ => (vec![label.to_string()], one),
     }
 }
 

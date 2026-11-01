@@ -47,7 +47,8 @@ pub struct Runner {
     mouse_down: bool,
     touch: Option<u64>,
     modifiers: winit::keyboard::ModifiersState,
-    voices_loaded: bool,
+    /// Voice packs already asked for (loaded, being downloaded, or missing).
+    voices_tried: std::collections::HashSet<&'static str>,
 }
 
 impl Runner {
@@ -63,7 +64,7 @@ impl Runner {
             mouse_down: false,
             touch: None,
             modifiers: Default::default(),
-            voices_loaded: false,
+            voices_tried: Default::default(),
         }
     }
 
@@ -76,23 +77,30 @@ impl Runner {
         self.load_voices();
     }
 
-    /// Hands the recorded pronunciations to the game once sound works (built in on Mac, Windows, Linux and
-    /// Android; downloaded next to the page on the web).
+    /// Hands the recorded pronunciations the current course needs to the game once sound works: built in on Mac,
+    /// Windows, Linux and Android; downloaded next to the page on the web (`voces-<pack>.fvox`), only for the courses
+    /// played.
     fn load_voices(&mut self) {
-        if self.voices_loaded || self.audio.is_none() {
+        if self.audio.is_none() {
+            return;
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            let ready: Vec<(String, Vec<u8>)> = WEB_VOICES.with(|v| v.borrow_mut().drain().collect());
+            for (id, d) in ready {
+                self.app.set_voices(&id, d);
+            }
+        }
+        let Some(id) = self.app.wanted_voice_pack() else { return };
+        if !self.voices_tried.insert(id) {
             return;
         }
         #[cfg(not(target_arch = "wasm32"))]
-        {
-            static PACK: &[u8] = include_bytes!("../../assets/es/voces/voces-es.fvox");
-            self.app.set_voices(PACK.to_vec());
-            self.voices_loaded = true;
+        if let Some(pack) = builtin_pack(id) {
+            self.app.set_voices(id, pack.to_vec());
         }
         #[cfg(target_arch = "wasm32")]
-        if let Some(d) = WEB_VOICES.with(|v| v.borrow_mut().take()) {
-            self.app.set_voices(d);
-            self.voices_loaded = true;
-        }
+        fetch_voices(id);
     }
 
     fn redraw(&mut self) {
@@ -237,7 +245,6 @@ impl ApplicationHandler for Runner {
                 a.play(s);
             }
         }
-        #[cfg(target_arch = "wasm32")]
         self.load_voices();
         let clips = self.app.take_clips();
         if let Some(a) = &self.audio {
@@ -283,11 +290,20 @@ pub fn start() {
     let event_loop = winit::event_loop::EventLoop::new().expect("event loop");
     let runner = Runner::new(App::new(Box::new(hosts::WebHost)));
     event_loop.spawn_app(runner);
-    // The voice pack is a separate file next to the page (about 10 MB): fetched in the background.
-    wasm_bindgen_futures::spawn_local(async {
+}
+
+#[cfg(target_arch = "wasm32")]
+thread_local! {
+    static WEB_VOICES: std::cell::RefCell<std::collections::HashMap<String, Vec<u8>>> = std::cell::RefCell::new(Default::default());
+}
+
+/// Downloads a voice pack next to the page (10 to 15 MB) in the background.
+#[cfg(target_arch = "wasm32")]
+fn fetch_voices(id: &'static str) {
+    wasm_bindgen_futures::spawn_local(async move {
         use wasm_bindgen::JsCast;
         let Some(w) = web_sys::window() else { return };
-        let Ok(resp) = wasm_bindgen_futures::JsFuture::from(w.fetch_with_str("voces-es.fvox")).await else { return };
+        let Ok(resp) = wasm_bindgen_futures::JsFuture::from(w.fetch_with_str(&format!("voces-{id}.fvox"))).await else { return };
         let Ok(resp) = resp.dyn_into::<web_sys::Response>() else { return };
         if !resp.ok() {
             return;
@@ -295,11 +311,20 @@ pub fn start() {
         let Ok(buf) = resp.array_buffer() else { return };
         let Ok(buf) = wasm_bindgen_futures::JsFuture::from(buf).await else { return };
         let bytes = js_sys::Uint8Array::new(&buf).to_vec();
-        WEB_VOICES.with(|v| *v.borrow_mut() = Some(bytes));
+        WEB_VOICES.with(|v| v.borrow_mut().insert(id.to_string(), bytes));
     });
 }
 
-#[cfg(target_arch = "wasm32")]
-thread_local! {
-    static WEB_VOICES: std::cell::RefCell<Option<Vec<u8>>> = const { std::cell::RefCell::new(None) };
+/// The voice packs built into the native apps.
+#[cfg(not(target_arch = "wasm32"))]
+fn builtin_pack(id: &str) -> Option<&'static [u8]> {
+    static ES: &[u8] = include_bytes!("../../assets/es/voces/voces-es.fvox");
+    static ES_419: &[u8] = include_bytes!("../../assets/es/voces/voces-es-419.fvox");
+    static FR: &[u8] = include_bytes!("../../assets/fr/voces/voces-fr.fvox");
+    match id {
+        "es" => Some(ES),
+        "es-419" => Some(ES_419),
+        "fr" => Some(FR),
+        _ => None,
+    }
 }
