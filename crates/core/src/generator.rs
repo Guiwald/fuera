@@ -450,31 +450,33 @@ pub fn generate(p: &Params, seed: u64, attempts: usize, target: f32, min_slack: 
 }
 
 /// A board for a language round: horizontal word tiles (`(width, key)`), doors on the top and bottom walls
-/// (`keys`, all of the same length so a door's size never gives the answer away), wrong doors bounce.
-/// Solvable by construction (A*); `slack` is the wanted number of extra (puzzle) moves.
+/// (`keys`), wrong doors bounce. Solvable by construction (A*).
+///
+/// The board is a grid of **door columns**: as wide as the doors, every tile as wide as a door, the bottom doors
+/// right under the top ones (with other keys). A tile pushed sideways stops at a wall or against another tile, so it
+/// always lands exactly in a column; then up or down is the answer. Its starting place gives nothing away, and the
+/// puzzle stays light (which column first, who leaves first), since the language is the challenge.
+/// `slack` is the wanted number of extra moves above the lower bound.
 pub fn word_board(tiles: &[(i16, Key)], doors: &[Key], seed: u64, attempts: usize, slack: (u16, u16)) -> Option<Level> {
     let mut rng = Rng(seed);
     let len = tiles.iter().map(|t| t.0).max().unwrap_or(2).max(2);
     let top = doors.len().div_ceil(2);
-    let per = top as i16;
-    let w = (per * len + (per - 1).max(0) + 2).clamp(6, 9);
+    let cols_n = (top as i16).max(2);
+    let w = cols_n * len;
     let h: i16 = if tiles.len() > 6 { 8 } else { 7 };
     let names: Vec<char> = Level::NAMES.chars().collect();
     let mut best: Option<(Level, u16)> = None;
     for _ in 0..attempts {
         let mut level = Level { w, h, cells: vec![Cell::Floor; (w * h) as usize], doors: Vec::new(), blocks: Vec::new(), start: Vec::new(), meta: Meta::default() };
         level.meta.wrong_door = crate::level::WrongDoor::Bounce;
-        // Doors in columns: the bottom doors sit right under the top ones, with other keys, so that a tile standing
-        // in a door column still has a choice to make (up or down), and its place on the board gives nothing away.
         let mut order: Vec<Key> = doors.to_vec();
         rng.shuffle(&mut order);
-        let n = top as i16;
-        let free = w - n * len;
-        let gap = free / (n + 1).max(1);
-        let x0 = gap + (free - gap * (n + 1)) / 2 + (rng.below(2) as i16 * (free > (n + 1) * gap) as i16);
-        let cols: Vec<i16> = (0..n).map(|i| (x0 + i * (len + gap)).min(w - len)).collect();
+        let mut top_cols: Vec<i16> = (0..cols_n).collect();
+        rng.shuffle(&mut top_cols);
+        top_cols.truncate(top);
+        top_cols.sort();
         for (i, &k) in order[..top].iter().enumerate() {
-            level.doors.push(Door { side: Dir::N, at: Pos::new(cols[i], 0), len: len as u8, key: k, kind: DoorKind::Plain });
+            level.doors.push(Door { side: Dir::N, at: Pos::new(top_cols[i] * len, 0), len: len as u8, key: k, kind: DoorKind::Plain });
         }
         let mut bottom: Vec<Key> = order[top..].to_vec();
         // Avoid the same key above and below in one column when possible.
@@ -486,30 +488,20 @@ pub fn word_board(tiles: &[(i16, Key)], doors: &[Key], seed: u64, attempts: usiz
             }
         }
         for (i, &k) in bottom.iter().enumerate() {
-            level.doors.push(Door { side: Dir::S, at: Pos::new(cols[i], h - 1), len: len as u8, key: k, kind: DoorKind::Plain });
+            level.doors.push(Door { side: Dir::S, at: Pos::new(top_cols[i] * len, h - 1), len: len as u8, key: k, kind: DoorKind::Plain });
         }
-        // A wall cell or two as stoppers.
-        for _ in 0..rng.range(0, 2) {
-            let p = Pos::new(rng.range(0, (w - 1) as i32) as i16, rng.range(2, (h - 3) as i32) as i16);
-            level.cells[(p.y * w + p.x) as usize] = Cell::Wall;
-        }
-        // Tiles: most of them in a door column (any door), the rest anywhere.
-        let mut occ = vec![false; (w * h) as usize];
-        for (i, c) in level.cells.iter().enumerate() {
-            occ[i] = *c != Cell::Floor;
-        }
+        // Tiles on the column grid, away from the walls.
+        let mut occ = vec![false; (cols_n * h) as usize];
         let mut ok = true;
-        for (i, &(tw, key)) in tiles.iter().enumerate() {
+        for (i, &(_, key)) in tiles.iter().enumerate() {
             let mut placed = false;
             for _ in 0..200 {
-                let x = if rng.chance(0.65) { *rng.pick(&cols) } else { rng.range(0, (w - tw) as i32) as i16 };
-                let at = Pos::new(x.min(w - tw), rng.range(1, (h - 2) as i32) as i16);
-                if (0..tw).all(|dx| !occ[((at.y) * w + at.x + dx) as usize]) {
-                    for dx in 0..tw {
-                        occ[(at.y * w + at.x + dx) as usize] = true;
-                    }
-                    level.blocks.push(BlockDef::plain(names[i % names.len()], Shape::rect(tw, 1), key));
-                    level.start.push(at);
+                let c = rng.range(0, (cols_n - 1) as i32) as i16;
+                let y = rng.range(1, (h - 2) as i32) as i16;
+                if !occ[(y * cols_n + c) as usize] {
+                    occ[(y * cols_n + c) as usize] = true;
+                    level.blocks.push(BlockDef::plain(names[i % names.len()], Shape::rect(len, 1), key));
+                    level.start.push(Pos::new(c * len, y));
                     placed = true;
                     break;
                 }
@@ -524,8 +516,6 @@ pub fn word_board(tiles: &[(i16, Key)], doors: &[Key], seed: u64, attempts: usiz
         }
         let st = State::initial(&level);
         let Some(h0) = solver::Heuristic::new(&level).eval(&st) else { continue };
-        // Only light puzzles are wanted here (the language is the challenge): a small search budget finds them
-        // quickly, and spares the time that hard or unsolvable layouts would burn.
         let rep = solver::solve(&level, &st, if tiles.len() > 5 { 8_000 } else { 4_000 });
         let Solve::Solved(m) = rep.result else { continue };
         let s = (m.len() as u32).saturating_sub(h0) as u16;
@@ -559,17 +549,15 @@ fn aligned_board(tiles: &[(i16, Key)], doors: &[Key], w: i16, h: i16, len: i16, 
         if n == 0 {
             continue;
         }
-        let gap = ((w - n * len) / (n + 1)).max(0);
-        let mut x = gap;
-        for &k in keys {
-            level.doors.push(Door { side, at: Pos::new(x.min(w - len), y), len: len as u8, key: k, kind: DoorKind::Plain });
-            x += len + gap;
+        for (i, &k) in keys.iter().enumerate() {
+            level.doors.push(Door { side, at: Pos::new((i as i16 * len).min(w - len), y), len: len as u8, key: k, kind: DoorKind::Plain });
         }
     }
     let names: Vec<char> = Level::NAMES.chars().collect();
     // Next free row for each door (from its wall inwards).
     let mut depth = vec![0i16; level.doors.len()];
-    for (i, &(tw, key)) in tiles.iter().enumerate() {
+    for (i, &(_, key)) in tiles.iter().enumerate() {
+        let tw = len;
         let cands: Vec<usize> = (0..level.doors.len()).filter(|&d| level.doors[d].key == key).collect();
         let d = *cands.iter().min_by_key(|&&d| depth[d])?;
         let door = &level.doors[d];

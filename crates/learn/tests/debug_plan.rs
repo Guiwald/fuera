@@ -16,10 +16,9 @@ fn round_preparation_time() {
             let t = std::time::Instant::now();
             let mut p = Planner::new(&c, &m, Base::Fr, Band::B2, 20_400.3, seed * 7919);
             let mut r = p.plan(mode).unwrap();
-            if r.gates.len().div_ceil(2) >= 3 {
-                for t in &mut r.tiles {
-                    t.width = t.width.min(2);
-                }
+            let wide = if r.gates.len().div_ceil(2) >= 3 { 2 } else { r.tiles.iter().map(|t| t.width).max().unwrap_or(2) };
+            for t in &mut r.tiles {
+                t.width = wide;
             }
             let tiles: Vec<(i16, u16)> = r.tiles.iter().map(|t| (t.width as i16, t.key)).collect();
             let doors: Vec<u16> = r.gates.iter().map(|g| g.key).collect();

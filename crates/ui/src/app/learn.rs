@@ -117,11 +117,11 @@ impl App {
             p.plan(mode)
         };
         let Some(mut round) = round else { return };
-        // Three doors per wall at most: with three-cell doors that would not fit, use two-cell tiles.
-        if round.gates.len().div_ceil(2) >= 3 {
-            for t in &mut round.tiles {
-                t.width = t.width.min(2);
-            }
+        // Three door columns at most with three-cell tiles (the board would get too narrow per cell): use two-cell
+        // tiles then. All tiles of a round are as wide as the doors.
+        let wide = if round.gates.len().div_ceil(2) >= 3 { 2 } else { round.tiles.iter().map(|t| t.width).max().unwrap_or(2) };
+        for t in &mut round.tiles {
+            t.width = wide;
         }
         let tiles: Vec<(i16, u16)> = round.tiles.iter().map(|t| (t.width as i16, t.key)).collect();
         let doors: Vec<u16> = round.gates.iter().map(|g| g.key).collect();
