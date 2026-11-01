@@ -13,4 +13,9 @@ Première version.
   Ser o estar, Por o para, Pasado (pretérito/imperfecto), Subjuntivo, Falsos amigos. Test de niveau « ¿Existe? »,
   séance du jour (5 manches), série de jours, « Mi cuaderno » (les mots ratés), sens en français ou en anglais.
   Révisions espacées (FSRS-6), voix du système pour la prononciation.
+- **Plateaux du mode espagnol prouvés sans impasse** : une seule porte par catégorie, toujours au même endroit
+  (« por » en haut, « para » en bas…) ; trois ou quatre portes dans les coins avec une colonne de parking ; pour
+  chaque disposition utilisée, toutes les positions possibles ont été vérifiées gagnables (`fuera-cli prove`, voir
+  `docs/adr/0006-modele-mathematique.md`). Le casse-tête reste simple au début et se corse avec les manches jouées.
+- Mode classique : le jeu signale une impasse (« plus de solution d'ici ») dès qu'il peut la prouver.
 - Mac, Windows, Linux, Android (Pixel 8), navigateur. Interface en français, anglais et espagnol.

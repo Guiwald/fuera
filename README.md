@@ -45,6 +45,8 @@ cargo run                                   # le jeu (bureau)
 cargo test --workspace --release            # tests (règles, solveur, conjugueur, FSRS, planificateur)
 cargo run --release -p fuera-cli -- check assets/levels/campaign.txt   # chaque niveau est résolu
 cargo run --release -p fuera-cli -- campaign assets/levels/campaign.txt   # régénère la campagne
+cargo run --release -p fuera-cli -- prove     # preuve : aucun plateau du mode espagnol n'a d'impasse
+cargo run --release -p fuera-cli -- deadends assets/levels/campaign.txt   # impasses de chaque niveau
 cargo xtask web | apk | bundle-mac <bin> | dist-windows | icons
 ```
 

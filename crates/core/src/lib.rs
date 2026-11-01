@@ -6,6 +6,7 @@
 pub mod game;
 pub mod generator;
 pub mod geom;
+pub mod lattice;
 pub mod level;
 pub mod rules;
 pub mod solver;

@@ -354,6 +354,8 @@ pub struct Analysis {
     pub mean_branching: f32,
     /// Exhaustive (false: budget exceeded, numbers partial).
     pub complete: bool,
+    /// The closest dead state to the start, if any (for diagnostics).
+    pub dead_example: Option<State>,
 }
 
 /// Explores every reachable state (up to `limit`) and measures how forgiving the level is.
@@ -364,11 +366,13 @@ pub fn analyze(level: &Level, limit: usize) -> Analysis {
     let mut packed: Vec<Box<[u16]>> = Vec::new();
     let mut edges: Vec<Vec<u32>> = Vec::new();
     let mut won: Vec<bool> = Vec::new();
+    let mut expanded: Vec<bool> = Vec::new();
     let root = pk.pack(&start);
     index.insert(hash128(&root), 0);
     packed.push(root);
     edges.push(Vec::new());
     won.push(start.is_won());
+    expanded.push(false);
     let mut queue = VecDeque::from([0u32]);
     let mut complete = true;
     while let Some(i) = queue.pop_front() {
@@ -377,6 +381,7 @@ pub fn analyze(level: &Level, limit: usize) -> Analysis {
             break;
         }
         let st = pk.unpack(&packed[i as usize]);
+        expanded[i as usize] = true;
         if st.is_won() {
             continue;
         }
@@ -391,6 +396,7 @@ pub fn analyze(level: &Level, limit: usize) -> Analysis {
                     let j = packed.len() as u32;
                     index.insert(h, j);
                     won.push(next.is_won());
+                    expanded.push(false);
                     packed.push(p);
                     edges.push(Vec::new());
                     queue.push_back(j);
@@ -428,11 +434,26 @@ pub fn analyze(level: &Level, limit: usize) -> Analysis {
         }
     }
     let optimal = (dist[0] != u32::MAX).then_some(dist[0] as u16);
-    // Only states whose successors were all expanded can be called dead with certainty.
-    let dead_states = (0..n).filter(|&i| dist[i] == u32::MAX && (complete || !edges[i].is_empty())).count();
+    // Dead for certain: neither a win nor a state left unexplored (budget) can be reached from it.
+    let mut open = vec![false; n];
+    let mut q: VecDeque<usize> = (0..n).filter(|&i| won[i] || !expanded[i]).collect();
+    for &i in &q {
+        open[i] = true;
+    }
+    while let Some(i) = q.pop_front() {
+        for &p in &rev[i] {
+            if !open[p as usize] {
+                open[p as usize] = true;
+                q.push_back(p as usize);
+            }
+        }
+    }
+    let is_dead = |i: usize| !open[i];
+    let dead_states = (0..n).filter(|&i| is_dead(i)).count();
+    let dead_example = (0..n).find(|&i| is_dead(i)).map(|i| pk.unpack(&packed[i]));
     let first = &edges[0];
     let optimal_first_moves = first.iter().filter(|&&j| dist[j as usize] != u32::MAX && dist[j as usize] + 1 == dist[0]).count();
-    let losing_first_moves = first.iter().filter(|&&j| dist[j as usize] == u32::MAX).count();
+    let losing_first_moves = first.iter().filter(|&&j| is_dead(j as usize)).count();
     // Branching along one optimal path.
     let mut branching = Vec::new();
     let mut cur = 0usize;
@@ -455,5 +476,6 @@ pub fn analyze(level: &Level, limit: usize) -> Analysis {
         first_moves: first.len(),
         mean_branching,
         complete,
+        dead_example,
     }
 }

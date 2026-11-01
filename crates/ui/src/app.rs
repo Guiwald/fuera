@@ -604,6 +604,15 @@ impl App {
                 }
                 if p.game.is_stuck() {
                     p.toast = Some((tr(self.lang, T::Stuck).to_string(), 3.0));
+                } else if !p.game.is_won() && p.plan.is_empty() {
+                    // Off the known route: look for one from here (small budget, so no hitch). A proof that none
+                    // exists is a dead end — say so now rather than let the player wander; a route found serves
+                    // the next hint at once.
+                    match fuera_core::solver::solve(&p.game.level, &p.game.state, 25_000).result {
+                        fuera_core::solver::Solve::Solved(m) => p.plan = m,
+                        fuera_core::solver::Solve::Unsolvable => p.toast = Some((tr(self.lang, T::DeadEnd).to_string(), 3.5)),
+                        fuera_core::solver::Solve::TooBig => {}
+                    }
                 }
             }
             None => {

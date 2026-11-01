@@ -6,6 +6,7 @@
 use crate::geom::{Axis, Dir, Pos};
 use crate::level::{BlockDef, Cell, Door, DoorKind, Key, Level, Meta, Shape};
 use crate::rules::{self, State};
+use crate::lattice;
 use crate::solver::{self, Analysis, Solve};
 
 /// Small deterministic RNG (SplitMix64), so a seed always gives the same level on every platform.
@@ -450,132 +451,153 @@ pub fn generate(p: &Params, seed: u64, attempts: usize, target: f32, min_slack: 
 }
 
 /// A board for a language round: horizontal word tiles (`(width, key)`), doors on the top and bottom walls
-/// (`keys`), wrong doors bounce. Solvable by construction (A*).
+/// (`doors`), wrong doors bounce. `slack` is the wanted number of detours: extra moves above the straight route.
 ///
-/// The board is a grid of **door columns**: as wide as the doors, every tile as wide as a door, the bottom doors
-/// right under the top ones (with other keys). A tile pushed sideways stops at a wall or against another tile, so it
-/// always lands exactly in a column; then up or down is the answer. Its starting place gives nothing away, and the
-/// puzzle stays light (which column first, who leaves first), since the language is the challenge.
-/// `slack` is the wanted number of extra moves above the lower bound.
+/// Geometry (see [`crate::lattice`] and `docs/adr/0006-modele-mathematique.md`):
+/// - **Lattice.** Every tile is exactly as wide as a door and starts on the door grid. A slide stops at a wall or
+///   against another tile, so a tile always rests on the grid, never half under a door.
+/// - **Two categories:** the first one's door across the top wall, the second one's across the bottom wall, always
+///   in the same place (consistent mapping), each leaving one column of plain wall at the far end ("diagonal").
+/// - **Three or four doors:** in the corners, with plain wall above and below the middle column.
+/// - **No dead end, proven.** For these layouts, every placement of up to [`lattice::Layout::proven`] tiles, for
+///   every choice of target doors, has been checked to be winnable ([`lattice::prove`]): whatever the player does,
+///   the round can still be finished. Bigger rounds fall back to exploring the board's whole state graph.
 pub fn word_board(tiles: &[(i16, Key)], doors: &[Key], seed: u64, attempts: usize, slack: (u16, u16)) -> Option<Level> {
     let mut rng = Rng(seed);
-    let len = tiles.iter().map(|t| t.0).max().unwrap_or(2).max(2);
-    let top = doors.len().div_ceil(2);
-    let cols_n = (top as i16).max(2);
-    let w = cols_n * len;
-    let h: i16 = if tiles.len() > 6 { 8 } else { 7 };
-    let names: Vec<char> = Level::NAMES.chars().collect();
     let mut best: Option<(Level, u16)> = None;
+    let distance = |s: u16| if s < slack.0 { slack.0 - s } else { s.saturating_sub(slack.1) };
     for _ in 0..attempts {
-        let mut level = Level { w, h, cells: vec![Cell::Floor; (w * h) as usize], doors: Vec::new(), blocks: Vec::new(), start: Vec::new(), meta: Meta::default() };
-        level.meta.wrong_door = crate::level::WrongDoor::Bounce;
-        let mut order: Vec<Key> = doors.to_vec();
-        rng.shuffle(&mut order);
-        let mut top_cols: Vec<i16> = (0..cols_n).collect();
-        rng.shuffle(&mut top_cols);
-        top_cols.truncate(top);
-        top_cols.sort();
-        for (i, &k) in order[..top].iter().enumerate() {
-            level.doors.push(Door { side: Dir::N, at: Pos::new(top_cols[i] * len, 0), len: len as u8, key: k, kind: DoorKind::Plain });
-        }
-        let mut bottom: Vec<Key> = order[top..].to_vec();
-        // Avoid the same key above and below in one column when possible.
-        for i in 0..bottom.len() {
-            if bottom[i] == order[i]
-                && let Some(j) = (0..bottom.len()).find(|&j| j != i && bottom[j] != order[i] && bottom[i] != order[j])
-            {
-                bottom.swap(i, j);
-            }
-        }
-        for (i, &k) in bottom.iter().enumerate() {
-            level.doors.push(Door { side: Dir::S, at: Pos::new(top_cols[i] * len, h - 1), len: len as u8, key: k, kind: DoorKind::Plain });
-        }
-        // Tiles on the column grid, away from the walls.
-        let mut occ = vec![false; (cols_n * h) as usize];
-        let mut ok = true;
-        for (i, &(_, key)) in tiles.iter().enumerate() {
-            let mut placed = false;
-            for _ in 0..200 {
-                let c = rng.range(0, (cols_n - 1) as i32) as i16;
-                let y = rng.range(1, (h - 2) as i32) as i16;
-                if !occ[(y * cols_n + c) as usize] {
-                    occ[(y * cols_n + c) as usize] = true;
-                    level.blocks.push(BlockDef::plain(names[i % names.len()], Shape::rect(len, 1), key));
-                    level.start.push(Pos::new(c * len, y));
-                    placed = true;
-                    break;
-                }
-            }
-            if !placed {
-                ok = false;
-                break;
-            }
-        }
-        if !ok || !level.validate().is_empty() {
+        let Some(mut level) = word_candidate(tiles, doors, &mut rng) else { continue };
+        let Some(check) = word_check(&level, tiles.len()) else { continue };
+        level.meta.optimal = Some(check.optimal);
+        // Not every tile straight out in one move: some sliding to do.
+        if check.optimal as usize <= tiles.len() {
             continue;
         }
-        let st = State::initial(&level);
-        let Some(h0) = solver::Heuristic::new(&level).eval(&st) else { continue };
-        let rep = solver::solve(&level, &st, if tiles.len() > 5 { 8_000 } else { 4_000 });
-        let Solve::Solved(m) = rep.result else { continue };
-        let s = (m.len() as u32).saturating_sub(h0) as u16;
-        level.meta.optimal = Some(m.len() as u16);
-        // Not every tile one move from the exit: some sliding to do.
-        let moves_needed = m.len() > tiles.len();
-        if s < slack.0 || s > slack.1 || !moves_needed {
-            if best.as_ref().is_none_or(|b| moves_needed && b.1 == 0) {
-                best = Some((level, if moves_needed { 1 } else { 0 }));
-            }
-            continue;
+        let d = distance(check.slack);
+        if d == 0 {
+            return Some(level);
         }
-        return Some(level);
+        if best.as_ref().is_none_or(|b| d < b.1) {
+            best = Some((level, d));
+        }
     }
     if let Some(b) = best {
         return Some(b.0);
     }
-    aligned_board(tiles, doors, w, h, len, &mut rng)
-}
-
-/// Last resort, always solvable: every tile starts right in line with one of its own doors, stacked from that wall.
-/// Used only when the random layouts all fail (rare), so a round can always start.
-fn aligned_board(tiles: &[(i16, Key)], doors: &[Key], w: i16, h: i16, len: i16, rng: &mut Rng) -> Option<Level> {
-    let mut level = Level { w, h, cells: vec![Cell::Floor; (w * h) as usize], doors: Vec::new(), blocks: Vec::new(), start: Vec::new(), meta: Meta::default() };
-    level.meta.wrong_door = crate::level::WrongDoor::Bounce;
-    let top = doors.len().div_ceil(2);
-    let mut order: Vec<Key> = doors.to_vec();
-    rng.shuffle(&mut order);
-    for (side, keys, y) in [(Dir::N, &order[..top], 0), (Dir::S, &order[top..], h - 1)] {
-        let n = keys.len() as i16;
-        if n == 0 {
-            continue;
+    for _ in 0..8 {
+        if let Some(mut level) = word_candidate(tiles, doors, &mut rng).and_then(|l| aligned_board(l, tiles))
+            && let Some(c) = word_check(&level, tiles.len())
+        {
+            level.meta.optimal = Some(c.optimal);
+            return Some(level);
         }
-        for (i, &k) in keys.iter().enumerate() {
-            level.doors.push(Door { side, at: Pos::new((i as i16 * len).min(w - len), y), len: len as u8, key: k, kind: DoorKind::Plain });
-        }
-    }
-    let names: Vec<char> = Level::NAMES.chars().collect();
-    // Next free row for each door (from its wall inwards).
-    let mut depth = vec![0i16; level.doors.len()];
-    for (i, &(_, key)) in tiles.iter().enumerate() {
-        let tw = len;
-        let cands: Vec<usize> = (0..level.doors.len()).filter(|&d| level.doors[d].key == key).collect();
-        let d = *cands.iter().min_by_key(|&&d| depth[d])?;
-        let door = &level.doors[d];
-        let y = if door.side == Dir::N { depth[d] } else { h - 1 - depth[d] };
-        if depth[d] >= h / 2 {
-            return None;
-        }
-        depth[d] += 1;
-        level.blocks.push(BlockDef::plain(names[i % names.len()], Shape::rect(tw, 1), key));
-        level.start.push(Pos::new(door.at.x, y));
-    }
-    if !level.validate().is_empty() {
-        return None;
-    }
-    let st = State::initial(&level);
-    if let Solve::Solved(m) = solver::solve(&level, &st, 200_000).result {
-        level.meta.optimal = Some(m.len() as u16);
-        return Some(level);
     }
     None
+}
+
+/// The layout of a language round: door width (2 or 3 cells) and the lattice geometry, from the door keys in
+/// order (two categories: first on top) — three or four doors are dealt to the corners at random.
+pub fn word_layout(tiles: &[(i16, Key)], doors: &[Key], rng: &mut Rng) -> lattice::Layout {
+    let len = tiles.iter().map(|t| t.0).max().unwrap_or(2).clamp(2, 3);
+    if doors.len() == 2 {
+        lattice::Layout::two_categories(doors[0], doors[1], len)
+    } else {
+        let mut order: Vec<Key> = doors.to_vec();
+        rng.shuffle(&mut order);
+        let mut corners: Vec<Option<Key>> = order.into_iter().map(Some).collect();
+        corners.resize(4, None);
+        if doors.len() == 3 {
+            // The plain corner goes anywhere.
+            let gap = rng.below(4);
+            corners.swap(3, gap);
+        }
+        lattice::Layout::corners([corners[0], corners[1], corners[2], corners[3]])
+    }
+}
+
+/// One random language board (doors and tiles on the lattice), not yet checked.
+pub fn word_candidate(tiles: &[(i16, Key)], doors: &[Key], rng: &mut Rng) -> Option<Level> {
+    let layout = word_layout(tiles, doors, rng);
+    let mut level = layout.level();
+    let (cols, rows, len) = (layout.geometry.cols as i16, layout.geometry.rows as i16, layout.len);
+    let names: Vec<char> = Level::NAMES.chars().collect();
+    // Tiles on the lattice, away from the walls.
+    let mut occ = vec![false; (cols * rows) as usize];
+    for (i, &(_, key)) in tiles.iter().enumerate() {
+        let mut placed = false;
+        for _ in 0..200 {
+            let c = rng.range(0, (cols - 1) as i32) as i16;
+            let y = rng.range(1, (rows - 2) as i32) as i16;
+            if !occ[(y * cols + c) as usize] {
+                occ[(y * cols + c) as usize] = true;
+                level.blocks.push(BlockDef::plain(names[i % names.len()], Shape::rect(len, 1), key));
+                level.start.push(Pos::new(c * len, y));
+                placed = true;
+                break;
+            }
+        }
+        if !placed {
+            return None;
+        }
+    }
+    level.validate().is_empty().then_some(level)
+}
+
+/// What the generator checks on a language board.
+pub struct WordCheck {
+    pub optimal: u16,
+    /// Optimal minus the lower bound (extra moves the player has to find).
+    pub slack: u16,
+}
+
+/// Optimal solution and detours of a language board, `None` if it cannot be won from every reachable position.
+/// Boards of a proven layout with few enough tiles are dead-end free by [`lattice::prove`]; only the optimal
+/// solution is searched then. Others get their whole state graph explored.
+pub fn word_check(level: &Level, tiles: usize) -> Option<WordCheck> {
+    let st = State::initial(level);
+    let h0 = solver::Heuristic::new(level).eval(&st)?;
+    let opt = if tiles <= lattice::Layout::of_level(level).map(|l| l.proven()).unwrap_or(0) {
+        match solver::solve(level, &st, 400_000).result {
+            Solve::Solved(m) => m.len() as u16,
+            _ => return None,
+        }
+    } else {
+        let a = solver::analyze(level, 200_000);
+        if !a.complete || a.dead_states > 0 {
+            return None;
+        }
+        a.optimal?
+    };
+    Some(WordCheck { optimal: opt, slack: (opt as u32).saturating_sub(h0) as u16 })
+}
+
+/// Last resort: the doors of `level`, every tile moved right in line with one of its own doors, stacked from that
+/// wall inwards. Used only when the random layouts all fail (rare), so a round can always start.
+fn aligned_board(mut level: Level, tiles: &[(i16, Key)]) -> Option<Level> {
+    let (w, h) = (level.w, level.h);
+    let len = level.blocks.first()?.shape.w;
+    let cols = (w / len).max(1);
+    // Next free row in each (column, side), counted from that wall inwards; each side gets half the rows.
+    let mut depth = vec![[0i16; 2]; cols as usize];
+    level.start.clear();
+    for &(_, key) in tiles {
+        let mut best: Option<(i16, usize, i16)> = None;
+        for door in level.doors.iter().filter(|d| d.key == key) {
+            let s = if door.side == Dir::N { 0 } else { 1 };
+            for c in door.at.x / len..((door.at.x + door.len as i16) / len).min(cols) {
+                let d = depth[c as usize][s];
+                if best.is_none_or(|b| d < b.0) {
+                    best = Some((d, s, c));
+                }
+            }
+        }
+        let (d, s, c) = best?;
+        if d >= h / 2 {
+            return None;
+        }
+        depth[c as usize][s] += 1;
+        level.start.push(Pos::new(c * len, if s == 0 { d } else { h - 1 - d }));
+    }
+    level.validate().is_empty().then_some(level)
 }

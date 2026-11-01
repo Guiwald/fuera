@@ -70,6 +70,7 @@ msgs! {
     Back => ["Retour", "Back", "Volver"],
     Cleared => ["Bravo !", "Cleared!", "¡Fuera!"],
     Stuck => ["Bloqué ! Annule ou recommence.", "Stuck! Undo or restart.", "¡Atascado! Deshaz o reinicia."],
+    DeadEnd => ["Impasse : plus de solution d'ici. Annule.", "Dead end: no way out from here. Undo.", "Callejón sin salida: deshaz."],
     Frozen => ["Gelé : encore {} sortie(s)", "Frozen: {} more exit(s)", "Congelado: faltan {} salida(s)"],
     Locked => ["Enchaîné : fais sortir la clé {}", "Chained: get key {} out", "Encadenado: saca la llave {}"],
     LaneH => ["Ne bouge qu'à l'horizontale", "Moves sideways only", "Solo se mueve en horizontal"],

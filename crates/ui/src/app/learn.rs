@@ -117,15 +117,17 @@ impl App {
             p.plan(mode)
         };
         let Some(mut round) = round else { return };
-        // Three door columns at most with three-cell tiles (the board would get too narrow per cell): use two-cell
-        // tiles then. All tiles of a round are as wide as the doors.
-        let wide = if round.gates.len().div_ceil(2) >= 3 { 2 } else { round.tiles.iter().map(|t| t.width).max().unwrap_or(2) };
+        // Boards are six cells wide (see `word_board`): with two categories, two- or three-cell tiles; with three or
+        // four doors (in the corners), two-cell ones. All tiles of a round are as wide as the doors.
+        let wide = if round.gates.len() == 2 { round.tiles.iter().map(|t| t.width).max().unwrap_or(2).clamp(2, 3) } else { 2 };
         for t in &mut round.tiles {
             t.width = wide;
         }
         let tiles: Vec<(i16, u16)> = round.tiles.iter().map(|t| (t.width as i16, t.key)).collect();
         let doors: Vec<u16> = round.gates.iter().map(|g| g.key).collect();
-        let level = fuera_core::generator::word_board(&tiles, &doors, seed, 40, (0, 2));
+        // How much of a puzzle: grows with the rounds played (none at first).
+        let slack = if mode == Mode::Placement { (0, 0) } else { self.memory.board_slack() };
+        let level = fuera_core::generator::word_board(&tiles, &doors, seed, 40, slack);
         let Some(mut level) = level else {
             log::warn!("no board for {mode:?}");
             return;

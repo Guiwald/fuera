@@ -23,6 +23,8 @@ jobs:
         run: cargo test --workspace --release
       - name: Campagne (chaque niveau résolu par le solveur)
         run: cargo run --release -p fuera-cli -- check assets/levels/campaign.txt
+      - name: Preuve « aucune impasse » des plateaux du mode espagnol
+        run: cargo run --release -p fuera-cli -- prove
 
   targets:
     name: Android et web (compilation)

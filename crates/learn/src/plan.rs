@@ -292,7 +292,8 @@ impl<'a> Planner<'a> {
                 return self.words(Mode::Words);
             }
         }
-        let n = 4;
+        // Three words and one decoy door: four doors, the most a board of two door columns offers.
+        let n = 3;
         let picked = self.pick(&pool, |w| w.id(), n, if listening { 0 } else { 2 });
         if picked.len() < 2 {
             return None;
@@ -334,7 +335,7 @@ impl<'a> Planner<'a> {
         let mut cands: Vec<Word> = cands.into_iter().cloned().collect();
         self.shuffle(&mut cands);
         let mut extra = 0;
-        let want = if tiles.len() <= 3 { 2 } else { 1 };
+        let want = if tiles.len() <= 2 { 2 } else { 1 };
         for w in cands {
             if extra >= want {
                 break;
@@ -377,8 +378,6 @@ impl<'a> Planner<'a> {
         let gates = vec![
             Gate { text: "el".into(), key: 0, pic: None, item: None, long: false },
             Gate { text: "la".into(), key: 1, pic: None, item: None, long: false },
-            Gate { text: "el".into(), key: 0, pic: None, item: None, long: false },
-            Gate { text: "la".into(), key: 1, pic: None, item: None, long: false },
         ];
         Some(Round { mode: Mode::Gender, tiles, gates, intro: Vec::new(), production: false, heading: String::new() })
     }
@@ -409,9 +408,12 @@ impl<'a> Planner<'a> {
             }
         }
         let item = format!("c:{}:{}", verb.es, tense.name_es());
+        // Four persons per round (four doors), three of them with their form: one door stays empty, so the last
+        // form cannot be placed by elimination.
         let mut idx: Vec<usize> = (0..groups.len()).collect();
         self.shuffle(&mut idx);
-        let n_tiles = groups.len().min(4);
+        idx.truncate(4);
+        let n_tiles = idx.len().saturating_sub(1).max(1);
         let mut tiles = Vec::new();
         for &g in idx.iter().take(n_tiles) {
             let (form, persons) = &groups[g];
@@ -427,11 +429,10 @@ impl<'a> Planner<'a> {
                 band: None,
             });
         }
-        let gates: Vec<Gate> = groups
+        let gates: Vec<Gate> = idx
             .iter()
-            .enumerate()
-            .map(|(g, (_, persons))| {
-                let label: Vec<&str> = persons.iter().map(|p| p.pronoun()).collect();
+            .map(|&g| {
+                let label: Vec<&str> = groups[g].1.iter().map(|p| p.pronoun()).collect();
                 Gate { text: label.join(" / "), key: g as u16, pic: None, item: None, long: false }
             })
             .collect();
@@ -473,8 +474,6 @@ impl<'a> Planner<'a> {
         let gates = vec![
             Gate { text: a.into(), key: 0, pic: None, item: None, long: false },
             Gate { text: b.into(), key: 1, pic: None, item: None, long: false },
-            Gate { text: a.into(), key: 0, pic: None, item: None, long: false },
-            Gate { text: b.into(), key: 1, pic: None, item: None, long: false },
         ];
         Some(Round { mode, tiles, gates, intro: Vec::new(), production: false, heading: String::new() })
     }
@@ -486,7 +485,9 @@ impl<'a> Planner<'a> {
         };
         let mut pool: Vec<Choice> = pool.into_iter().filter(|c| c.band <= self.band.max(Band::B1)).collect();
         self.shuffle(&mut pool);
-        let picked = self.pick(&pool, |c| hash_id(prefix, &c.prompt), 3, 2);
+        // Two sentences per round, each with its right form and the competing one (the other tense or mood): two real
+        // choices, at most four tiles and three doors — a board size proven free of dead ends (`fuera_core::lattice`).
+        let picked = self.pick(&pool, |c| hash_id(prefix, &c.prompt), 2, 2);
         let base = self.base;
         let mut tiles = Vec::new();
         let mut gates = Vec::new();
@@ -508,9 +509,7 @@ impl<'a> Planner<'a> {
         }
         // The bin for the forms that fit none of the sentences.
         gates.push(Gate { text: "ninguna".into(), key: 99, pic: None, item: None, long: false });
-        if tiles.iter().filter(|t| t.key == 99).count() >= 2 {
-            gates.push(Gate { text: "ninguna".into(), key: 99, pic: None, item: None, long: false });
-        }
+
         Some(Round { mode, tiles, gates, intro: Vec::new(), production: false, heading: String::new() })
     }
 
@@ -557,8 +556,6 @@ impl<'a> Planner<'a> {
         }
         self.shuffle(&mut tiles);
         let gates = vec![
-            Gate { text: "existe".into(), key: 0, pic: None, item: None, long: false },
-            Gate { text: "no existe".into(), key: 1, pic: None, item: None, long: false },
             Gate { text: "existe".into(), key: 0, pic: None, item: None, long: false },
             Gate { text: "no existe".into(), key: 1, pic: None, item: None, long: false },
         ];

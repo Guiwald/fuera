@@ -349,12 +349,73 @@ fn astar_matches_bfs() {
 #[test]
 fn word_boards_are_solvable() {
     use crate::generator::word_board;
-    for seed in 0..30u64 {
-        let tiles = [(2, 0), (2, 1), (3, 2), (2, 3)];
-        let doors = [0, 1, 2, 3, 100];
-        let l = word_board(&tiles, &doors, seed, 40, (0, 3)).expect("board");
-        assert_eq!(l.meta.wrong_door, crate::WrongDoor::Bounce);
-        let r = solver::solve(&l, &crate::State::initial(&l), 100_000);
-        assert!(matches!(r.result, Solve::Solved(_)), "seed {seed}\n{}", l.to_text());
+    use crate::lattice::Layout;
+    // (tiles, doors) as the language rounds use them: meanings, persons, false friends, two categories (short words
+    // or sentences), two sentences with a "none" bin.
+    let cases: [(&[(i16, u16)], &[u16]); 7] = [
+        (&[(2, 0), (2, 1), (2, 2)], &[0, 1, 2, 3]),
+        (&[(2, 0), (2, 1)], &[0, 100, 1, 101]),
+        (&[(2, 0), (2, 1), (2, 0), (2, 1), (2, 0), (2, 0)], &[0, 1]),
+        (&[(3, 0), (3, 1), (3, 1), (3, 0), (3, 1)], &[0, 1]),
+        (&[(3, 0), (3, 1), (3, 1), (3, 0), (3, 1), (3, 0)], &[0, 1]),
+        (&[(2, 0), (2, 99), (2, 1), (2, 99)], &[0, 1, 99]),
+        (&[(2, 0), (2, 99), (2, 1)], &[0, 1, 99]),
+    ];
+    for (tiles, doors) in cases {
+        for seed in 0..10u64 {
+            for slack in [(0, 0), (0, 2), (1, 3)] {
+                let l = word_board(tiles, doors, seed, 40, slack).expect("board");
+                assert_eq!(l.meta.wrong_door, crate::WrongDoor::Bounce);
+                assert_eq!((l.w, l.h), (Layout::WIDTH, Layout::ROWS as i16));
+                // A layout proven free of dead ends for this many tiles.
+                let layout = Layout::of_level(&l).expect("lattice board");
+                assert!(layout.proven() >= tiles.len(), "{}", l.to_text());
+                assert_eq!(l.doors.len(), doors.len(), "one door per key\n{}", l.to_text());
+                if doors.len() == 2 {
+                    // First category on top, second at the bottom, every round.
+                    assert!(l.doors.iter().any(|d| d.side == crate::Dir::N && d.key == doors[0]));
+                    assert!(l.doors.iter().any(|d| d.side == crate::Dir::S && d.key == doors[1]));
+                }
+                let r = solver::solve(&l, &crate::State::initial(&l), 400_000);
+                assert!(matches!(r.result, Solve::Solved(ref m) if m.len() as u16 == l.meta.optimal.unwrap()), "{}", l.to_text());
+            }
+        }
     }
+}
+
+#[test]
+fn lattice_model_agrees_with_the_rules() {
+    // The proof works on an abstract model of the board; the real rules must agree with it. On small boards, the
+    // complete state graph of the real game (solver::analyze) has no dead end either, and the model's own check of
+    // a trap layout finds what the real rules find.
+    use crate::generator::{Rng, word_candidate};
+    for (tiles, doors) in [
+        (&[(2, 0), (2, 1), (2, 2)][..], &[0, 1, 2, 3][..]),
+        (&[(3, 0), (3, 1), (3, 1), (3, 0)][..], &[0, 1][..]),
+        (&[(2, 0), (2, 1), (2, 0), (2, 1)][..], &[0, 1][..]),
+        (&[(2, 0), (2, 99), (2, 1)][..], &[0, 1, 99][..]),
+    ] {
+        let mut rng = Rng(11);
+        for _ in 0..15 {
+            let l = word_candidate(tiles, doors, &mut rng).expect("candidate");
+            let a = solver::analyze(&l, 300_000);
+            assert!(a.complete && a.dead_states == 0, "{}", l.to_text());
+        }
+    }
+    // The first version's trap: a door over the middle column can never be reached by a lone tile.
+    let lvl = crate::Level::parse(
+        "fuera 1\nwrong bounce\nmap\n  ......\n  AA....\n  ......\n  ......\n  ......\n  ......\n  ......\nblocks\n  A red\ndoors\n  N 0 0 2 blue\n  N 2 0 2 red\n  N 4 0 2 yellow\n  S 0 6 2 green\n  S 2 6 2 purple\nend\n",
+    );
+    let lvl = lvl.expect("parse");
+    let a = solver::analyze(&lvl, 10_000);
+    assert!(a.optimal.is_none(), "a lone tile cannot stop under the middle door");
+}
+
+/// The level drawn with the blocks where `st` has them (exited blocks dropped).
+fn show_state(level: &crate::Level, st: &crate::State) -> String {
+    let mut l = level.clone();
+    let keep: Vec<usize> = (0..l.blocks.len()).filter(|&i| st.blocks[i].alive).collect();
+    l.blocks = keep.iter().map(|&i| level.blocks[i].clone()).collect();
+    l.start = keep.iter().map(|&i| st.blocks[i].pos).collect();
+    l.to_text()
 }

@@ -12,8 +12,8 @@ blocks
   A red
   B blue
 doors
-  E 4 1 1 red
-  S 3 4 1 blue
+  E 4 0 5 red
+  S 0 4 5 blue
 end
 fuera 1
 name 2

@@ -23,10 +23,54 @@ fn main() {
         Some("bench") => bench(&a[1..]),
         Some("hints") => hints(&a[1]),
         Some("campaign") => campaign(&a[1], a.get(2).and_then(|s| s.parse().ok()).unwrap_or(2026)),
+        Some("prove") => prove(&a[1..]),
+        Some("deadends") => deadends(&a[1]),
         _ => {
             eprintln!("usage: fuera-cli solve <lvl> | check <pack> | gen [k=v…] | campaign <out> [seed]");
             std::process::exit(2);
         }
+    }
+}
+
+/// Exhaustive dead-end proofs for the language board layouts (see `fuera_core::lattice`).
+/// `fuera-cli prove` checks the layouts the game uses (fails if one has a dead end);
+/// `fuera-cli prove compare [max tiles]` also shows the layouts that were rejected, with a trap for each.
+fn prove(a: &[String]) {
+    use fuera_core::lattice::{End, Geometry, Layout, production, prove};
+    let report = |name: &str, g: &Geometry, max: usize| -> bool {
+        let t = Instant::now();
+        let p = prove(g, max);
+        let verdict = match &p.dead {
+            None => format!("aucune impasse jusqu'à {max} tuiles"),
+            Some(dead) => format!("IMPASSE avec {} tuiles :\n{}", dead.len(), g.draw(dead)),
+        };
+        println!("{name} ({}x{}) — {verdict}\n    positions examinées {:?}, au plus {} coups avant qu'une tuile puisse sortir, {:.1?}", g.cols, g.rows, p.positions, p.longest, t.elapsed());
+        p.dead.is_none()
+    };
+    if a.first().map(|s| s.as_str()) == Some("compare") {
+        let max: usize = a.get(1).and_then(|s| s.parse().ok()).unwrap_or(4);
+        let (w, d) = (End::Wall, End::Door);
+        let rejected = [
+            ("4 portes sur 2 colonnes (première version)", Geometry { cols: 2, rows: 7, top: vec![d(0), d(1)], bottom: vec![d(2), d(3)] }),
+            ("5 portes sur 3 colonnes (première version)", Geometry { cols: 3, rows: 7, top: vec![d(0), d(1), d(2)], bottom: vec![d(3), d(4), w] }),
+            ("2 catégories, portes sur toute la largeur, tuiles de 2", Geometry { cols: 3, rows: 7, top: vec![d(0); 3], bottom: vec![d(1); 3] }),
+            ("2 catégories, portes sur toute la largeur, tuiles de 3", Geometry { cols: 2, rows: 7, top: vec![d(0); 2], bottom: vec![d(1); 2] }),
+        ];
+        for (name, g) in rejected {
+            report(name, &g, max);
+        }
+        for (name, l, _) in production() {
+            report(name, &l.geometry, max);
+        }
+        return;
+    }
+    let mut ok = true;
+    for (name, l, max) in production() {
+        let l: Layout = l;
+        ok &= report(name, &l.geometry, max);
+    }
+    if !ok {
+        std::process::exit(1);
     }
 }
 
@@ -49,6 +93,37 @@ fn solve(path: &str) {
     if let Some(g) = generator::grade(&level, 2_000_000) {
         println!("{g:#?}");
     }
+}
+
+/// Dead ends of every level of a pack: reachable positions from which the level can no longer be won.
+fn deadends(path: &str) {
+    let text = std::fs::read_to_string(path).expect("read");
+    let (mut levels, mut with_dead, mut losing_start, mut incomplete) = (0, 0, 0, 0);
+    for chunk in text.split_inclusive("\nend\n") {
+        let Ok(level) = Level::parse(chunk) else { continue };
+        levels += 1;
+        let a = solver::analyze(&level, 120_000);
+        if !a.complete {
+            incomplete += 1;
+        }
+        if a.dead_states > 0 {
+            with_dead += 1;
+        }
+        if a.losing_first_moves > 0 {
+            losing_start += 1;
+        }
+        println!(
+            "{levels:3} {:>12}  états {:7}{}  impasses {:6} ({:4.1} %)  premiers coups perdants {}/{}",
+            level.meta.name,
+            a.states,
+            if a.complete { " " } else { "+" },
+            a.dead_states,
+            100.0 * a.dead_states as f64 / a.states.max(1) as f64,
+            a.losing_first_moves,
+            a.first_moves
+        );
+    }
+    println!("{levels} niveaux : {with_dead} avec des impasses, {losing_start} où un premier coup peut déjà perdre, {incomplete} non explorés en entier");
 }
 
 fn check(path: &str) {
@@ -395,8 +470,8 @@ blocks
   A red
   B blue
 doors
-  E 4 1 1 red
-  S 3 4 1 blue
+  E 4 0 5 red
+  S 0 4 5 blue
 end
 fuera 1
 name 2

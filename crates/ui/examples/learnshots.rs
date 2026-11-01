@@ -41,7 +41,7 @@ fn main() {
         app.auto_move();
         shot(&mut app, &mut pm, dir, "l4-moving");
     }
-    for k in [2usize, 3, 6, 7, 8] {
+    for k in [2usize, 3, 4, 5, 6, 7, 8] {
         app.open(&format!("mode:{k}"));
         app.open("go");
         shot(&mut app, &mut pm, dir, &format!("l5-mode{k}"));

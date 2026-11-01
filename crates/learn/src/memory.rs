@@ -18,6 +18,8 @@ pub struct Memory {
     pub streak: u32,
     /// Rounds played today (day, count), for the daily goal.
     pub today: (i64, u32),
+    /// Rounds played since the start (drives how much of a puzzle the boards are).
+    pub rounds: u32,
     fsrs: Fsrs,
 }
 
@@ -42,6 +44,8 @@ impl Memory {
                 let mut it = v.split(',');
                 m.last_day = it.next().and_then(|x| x.parse().ok()).unwrap_or(0);
                 m.streak = it.next().and_then(|x| x.parse().ok()).unwrap_or(0);
+            } else if k == "l.rounds" {
+                m.rounds = v.parse().unwrap_or(0);
             } else if k == "l.today" {
                 let mut it = v.split(',');
                 m.today = (it.next().and_then(|x| x.parse().ok()).unwrap_or(0), it.next().and_then(|x| x.parse().ok()).unwrap_or(0));
@@ -59,6 +63,7 @@ impl Memory {
         }
         v.push(("l.streak".into(), format!("{},{}", self.last_day, self.streak)));
         v.push(("l.today".into(), format!("{},{}", self.today.0, self.today.1)));
+        v.push(("l.rounds".into(), self.rounds.to_string()));
         v
     }
 
@@ -122,7 +127,19 @@ impl Memory {
             self.today = (day, 0);
         }
         self.today.1 += 1;
+        self.rounds += 1;
         self.today.1
+    }
+
+    /// How many detours a board may ask for, as (fewest, most) extra moves above the straight route: none at first,
+    /// then now and then a tile to move out of the way, then small puzzles. The language stays the hard part.
+    pub fn board_slack(&self) -> (u16, u16) {
+        match self.rounds {
+            0..10 => (0, 0),
+            10..30 => (0, 1),
+            30..80 => (0, 2),
+            _ => (1, 3),
+        }
     }
 
     /// Updates the streak when the daily goal is reached. One missed day is forgiven (repairable streak).
