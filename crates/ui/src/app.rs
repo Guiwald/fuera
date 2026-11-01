@@ -125,6 +125,9 @@ struct Play {
     toast: Option<(String, f32)>,
     exits_in_row: u8,
     intro: Option<T>,
+    /// Rest of an optimal solution from the current state (filled by the hint button, followed while the player
+    /// plays its moves, dropped as soon as they leave it).
+    plan: Vec<Move>,
 }
 
 enum Screen {
@@ -307,7 +310,7 @@ impl App {
             // First level: show the first move.
             view.show_hint(fuera_core::solver::hint(&game.level, &game.state, 50_000));
         }
-        self.screen = Screen::Play(Box::new(Play { game, view, index: i, drag: None, won: None, stars: 0, toast: None, exits_in_row: 0, intro }));
+        self.screen = Screen::Play(Box::new(Play { game, view, index: i, drag: None, won: None, stars: 0, toast: None, exits_in_row: 0, intro, plan: Vec::new() }));
         self.save.set("last", i);
         self.dirty = true;
     }
@@ -487,6 +490,23 @@ impl App {
         self.act(a);
     }
 
+    /// Name of the current screen (tests).
+    #[doc(hidden)]
+    pub fn screen_name(&self) -> &'static str {
+        match &self.screen {
+            Screen::Home => "home",
+            Screen::Levels { .. } => "levels",
+            Screen::Play(_) => "play",
+            Screen::Settings => "settings",
+            Screen::Credits => "credits",
+            Screen::LearnHome => "learn",
+            Screen::LearnIntro(_) => "intro",
+            Screen::LearnPlay(_) => "round",
+            Screen::Notebook { .. } => "notebook",
+            Screen::Placed(_) => "placed",
+        }
+    }
+
     /// Plays the hint move (screenshots and tests).
     #[doc(hidden)]
     pub fn auto_move(&mut self) -> bool {
@@ -568,6 +588,11 @@ impl App {
         let before = p.game.state.clone();
         match p.game.play(mv) {
             Some(out) => {
+                if p.plan.first() == Some(&mv) {
+                    p.plan.remove(0);
+                } else {
+                    p.plan.clear();
+                }
                 if !matches!(out.result, Result::Exit { .. }) {
                     p.exits_in_row = 0;
                 }
@@ -652,6 +677,7 @@ impl App {
                     p.view.sync(&p.game);
                     p.toast = None;
                     p.exits_in_row = 0;
+                    p.plan.clear();
                 }
             }
             Action::Restart => {
@@ -667,6 +693,7 @@ impl App {
                     p.won = None;
                     p.toast = None;
                     p.exits_in_row = 0;
+                    p.plan.clear();
                 }
             }
             Action::Hint => {
@@ -674,7 +701,12 @@ impl App {
                 if let Screen::Play(p) = &mut self.screen
                     && p.won.is_none()
                 {
-                    match fuera_core::solver::hint(&p.game.level, &p.game.state, 400_000) {
+                    if p.plan.is_empty()
+                        && let fuera_core::solver::Solve::Solved(m) = fuera_core::solver::solve(&p.game.level, &p.game.state, 400_000).result
+                    {
+                        p.plan = m;
+                    }
+                    match p.plan.first().copied() {
                         Some(mv) => {
                             p.game.hints += 1;
                             p.view.show_hint(Some(mv));
@@ -1083,7 +1115,7 @@ impl App {
     }
 }
 
-const CREDITS: &str = "¡Fuera! — free and open-source game (MIT licence) by Guiwald, written in Rust.\n\nFonts: Lilita One (Juan Montoreano) and Atkinson Hyperlegible (Braille Institute), SIL Open Font License 1.1.\n\nInspired by colour-sorting block puzzles. All levels, graphics and sounds are original.";
+const CREDITS: &str = "¡Fuera! — free and open-source game (MIT licence) by Guiwald, written in Rust. github.com/Guiwald/fuera\n\nFonts: Lilita One (Juan Montoreano) and Atkinson Hyperlegible (Braille Institute), SIL Open Font License 1.1.\n\nSpanish content: written for ¡Fuera!, checked against the English Wiktionary (kaikki.org) and ordered with Hermit Dave's FrequencyWords (OpenSubtitles 2018); released under CC BY-SA 4.0.\n\nInspired by colour-sorting block puzzles. All levels, graphics and sounds are original.";
 
 fn inside(h: &Hit, x: f32, y: f32) -> bool {
     x >= h.x && x <= h.x + h.w && y >= h.y && y <= h.y + h.h

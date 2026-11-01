@@ -1,0 +1,43 @@
+# Vérifications à chaque envoi : tests, niveaux de la campagne (tous résolubles), compilation Android et web.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  tests:
+    name: Tests et niveaux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Bibliothèques du système (son, fenêtres)
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev pkg-config
+      - name: Tests
+        run: cargo test --workspace --release
+      - name: Campagne (chaque niveau résolu par le solveur)
+        run: cargo run --release -p fuera-cli -- check assets/levels/campaign.txt
+
+  targets:
+    name: Android et web (compilation)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,wasm32-unknown-unknown
+      - name: Android
+        run: |
+          NDK="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$NDK/aarch64-linux-android26-clang" \
+          CC_aarch64_linux_android="$NDK/aarch64-linux-android26-clang" \
+          AR_aarch64_linux_android="$NDK/llvm-ar" \
+          cargo build --release -p fuera --lib --target aarch64-linux-android
+      - name: Web
+        run: cargo build --release -p fuera --lib --target wasm32-unknown-unknown

@@ -21,6 +21,7 @@ fn main() {
         Some("check") => check(&a[1]),
         Some("gen") => gen_one(&a[1..]),
         Some("bench") => bench(&a[1..]),
+        Some("hints") => hints(&a[1]),
         Some("campaign") => campaign(&a[1], a.get(2).and_then(|s| s.parse().ok()).unwrap_or(2026)),
         _ => {
             eprintln!("usage: fuera-cli solve <lvl> | check <pack> | gen [k=v…] | campaign <out> [seed]");
@@ -136,6 +137,34 @@ fn outline(s: &str) -> Outline {
         "random" => Outline::Random,
         _ => Outline::Rect,
     }
+}
+
+/// Time of the in-game hint (A*, same budget as the game) from the start of every level of a pack.
+fn hints(path: &str) {
+    let text = std::fs::read_to_string(path).expect("read");
+    let mut cur = String::new();
+    let mut worst = (0usize, std::time::Duration::ZERO);
+    let mut n = 0;
+    for line in text.lines() {
+        cur.push_str(line);
+        cur.push('\n');
+        if line.trim() != "end" {
+            continue;
+        }
+        n += 1;
+        let level = Level::parse(&cur).expect("parse");
+        cur.clear();
+        let t = Instant::now();
+        let h = solver::hint(&level, &State::initial(&level), 400_000);
+        let e = t.elapsed();
+        if h.is_none() {
+            println!("level {n}: NO HINT within budget ({e:?})");
+        }
+        if e > worst.1 {
+            worst = (n, e);
+        }
+    }
+    println!("{n} levels, slowest hint: level {} in {:?}", worst.0, worst.1);
 }
 
 fn bench(args: &[String]) {

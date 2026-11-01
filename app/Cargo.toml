@@ -46,3 +46,6 @@ js-sys = "0.3"
 web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "HtmlCanvasElement", "Storage", "Navigator", "SpeechSynthesis", "SpeechSynthesisUtterance", "CssStyleDeclaration", "Location"] }
 console_log = "1"
 console_error_panic_hook = "0.1"
+
+[build-dependencies]
+embed-resource = "3"

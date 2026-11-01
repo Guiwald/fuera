@@ -508,6 +508,9 @@ impl<'a> Planner<'a> {
         }
         // The bin for the forms that fit none of the sentences.
         gates.push(Gate { text: "ninguna".into(), key: 99, pic: None, item: None, long: false });
+        if tiles.iter().filter(|t| t.key == 99).count() >= 2 {
+            gates.push(Gate { text: "ninguna".into(), key: 99, pic: None, item: None, long: false });
+        }
         Some(Round { mode, tiles, gates, intro: Vec::new(), production: false, heading: String::new() })
     }
 
@@ -542,12 +545,15 @@ impl<'a> Planner<'a> {
             let w = ws[self.rnd(ws.len())];
             tiles.push(Tile { text: w.es.clone(), key: 0, item: None, say: None, hidden: false, explain: format!("{} = {}", w.with_article(), w.meaning(self.base)), width: width_for(&w.es), band: Some(band) });
         }
-        for _ in 0..4 {
+        // Two invented words per round (6 tiles: boards stay small enough to be solved quickly).
+        let mut added = 0;
+        while added < 2 {
             let p = self.content.pseudo[self.rnd(self.content.pseudo.len())].clone();
             if tiles.iter().any(|t: &Tile| t.text == p) {
                 continue;
             }
             tiles.push(Tile { text: p.clone(), key: 1, item: None, say: None, hidden: false, explain: format!("« {p} » no existe"), width: width_for(&p), band: None });
+            added += 1;
         }
         self.shuffle(&mut tiles);
         let gates = vec![

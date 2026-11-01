@@ -21,7 +21,9 @@ use crate::theme::{self, col, col_a, shade};
 /// Rounds in the daily session.
 pub const DAILY_GOAL: u32 = 5;
 /// Placement test: number of "¿Existe?" rounds.
-const PLACEMENT_ROUNDS: usize = 3;
+const PLACEMENT_ROUNDS: usize = 4;
+/// Tiles per placement round (four real words, one per band, and two invented ones).
+const PLACEMENT_TILES: usize = 6;
 const DOOR: (u8, u8, u8) = (0xD9, 0x82, 0x5B);
 
 pub(super) struct LearnPlay {
@@ -114,10 +116,20 @@ impl App {
             let mut p = Planner::new(content, &self.memory, base, band, now, seed);
             p.plan(mode)
         };
-        let Some(round) = round else { return };
+        let Some(mut round) = round else { return };
+        // Three doors per wall at most: with three-cell doors that would not fit, use two-cell tiles.
+        if round.gates.len().div_ceil(2) >= 3 {
+            for t in &mut round.tiles {
+                t.width = t.width.min(2);
+            }
+        }
         let tiles: Vec<(i16, u16)> = round.tiles.iter().map(|t| (t.width as i16, t.key)).collect();
         let doors: Vec<u16> = round.gates.iter().map(|g| g.key).collect();
-        let Some(mut level) = fuera_core::generator::word_board(&tiles, &doors, seed, 40, (0, 2)) else { return };
+        let level = fuera_core::generator::word_board(&tiles, &doors, seed, 40, (0, 2));
+        let Some(mut level) = level else {
+            log::warn!("no board for {mode:?}");
+            return;
+        };
         level.meta.name = mode.name_es().to_string();
         // Looks: pastel tiles (colour unrelated to the answer), terracotta doors with signs.
         let mut legend = Vec::new();
@@ -294,7 +306,7 @@ impl App {
                     _ => (false, Mode::Words),
                 };
                 if mode == Mode::Placement {
-                    let rounds = self.placement.len() / 8;
+                    let rounds = self.placement.len() / PLACEMENT_TILES;
                     if rounds >= PLACEMENT_ROUNDS {
                         self.finish_placement();
                     } else {
@@ -572,7 +584,8 @@ impl App {
             Mode::Placement => T::InsPlacement,
         };
         let ins = tr(lang, ins);
-        self.fonts.draw_shadowed(pm, Face::Bold, ins, w / 2.0, y + 6.0 * u, 15.0 * u, col_a(theme::WHITE, 0.9), Align::Center);
+        let px = self.fonts.fit(Face::Bold, ins, 15.0 * u, w - 24.0 * u);
+        self.fonts.draw_shadowed(pm, Face::Bold, ins, w / 2.0, y + 6.0 * u, px, col_a(theme::WHITE, 0.9), Align::Center);
         let mut board_top = y + 22.0 * u;
         // Legend for long door texts.
         if !legend.is_empty() {

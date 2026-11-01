@@ -97,14 +97,7 @@ fn icons() -> Res {
     icns.extend_from_slice(&((body.len() + 8) as u32).to_be_bytes());
     icns.extend_from_slice(&body);
     std::fs::write(out.join("fuera.icns"), icns)?;
-    std::fs::write(
-        out.join("fuera.rc"),
-        format!(
-            "1 ICON \"fuera.ico\"\n1 VERSIONINFO\nFILEVERSION {0},0\nPRODUCTVERSION {0},0\nBEGIN\n  BLOCK \"StringFileInfo\"\n  BEGIN\n    BLOCK \"040904b0\"\n    BEGIN\n      VALUE \"FileDescription\", \"¡Fuera!\"\n      VALUE \"ProductName\", \"¡Fuera!\"\n      VALUE \"ProductVersion\", \"{1}\"\n      VALUE \"LegalCopyright\", \"MIT\"\n    END\n  END\n  BLOCK \"VarFileInfo\"\n  BEGIN\n    VALUE \"Translation\", 0x409, 1200\n  END\nEND\n",
-            version().replace('.', ","),
-            version()
-        ),
-    )?;
+    std::fs::write(out.join("fuera.rc"), "1 ICON \"fuera.ico\"\n")?;
     println!("icons in {}", out.display());
     Ok(())
 }

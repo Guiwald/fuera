@@ -1,0 +1,180 @@
+# Publication d'une version : envoyer l'étiquette vX.Y.Z (ou lancer à la main en donnant l'étiquette).
+# Fabrique le .dmg (Mac universel), le .zip Windows, l'.apk signé, le .tar.gz Linux et la version web ; met la
+# version web en ligne sur l'hébergement OVH (SFTP) et publie le tout sur la page des versions.
+name: Publication
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Étiquette de la version à publier (ex. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+  WASM_BINDGEN_VERSION: "0.2.130"
+
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Compilation (bibliothèque C de Microsoft incluse dans l'exécutable)
+        shell: bash
+        env:
+          RUSTFLAGS: "-C target-feature=+crt-static"
+        run: cargo build --release -p fuera --bin fuera
+      - name: Paquet
+        shell: bash
+        run: cargo run --release -p xtask -- dist-windows target/release/fuera.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*.zip
+
+  macos:
+    name: macOS (universel)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - name: Compilation (Apple et Intel)
+        run: |
+          cargo build --release -p fuera --bin fuera --target aarch64-apple-darwin
+          cargo build --release -p fuera --bin fuera --target x86_64-apple-darwin
+          mkdir -p target/universal
+          lipo -create -output target/universal/fuera \
+            target/aarch64-apple-darwin/release/fuera target/x86_64-apple-darwin/release/fuera
+      - name: Paquet
+        run: cargo run --release -p xtask -- bundle-mac target/universal/fuera dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*.dmg
+
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+      - name: Clé de signature
+        env:
+          KEYSTORE_B64: ${{ secrets.FUERA_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::error::Le secret FUERA_KEYSTORE_B64 manque : l'APK doit être signé avec la clé du projet (scripts/publier-sur-github.sh l'enregistre)."
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/fuera.p12"
+      - name: APK
+        env:
+          FUERA_KEYSTORE_PASS: ${{ secrets.FUERA_KEYSTORE_PASS }}
+        run: FUERA_KEYSTORE="$RUNNER_TEMP/fuera.p12" ANDROID_NDK_HOME="$ANDROID_NDK_LATEST_HOME" cargo run --release -p xtask -- apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: dist/*.apk
+
+  linux:
+    name: Linux
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Bibliothèques du système (son)
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev pkg-config
+      - name: Compilation et paquet
+        run: |
+          cargo build --release -p fuera --bin fuera
+          V="${TAG#v}"
+          mkdir -p dist "Fuera-$V"
+          cp target/release/fuera LICENSE README.md "Fuera-$V/"
+          tar czf "dist/Fuera-$V-linux-x86_64.tar.gz" "Fuera-$V"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*.tar.gz
+
+  web:
+    name: Web (et mise en ligne sur OVH)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: wasm-bindgen
+        run: |
+          curl -sSL "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/$WASM_BINDGEN_VERSION/wasm-bindgen-$WASM_BINDGEN_VERSION-x86_64-unknown-linux-musl.tar.gz" | tar xz
+          echo "WASM_BINDGEN=$PWD/wasm-bindgen-$WASM_BINDGEN_VERSION-x86_64-unknown-linux-musl/wasm-bindgen" >> "$GITHUB_ENV"
+      - name: Version web
+        run: |
+          cargo run --release -p xtask -- web dist/web
+          V="${TAG#v}"
+          (cd dist/web && zip -qr "../Fuera-$V-web.zip" .)
+      - name: Mise en ligne (OVH, SFTP)
+        env:
+          HOST: ${{ secrets.OVH_SFTP_HOST }}
+          USER: ${{ secrets.OVH_SFTP_USER }}
+          PASS: ${{ secrets.OVH_SFTP_PASSWORD }}
+        run: |
+          if [ -z "$PASS" ]; then
+            echo "::warning::Pas de secret OVH_SFTP_PASSWORD : version web non mise en ligne."
+            exit 0
+          fi
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+          lftp -u "$USER,$PASS" "sftp://$HOST" -e "set sftp:auto-confirm yes; set net:max-retries 3; mirror -R --delete --verbose dist/web .; bye"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: dist/*.zip
+
+  publish:
+    name: Page des versions
+    needs: [windows, macos, android, linux, web]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Notes de version (CHANGELOG)
+        run: |
+          V="${TAG#v}"
+          awk -v v="## $V" 'index($0, v) == 1 {on = 1; next} /^## / {on = 0} on' CHANGELOG.md > notes.md
+          printf '\n---\nJouer dans le navigateur : https://fuera.librejeu.fr\n' >> notes.md
+      - name: Publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" artifacts/*/* --clobber
+          else
+            gh release create "$TAG" artifacts/*/* --title "¡Fuera! ${TAG#v}" --notes-file notes.md
+          fi
