@@ -35,8 +35,9 @@ R recommence, H donne un indice, Échap revient en arrière.
   estar, Por o para, Pasado (*pretérito* ou *imperfecto*), Subjuntivo, Falsos amigos.
 - **Mi cuaderno** : les mots ratés, à réécouter.
 - Les révisions sont espacées (algorithme FSRS) : un mot revient juste avant que tu l'oublies. Sens en français ou en
-  anglais. Prononciation : voix espagnole du système (sur Mac, Réglages → Accessibilité → Contenu énoncé pour en
-  télécharger une plus belle).
+  anglais. Prononciation : **voix humaines** enregistrées par les bénévoles de Lingua Libre pour les mots isolés
+  (locuteurs d'Espagne en priorité), voix espagnole du système pour les phrases (sur Mac, Réglages → Accessibilité →
+  Contenu énoncé pour en télécharger une plus belle).
 
 ## Pour les développeurs
 

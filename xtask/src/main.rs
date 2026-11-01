@@ -246,6 +246,8 @@ fn web(out: Option<PathBuf>) -> Res {
     }
     let v = version();
     std::fs::write(out.join("index.html"), WEB_PAGE.replace("{v}", &v))?;
+    // Recorded pronunciations, fetched by the page in the background.
+    std::fs::copy(root.join("assets/es/voces/voces-es.fvox"), out.join("voces-es.fvox"))?;
     std::fs::write(out.join("icon-192.png"), png(192, true))?;
     std::fs::write(out.join("icon-512.png"), png(512, true))?;
     std::fs::write(
@@ -348,7 +350,14 @@ fn bundle_mac(binary: Option<PathBuf>, out_dir: Option<PathBuf>) -> Res {
 fn dist_windows(exe: Option<PathBuf>) -> Res {
     let root = root();
     let v = version();
-    let exe = exe.unwrap_or_else(|| root.join("target/x86_64-pc-windows-gnu/release/fuera.exe"));
+    let exe = match exe {
+        Some(e) => e,
+        None => {
+            // Cross-compile first, so the zip never holds a stale build.
+            run(Command::new(env!("CARGO")).args(["build", "--release", "-p", "fuera", "--bin", "fuera", "--target", "x86_64-pc-windows-gnu"]).current_dir(&root))?;
+            root.join("target/x86_64-pc-windows-gnu/release/fuera.exe")
+        }
+    };
     std::fs::create_dir_all(root.join("dist"))?;
     let out = root.join("dist").join(format!("Fuera-{v}-windows-x64.zip"));
     let mut zip = zip::ZipWriter::new(std::fs::File::create(&out)?);

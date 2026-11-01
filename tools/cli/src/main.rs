@@ -25,6 +25,8 @@ fn main() {
         Some("campaign") => campaign(&a[1], a.get(2).and_then(|s| s.parse().ok()).unwrap_or(2026)),
         Some("prove") => prove(&a[1..]),
         Some("deadends") => deadends(&a[1]),
+        Some("voices") => voices(&a[1], &a[2], &a[3]),
+        Some("voice") => voice_wav(&a[1], &a[2], &a[3]),
         _ => {
             eprintln!("usage: fuera-cli solve <lvl> | check <pack> | gen [k=v…] | campaign <out> [seed]");
             std::process::exit(2);
@@ -93,6 +95,90 @@ fn solve(path: &str) {
     if let Some(g) = generator::grade(&level, 2_000_000) {
         println!("{g:#?}");
     }
+}
+
+/// Builds the voice pack from a manifest (`text<TAB>speaker<TAB>licence<TAB>commons file<TAB>wav`) and a folder of
+/// 16-bit mono WAV files at 16 kHz (see `assets/es/voces/README.md`).
+fn voices(manifest: &str, dir: &str, out: &str) {
+    use fuera_learn::voice;
+    let mut speakers: Vec<String> = Vec::new();
+    let mut clips = Vec::new();
+    let mut seconds = 0.0;
+    for line in std::fs::read_to_string(manifest).expect("manifest").lines().skip(1) {
+        let f: Vec<&str> = line.split('\t').collect();
+        if f.len() < 5 {
+            continue;
+        }
+        let Some(pcm) = read_wav16(&std::path::Path::new(dir).join(f[4])) else {
+            eprintln!("skipped (not 16 kHz mono 16-bit): {}", f[4]);
+            continue;
+        };
+        let sp = match speakers.iter().position(|s| s == f[1]) {
+            Some(i) => i,
+            None => {
+                speakers.push(f[1].to_string());
+                speakers.len() - 1
+            }
+        };
+        seconds += pcm.len() as f64 / 16_000.0;
+        clips.push((f[0].to_string(), sp as u16, pcm));
+    }
+    let pack = voice::encode(16_000, &speakers, &clips);
+    std::fs::write(out, &pack).expect("write");
+    let v = voice::Voices::parse(pack.clone()).expect("reparse");
+    println!("{} recordings, {} speakers, {:.0} s of audio, {:.1} MB", v.len(), speakers.len(), seconds, pack.len() as f64 / 1e6);
+}
+
+/// Writes one recording of a pack to a WAV file (to listen to it or compare it with its source).
+fn voice_wav(pack: &str, text: &str, out: &str) {
+    let v = fuera_learn::voice::Voices::parse(std::fs::read(pack).expect("pack")).expect("not a voice pack");
+    let Some(pcm) = v.clip(text) else {
+        eprintln!("no recording of « {text} »");
+        std::process::exit(1);
+    };
+    let mut w = Vec::new();
+    let n = (pcm.len() * 2) as u32;
+    w.extend_from_slice(b"RIFF");
+    w.extend_from_slice(&(36 + n).to_le_bytes());
+    w.extend_from_slice(b"WAVEfmt ");
+    w.extend_from_slice(&16u32.to_le_bytes());
+    w.extend_from_slice(&1u16.to_le_bytes());
+    w.extend_from_slice(&1u16.to_le_bytes());
+    w.extend_from_slice(&v.rate().to_le_bytes());
+    w.extend_from_slice(&(v.rate() * 2).to_le_bytes());
+    w.extend_from_slice(&2u16.to_le_bytes());
+    w.extend_from_slice(&16u16.to_le_bytes());
+    w.extend_from_slice(b"data");
+    w.extend_from_slice(&n.to_le_bytes());
+    for s in pcm {
+        w.extend_from_slice(&s.to_le_bytes());
+    }
+    std::fs::write(out, w).expect("write");
+    println!("{text} — {}", v.speaker(text).unwrap_or("?"));
+}
+
+fn read_wav16(path: &std::path::Path) -> Option<Vec<i16>> {
+    let d = std::fs::read(path).ok()?;
+    if d.get(0..4)? != b"RIFF" || d.get(8..12)? != b"WAVE" {
+        return None;
+    }
+    let mut at = 12;
+    let mut ok = false;
+    while at + 8 <= d.len() {
+        let id = &d[at..at + 4];
+        let len = u32::from_le_bytes(d[at + 4..at + 8].try_into().ok()?) as usize;
+        let body = d.get(at + 8..(at + 8 + len).min(d.len()))?;
+        if id == b"fmt " {
+            let ch = u16::from_le_bytes(body.get(2..4)?.try_into().ok()?);
+            let rate = u32::from_le_bytes(body.get(4..8)?.try_into().ok()?);
+            let bits = u16::from_le_bytes(body.get(14..16)?.try_into().ok()?);
+            ok = ch == 1 && rate == 16_000 && bits == 16;
+        } else if id == b"data" {
+            return ok.then(|| body.chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]])).collect());
+        }
+        at += 8 + len + (len & 1);
+    }
+    None
 }
 
 /// Dead ends of every level of a pack: reachable positions from which the level can no longer be won.

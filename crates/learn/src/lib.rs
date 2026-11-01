@@ -11,3 +11,4 @@ pub mod fsrs;
 pub mod content;
 pub mod memory;
 pub mod plan;
+pub mod voice;

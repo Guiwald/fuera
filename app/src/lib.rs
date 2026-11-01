@@ -47,6 +47,7 @@ pub struct Runner {
     mouse_down: bool,
     touch: Option<u64>,
     modifiers: winit::keyboard::ModifiersState,
+    voices_loaded: bool,
 }
 
 impl Runner {
@@ -62,6 +63,7 @@ impl Runner {
             mouse_down: false,
             touch: None,
             modifiers: Default::default(),
+            voices_loaded: false,
         }
     }
 
@@ -70,6 +72,26 @@ impl Runner {
             self.audio = audio::Audio::open();
         } else if let Some(a) = &self.audio {
             a.resume();
+        }
+        self.load_voices();
+    }
+
+    /// Hands the recorded pronunciations to the game once sound works (built in on Mac, Windows, Linux and
+    /// Android; downloaded next to the page on the web).
+    fn load_voices(&mut self) {
+        if self.voices_loaded || self.audio.is_none() {
+            return;
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            static PACK: &[u8] = include_bytes!("../../assets/es/voces/voces-es.fvox");
+            self.app.set_voices(PACK.to_vec());
+            self.voices_loaded = true;
+        }
+        #[cfg(target_arch = "wasm32")]
+        if let Some(d) = WEB_VOICES.with(|v| v.borrow_mut().take()) {
+            self.app.set_voices(d);
+            self.voices_loaded = true;
         }
     }
 
@@ -215,6 +237,14 @@ impl ApplicationHandler for Runner {
                 a.play(s);
             }
         }
+        #[cfg(target_arch = "wasm32")]
+        self.load_voices();
+        let clips = self.app.take_clips();
+        if let Some(a) = &self.audio {
+            for (pcm, rate) in clips {
+                a.play_pcm(&pcm, rate);
+            }
+        }
         if self.app.needs_redraw() {
             self.request();
             el.set_control_flow(ControlFlow::WaitUntil(now + web_time::Duration::from_millis(16)));
@@ -253,4 +283,23 @@ pub fn start() {
     let event_loop = winit::event_loop::EventLoop::new().expect("event loop");
     let runner = Runner::new(App::new(Box::new(hosts::WebHost)));
     event_loop.spawn_app(runner);
+    // The voice pack is a separate file next to the page (about 10 MB): fetched in the background.
+    wasm_bindgen_futures::spawn_local(async {
+        use wasm_bindgen::JsCast;
+        let Some(w) = web_sys::window() else { return };
+        let Ok(resp) = wasm_bindgen_futures::JsFuture::from(w.fetch_with_str("voces-es.fvox")).await else { return };
+        let Ok(resp) = resp.dyn_into::<web_sys::Response>() else { return };
+        if !resp.ok() {
+            return;
+        }
+        let Ok(buf) = resp.array_buffer() else { return };
+        let Ok(buf) = wasm_bindgen_futures::JsFuture::from(buf).await else { return };
+        let bytes = js_sys::Uint8Array::new(&buf).to_vec();
+        WEB_VOICES.with(|v| *v.borrow_mut() = Some(bytes));
+    });
+}
+
+#[cfg(target_arch = "wasm32")]
+thread_local! {
+    static WEB_VOICES: std::cell::RefCell<Option<Vec<u8>>> = const { std::cell::RefCell::new(None) };
 }

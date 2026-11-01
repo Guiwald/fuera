@@ -1,5 +1,13 @@
 # Journal des versions
 
+## 1.0.1
+
+- **Voix humaines** : 1 516 mots du mode espagnol (72 %) sont prononcés par des bénévoles de Lingua Libre (Wikimedia
+  Commons, licences libres), au lieu de la voix de synthèse. Une voix d'Espagne est prise en priorité ; un autre
+  accent n'est retenu que pour les mots qui se prononcent pareil des deux côtés de l'Atlantique (sans *z*, *ce/ci*,
+  *ll* ni *y* consonne). Les phrases et les autres mots restent lus par la voix du système. Auteurs et fichiers
+  d'origine : `assets/es/voces/creditos.tsv`, et dans l'écran Crédits.
+
 ## 1.0.0
 
 Première version.

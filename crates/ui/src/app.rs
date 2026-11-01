@@ -160,6 +160,10 @@ pub struct App {
     pointer: (f32, f32),
     down: Option<(f32, f32)>,
     sounds: Vec<Sfx>,
+    /// Recorded pronunciations, when the platform has loaded them (see `set_voices`).
+    voices: Option<fuera_learn::voice::Voices>,
+    /// Recordings to play now: (mono samples, sample rate).
+    clips: Vec<(Vec<i16>, u32)>,
     time: f32,
     bg: Option<Pixmap>,
     dirty: bool,
@@ -209,6 +213,8 @@ impl App {
             pointer: (0.0, 0.0),
             down: None,
             sounds: Vec::new(),
+            voices: None,
+            clips: Vec::new(),
             time: 0.0,
             bg: None,
             dirty: true,
@@ -240,6 +246,32 @@ impl App {
     }
 
     /// Sounds to play since the last call.
+    /// Gives the app a voice pack (`fuera_learn::voice`); the platform calls this once it has the bytes and can
+    /// play recordings.
+    pub fn set_voices(&mut self, data: Vec<u8>) {
+        self.voices = fuera_learn::voice::Voices::parse(data);
+        if let Some(v) = &self.voices {
+            log::info!("voice pack: {} recordings by {} speakers", v.len(), v.speakers().len());
+        }
+    }
+
+    /// Recordings to play (taken once).
+    pub fn take_clips(&mut self) -> Vec<(Vec<i16>, u32)> {
+        std::mem::take(&mut self.clips)
+    }
+
+    /// Says some Spanish: a human recording when there is one, else the system voice.
+    pub(crate) fn say_es(&mut self, text: &str) {
+        if let Some(v) = &self.voices
+            && let Some(pcm) = v.clip(text)
+        {
+            self.clips.clear();
+            self.clips.push((pcm, v.rate()));
+            return;
+        }
+        self.host.speak(text, "es-ES");
+    }
+
     pub fn take_sounds(&mut self) -> Vec<Sfx> {
         let v = std::mem::take(&mut self.sounds);
         if self.sound_on() { v } else { Vec::new() }
@@ -1122,7 +1154,14 @@ impl App {
         let u = self.u;
         let title = self.t(T::Credits);
         let mut y = self.draw_header(pm, title) + 30.0 * u;
-        let text = CREDITS;
+        let mut text = CREDITS.to_string();
+        if let Some(v) = &self.voices {
+            text.push_str(&format!(
+                "\n\nVoices: {} recordings from Lingua Libre (Wikimedia Commons), CC BY-SA 4.0, CC BY 4.0 or CC0, trimmed and compressed; speakers: {}. Other Spanish is read by your system's voice.",
+                v.len(),
+                v.speakers().join(", ")
+            ));
+        }
         let px = 15.0 * u;
         for para in text.split("\n\n") {
             for l in self.fonts.wrap(Face::Body, para, px, self.w - 48.0 * u) {

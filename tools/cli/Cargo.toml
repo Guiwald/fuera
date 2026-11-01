@@ -8,3 +8,4 @@ rust-version.workspace = true
 
 [dependencies]
 fuera-core.workspace = true
+fuera-learn.workspace = true

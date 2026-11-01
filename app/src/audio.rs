@@ -64,6 +64,29 @@ impl Audio {
     }
 }
 
+impl Audio {
+    /// Plays a recording (mono 16-bit at `rate`), resampled to the output rate.
+    pub fn play_pcm(&self, pcm: &[i16], rate: u32) {
+        if pcm.is_empty() || rate == 0 {
+            return;
+        }
+        let ratio = rate as f64 / self.rate as f64;
+        let n = (pcm.len() as f64 / ratio) as usize;
+        let mut out = Vec::with_capacity(n);
+        for i in 0..n {
+            let t = i as f64 * ratio;
+            let j = t as usize;
+            let f = (t - j as f64) as f32;
+            let a = pcm[j.min(pcm.len() - 1)] as f32;
+            let b = pcm[(j + 1).min(pcm.len() - 1)] as f32;
+            out.push((a + (b - a) * f) / 32768.0 * 1.1);
+        }
+        if let Ok(mut v) = self.voices.lock() {
+            v.push(Voice { samples: Arc::new(out), pos: 0 });
+        }
+    }
+}
+
 fn build<T: SizedSample + FromSample<f32>>(device: &cpal::Device, config: cpal::StreamConfig, voices: Arc<Mutex<Vec<Voice>>>) -> Option<cpal::Stream> {
     let ch = config.channels.max(1) as usize;
     device

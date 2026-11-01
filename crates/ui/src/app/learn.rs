@@ -243,7 +243,7 @@ impl App {
             _ => {}
         }
         if let Some(s) = say {
-            self.host.speak(&s, "es-ES");
+            self.say_es(&s);
         }
     }
 
@@ -337,7 +337,7 @@ impl App {
                     && let Some(w) = p.round.intro.get(i)
                 {
                     let s = w.es.clone();
-                    self.host.speak(&s, "es-ES");
+                    self.say_es(&s);
                 }
             }
             Action::SayMiss(i) => {
@@ -345,7 +345,7 @@ impl App {
                 if let Some(id) = self.memory.misses.get(i).cloned() {
                     self.content();
                     if let Some((_, say)) = plan::describe(self.content.as_ref().unwrap(), &id, base) {
-                        self.host.speak(&say, "es-ES");
+                        self.say_es(&say);
                     }
                 }
             }
@@ -458,7 +458,7 @@ impl App {
             self.learn_move(m);
         }
         if let Some(s) = tap {
-            self.host.speak(&s, "es-ES");
+            self.say_es(&s);
         }
         false
     }

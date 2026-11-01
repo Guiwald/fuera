@@ -787,7 +787,7 @@ checksum = "aa9a19cbb55df58761df49b23516a86d432839add4af60fc256da840f66ed35b"
 
 [[package]]
 name = "fuera"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "android_logger",
  "console_error_panic_hook",
@@ -805,6 +805,7 @@ dependencies = [
  "sys-locale",
  "tiny-skia",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
  "web-time",
  "winit",
@@ -812,25 +813,26 @@ dependencies = [
 
 [[package]]
 name = "fuera-cli"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "fuera-core",
+ "fuera-learn",
 ]
 
 [[package]]
 name = "fuera-core"
-version = "1.0.0"
+version = "1.0.1"
 
 [[package]]
 name = "fuera-learn"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "fuera-core",
 ]
 
 [[package]]
 name = "fuera-ui"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "fontdue",
  "fuera-core",
@@ -2892,7 +2894,7 @@ checksum = "b9cc00251562a284751c9973bace760d86c0276c471b4be569fe6b068ee97a56"
 
 [[package]]
 name = "xtask"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "fuera-ui",
  "zip",
