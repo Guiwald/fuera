@@ -405,6 +405,9 @@ impl App {
         use super::PointerEvent as P;
         let mut mv = None;
         let mut tap = None;
+        // Tapping a tile reads it aloud without its answer, unless the player chose to hear the answer (counted as
+        // a hint for that tile, like the light bulb).
+        let say_answer = self.save.get_bool("say_answer", false);
         {
             let Screen::LearnPlay(p) = &mut self.screen else { return false };
             if p.won.is_some() {
@@ -439,7 +442,13 @@ impl App {
                     if let Some(d) = p.drag.take() {
                         p.view.select(None);
                         if !d.done && ev == P::Up {
-                            tap = p.round.tiles.get(d.block).and_then(|t| t.say.clone());
+                            if let Some(t) = p.round.tiles.get(d.block) {
+                                let answered = p.answered.get(d.block).copied().unwrap_or(true);
+                                if say_answer && !answered && t.say.is_some() && t.say != t.ask {
+                                    p.hinted[d.block] = true;
+                                }
+                                tap = if say_answer || answered { t.say.clone() } else { t.ask.clone() };
+                            }
                         }
                     }
                 }

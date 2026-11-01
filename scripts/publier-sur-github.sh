@@ -6,6 +6,7 @@
 # Usage, depuis le dossier qui contient fuera.bundle :   bash publier-sur-github.sh
 # La connexion à GitHub se fait dans le navigateur, avec ton compte (aucun jeton à copier).
 set -euo pipefail
+trap 'echo "Arrêt : la commande de la ligne $LINENO a échoué. Relance le script après correction (il reprend où il en est)." >&2' ERR
 ICI="$(cd "$(dirname "$0")" && pwd)"
 cd "$ICI"
 DEPOT="fuera"
@@ -39,7 +40,7 @@ if [ -d fuera/.git ]; then
 else
   git clone -q -b main "$ICI/fuera.bundle" fuera
 fi
-git -C fuera fetch -q "$ICI/fuera.bundle" 'refs/tags/*:refs/tags/*' || true
+git -C fuera fetch -q -f "$ICI/fuera.bundle" '+refs/tags/*:refs/tags/*' || true
 VERSION="$(sed -n '/\[workspace.package\]/,/^\[/s/^version = "\(.*\)"/\1/p' fuera/Cargo.toml)"
 TAG="v$VERSION"
 echo "¡Fuera! $VERSION"
@@ -55,10 +56,17 @@ echo "== 5/6 Secrets (clé Android, OVH)"
 SIG="$ICI/signature-android"
 if [ ! -f "$SIG/fuera.p12" ]; then
   mkdir -p "$SIG"
-  MDP="$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32)"
-  keytool -genkeypair -keystore "$SIG/fuera.p12" -storetype PKCS12 -storepass "$MDP" -keypass "$MDP" \
-    -alias fuera -keyalg RSA -keysize 4096 -validity 36500 -dname "CN=Guiwald, O=fuera" >/dev/null
+  # openssl est livré avec macOS (pas besoin de Java) ; pas de tube ici : avec « pipefail », un tube coupé
+  # arrêtait le script sans un mot.
+  MDP="$(openssl rand -hex 16)"
+  TMP="$(mktemp -d)"
+  openssl req -x509 -newkey rsa:4096 -nodes -days 36500 -subj "/CN=Guiwald/O=fuera" \
+    -keyout "$TMP/cle.pem" -out "$TMP/cert.pem" 2>/dev/null
+  openssl pkcs12 -export -name fuera -inkey "$TMP/cle.pem" -in "$TMP/cert.pem" \
+    -out "$SIG/fuera.p12" -passout "pass:$MDP"
+  rm -rf "$TMP"
   printf %s "$MDP" > "$SIG/mot-de-passe.txt"
+  unset MDP
   chmod 600 "$SIG"/*
   echo "Clé de signature Android créée dans $SIG (garde une copie de ce dossier : sans elle, une mise à jour"
   echo "de l'appli impose de la désinstaller)."

@@ -65,8 +65,11 @@ pub struct Tile {
     pub key: u16,
     /// Item graded by this tile (None: a distractor tile).
     pub item: Option<String>,
-    /// Spanish text to speak (on exit, on tap, in feedback).
+    /// Spanish text to speak once answered (on exit, in feedback): may contain the answer.
     pub say: Option<String>,
+    /// Spanish text to speak when the tile is tapped before it is answered: never gives the answer away (the word
+    /// without its article, the form without its person, the sentence with a pause for the gap).
+    pub ask: Option<String>,
     /// Audio only: the text is hidden (listening).
     pub hidden: bool,
     /// Shown when the tile goes through a wrong door.
@@ -75,6 +78,24 @@ pub struct Tile {
     pub width: u8,
     /// Placement rounds: the band of a real word, `None` for an invented one.
     pub band: Option<Band>,
+}
+
+/// A gap sentence read aloud without its answer: the blank becomes a short pause.
+pub fn spoken_gap(prompt: &str) -> String {
+    let mut out = String::new();
+    let mut in_gap = false;
+    for ch in prompt.chars() {
+        if ch == '_' {
+            if !in_gap {
+                out.push('…');
+                in_gap = true;
+            }
+        } else {
+            in_gap = false;
+            out.push(ch);
+        }
+    }
+    out
 }
 
 /// A door of the round.
@@ -318,10 +339,10 @@ impl<'a> Planner<'a> {
                 intro.push(Intro { es: es.clone(), meaning: meaning.clone(), pic: w.pic.clone(), note: w.note.clone() });
             }
             if production {
-                tiles.push(Tile { text: meaning.clone(), key, item: Some(w.id()), say: Some(w.es.clone()), hidden: false, explain, width: width_for(&meaning), band: None });
+                tiles.push(Tile { text: meaning.clone(), key, item: Some(w.id()), say: Some(w.es.clone()), ask: None, hidden: false, explain, width: width_for(&meaning), band: None });
                 gates.push(Gate { text: es.clone(), key, pic: None, item: None, long: es.chars().count() > 12 });
             } else {
-                tiles.push(Tile { text: es.clone(), key, item: Some(w.id()), say: Some(w.es.clone()), hidden: listening, explain, width: if listening { 2 } else { width_for(&es) }, band: None });
+                tiles.push(Tile { text: es.clone(), key, item: Some(w.id()), say: Some(w.es.clone()), ask: Some(w.es.clone()), hidden: listening, explain, width: if listening { 2 } else { width_for(&es) }, band: None });
                 gates.push(Gate { text: meaning.clone(), key, pic: w.pic.clone(), item: None, long: meaning.chars().count() > 12 });
             }
         }
@@ -372,7 +393,7 @@ impl<'a> Planner<'a> {
                 if !w.note.is_empty() {
                     explain.push_str(&format!(" · {}", w.note));
                 }
-                Tile { text: w.es.clone(), key, item: Some(format!("g:{}", w.es)), say: Some(format!("{art} {}", w.es)), hidden: false, explain, width: width_for(&w.es), band: None }
+                Tile { text: w.es.clone(), key, item: Some(format!("g:{}", w.es)), say: Some(format!("{art} {}", w.es)), ask: Some(w.es.clone()), hidden: false, explain, width: width_for(&w.es), band: None }
             })
             .collect();
         let gates = vec![
@@ -423,6 +444,7 @@ impl<'a> Planner<'a> {
                 key: g as u16,
                 item: Some(item.clone()),
                 say: Some(format!("{} {form}", pron[0])),
+                ask: Some(form.clone()),
                 hidden: false,
                 explain: format!("{} → {form} ({}, {})", pron.join(" / "), verb.es, tense.name_es()),
                 width: width_for(form),
@@ -464,6 +486,7 @@ impl<'a> Planner<'a> {
                     key,
                     item: Some(hash_id(prefix, &c.prompt)),
                     say: Some(c.filled()),
+                    ask: Some(spoken_gap(&c.prompt)),
                     hidden: false,
                     explain: format!("{} — {} ({})", c.filled(), c.translation(base), c.why),
                     width: 3,
@@ -498,10 +521,10 @@ impl<'a> Planner<'a> {
             let inf = c.infinitive().map(|i| format!(" ({i})")).unwrap_or_default();
             gates.push(Gate { text: format!("{}{inf}", c.sentence()), key: k as u16, pic: None, item: Some(id.clone()), long: true });
             if seen_forms.insert(c.answer.clone()) {
-                tiles.push(Tile { text: c.answer.clone(), key: k as u16, item: Some(id.clone()), say: Some(c.filled()), hidden: false, explain: explain.clone(), width: width_for(&c.answer), band: None });
+                tiles.push(Tile { text: c.answer.clone(), key: k as u16, item: Some(id.clone()), say: Some(c.filled()), ask: Some(c.answer.clone()), hidden: false, explain: explain.clone(), width: width_for(&c.answer), band: None });
             }
             if !c.other.is_empty() && seen_forms.insert(c.other.clone()) {
-                tiles.push(Tile { text: c.other.clone(), key: 99, item: None, say: None, hidden: false, explain, width: width_for(&c.other), band: None });
+                tiles.push(Tile { text: c.other.clone(), key: 99, item: None, say: None, ask: Some(c.other.clone()), hidden: false, explain, width: width_for(&c.other), band: None });
             }
         }
         if tiles.iter().all(|t| t.key != 99) {
@@ -523,7 +546,7 @@ impl<'a> Planner<'a> {
         for (k, (f, _)) in picked.iter().enumerate() {
             let key = k as u16;
             let explain = format!("{} = {} (≠ {}){}", f.es, f.truth(base), f.trap(base), if f.note.is_empty() { String::new() } else { format!(" · {}", f.note) });
-            tiles.push(Tile { text: f.es.clone(), key, item: Some(format!("ff:{}", f.es)), say: Some(f.es.clone()), hidden: false, explain, width: width_for(&f.es), band: None });
+            tiles.push(Tile { text: f.es.clone(), key, item: Some(format!("ff:{}", f.es)), say: Some(f.es.clone()), ask: Some(f.es.clone()), hidden: false, explain, width: width_for(&f.es), band: None });
             gates.push(Gate { text: f.truth(base).to_string(), key, pic: None, item: None, long: f.truth(base).chars().count() > 12 });
             gates.push(Gate { text: f.trap(base).to_string(), key: 100 + key, pic: None, item: None, long: f.trap(base).chars().count() > 12 });
         }
@@ -542,7 +565,7 @@ impl<'a> Planner<'a> {
             let start = ws.len() / 5;
             ws.drain(..start.min(ws.len().saturating_sub(1)));
             let w = ws[self.rnd(ws.len())];
-            tiles.push(Tile { text: w.es.clone(), key: 0, item: None, say: None, hidden: false, explain: format!("{} = {}", w.with_article(), w.meaning(self.base)), width: width_for(&w.es), band: Some(band) });
+            tiles.push(Tile { text: w.es.clone(), key: 0, item: None, say: None, ask: None, hidden: false, explain: format!("{} = {}", w.with_article(), w.meaning(self.base)), width: width_for(&w.es), band: Some(band) });
         }
         // Two invented words per round (6 tiles: boards stay small enough to be solved quickly).
         let mut added = 0;
@@ -551,7 +574,7 @@ impl<'a> Planner<'a> {
             if tiles.iter().any(|t: &Tile| t.text == p) {
                 continue;
             }
-            tiles.push(Tile { text: p.clone(), key: 1, item: None, say: None, hidden: false, explain: format!("« {p} » no existe"), width: width_for(&p), band: None });
+            tiles.push(Tile { text: p.clone(), key: 1, item: None, say: None, ask: None, hidden: false, explain: format!("« {p} » no existe"), width: width_for(&p), band: None });
             added += 1;
         }
         self.shuffle(&mut tiles);
@@ -606,6 +629,34 @@ mod tests {
                     // Every tile has a door that accepts it.
                     for t in &r.tiles {
                         assert!(r.gates.iter().any(|g| g.key == t.key), "{m:?}: tile {} has no door", t.text);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn tapping_a_tile_never_says_the_answer() {
+        let content = Content::load();
+        let mem = Memory::default();
+        let mut p = Planner::new(&content, &mem, Base::Fr, Band::B2, 20_000.0, 3);
+        for _ in 0..30 {
+            for m in Mode::MENU {
+                let Some(r) = p.plan(m) else { continue };
+                for t in &r.tiles {
+                    let Some(ask) = &t.ask else { continue };
+                    assert!(!ask.contains('_'), "{m:?}: {ask}");
+                    match m {
+                        // Not the article, not the person, not the filled-in sentence.
+                        Mode::Gender => assert!(!ask.starts_with("el ") && !ask.starts_with("la "), "{ask}"),
+                        Mode::Verbs => assert_eq!(ask, &t.text),
+                        Mode::SerEstar | Mode::PorPara => assert_ne!(Some(ask), t.say.as_ref()),
+                        Mode::Past | Mode::Subjunctive => assert_eq!(ask, &t.text),
+                        _ => {}
+                    }
+                    // A tile showing a meaning must not say the Spanish word it is looking for.
+                    if !t.hidden && r.gates.iter().any(|g| Some(&g.text) == t.say.as_ref()) {
+                        panic!("{m:?}: tap would read the door {ask}");
                     }
                 }
             }

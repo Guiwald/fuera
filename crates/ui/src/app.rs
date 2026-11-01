@@ -87,6 +87,7 @@ enum Action {
     LearnNext,
     Notebook,
     ToggleBase,
+    ToggleSayAnswer,
     Placement,
     SayIntro(usize),
     SayMiss(usize),
@@ -477,6 +478,7 @@ impl App {
             "go" => Action::LearnGo,
             "next" => Action::LearnNext,
             "home" => Action::LearnHome,
+            "settings" => Action::Settings,
             _ => {
                 if let Some(n) = what.strip_prefix("mode:").and_then(|n| n.parse::<usize>().ok()) {
                     Action::LearnMode(Mode::MENU[n % Mode::MENU.len()])
@@ -749,6 +751,11 @@ impl App {
             Action::ToggleSound => {
                 let v = !self.sound_on();
                 self.save.set("sound", v as u8);
+                self.persist();
+            }
+            Action::ToggleSayAnswer => {
+                let v = !self.save.get_bool("say_answer", false);
+                self.save.set("say_answer", v as u8);
                 self.persist();
             }
             Action::ToggleVib => {
@@ -1101,6 +1108,9 @@ impl App {
         y += bh + 16.0 * u;
         let vib = format!("{} : {}", self.t(T::Vibration), on(self.save.get_bool("vib", true), self));
         self.button(pm, Action::ToggleVib, x, y, bw, bh, &vib, None, Style::Secondary);
+        y += bh + 16.0 * u;
+        let say = format!("{} : {}", self.t(T::SayAnswer), on(self.save.get_bool("say_answer", false), self));
+        self.button(pm, Action::ToggleSayAnswer, x, y, bw, bh, &say, Some(Icon::Speaker), Style::Secondary);
         y += bh + 16.0 * u;
         let cr = self.t(T::Credits);
         self.button(pm, Action::Credits, x, y, bw, bh, cr, Some(Icon::Book), Style::Ghost);

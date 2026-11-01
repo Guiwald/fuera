@@ -17,5 +17,8 @@ Première version.
   (« por » en haut, « para » en bas…) ; trois ou quatre portes dans les coins avec une colonne de parking ; pour
   chaque disposition utilisée, toutes les positions possibles ont été vérifiées gagnables (`fuera-cli prove`, voir
   `docs/adr/0006-modele-mathematique.md`). Le casse-tête reste simple au début et se corse avec les manches jouées.
+- Toucher une tuile la lit à voix haute **sans donner la réponse** (le mot sans son article, la forme sans sa
+  personne, la phrase avec un blanc). Réglage « Toucher lit la réponse » pour l'entendre en entier : la tuile compte
+  alors comme aidée, comme avec l'ampoule.
 - Mode classique : le jeu signale une impasse (« plus de solution d'ici ») dès qu'il peut la prouver.
 - Mac, Windows, Linux, Android (Pixel 8), navigateur. Interface en français, anglais et espagnol.

@@ -79,6 +79,7 @@ msgs! {
     Language => ["Langue", "Language", "Idioma"],
     Sound => ["Sons", "Sounds", "Sonidos"],
     Vibration => ["Vibrations", "Vibration", "Vibración"],
+    SayAnswer => ["Toucher lit la réponse", "Tap reads the answer", "Tocar lee la respuesta"],
     On => ["oui", "on", "sí"],
     Off => ["non", "off", "no"],
     Credits => ["Crédits et licences", "Credits & licences", "Créditos y licencias"],

@@ -46,6 +46,8 @@ fn main() {
         app.open("go");
         shot(&mut app, &mut pm, dir, &format!("l5-mode{k}"));
     }
+    app.open("settings");
+    shot(&mut app, &mut pm, dir, "l8-settings");
     app.open("placement");
     shot(&mut app, &mut pm, dir, "l6-placement");
     for _ in 0..12 {
